@@ -1,4 +1,5 @@
 #!/bin/zsh
+bstrlib=frumul/bstrlib
 compile () {
 	if [[ $1 == 'clang' ]]; then
 		compiler=$1
@@ -9,9 +10,11 @@ compile () {
 	$compiler -Wextra -Wall\
 		inttest.cpp\
 		frumul/position.cpp\
-		frumul/bstrlib/bstrlib.c\
-		frumul/bstrlib/bstrwrap.cpp\
-		-o inttest
+		-o inttest\
+		$bstrlib/bstrlib.o\
+		$bstrlib/bstrwrap.o\
+		$bstrlib/buniutil.o\
+		$bstrlib/utf8util.o\
 }
 
 
