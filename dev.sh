@@ -7,9 +7,10 @@ compile () {
 	else
 		compiler='g++'
 	fi
-	$compiler -Wextra -Wall\
+	$compiler -Wextra -Wall -pedantic\
 		inttest.cpp\
 		frumul/position.cpp\
+		frumul/token.cpp\
 		-o inttest\
 		$bstrlib/bstrlib.o\
 		$bstrlib/bstrwrap.o\
