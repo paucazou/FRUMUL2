@@ -29,7 +29,7 @@ namespace frumul {
 				GREATER,	// >
 				LESS,		// <
 				NUMBER,		// 1,2,3...
-				ANTISLASH,	// \ 
+				ANTISLASH,	/* \  */
 				PARENT,		// §
 				PLUS,		// +
 				MINUS,		// -
@@ -51,20 +51,26 @@ namespace frumul {
 			};
 			//constructors
 			Token (Type ntype, const bst::str& nvalue, const Position& pos);
-			Token (Type ntype, const bst::str& nvalue, int column, int line, const bst::str& filepath, const bst::str& filecontent);
+			Token (Type ntype, const bst::str& nvalue,
+					int c1, int l1, int c2, int l2,
+				       	const bst::str& filepath, const bst::str& filecontent);
+			Token (Type ntype, const bst::str& nvalue,
+					const Point& start, const Point& end,
+				       	const bst::str& filepath, const bst::str& filecontent);
 			//getters
 			const Position& getPosition() const;
-			const Type getType() const;
+			Type getType() const;
 			const bst::str& getValue() const;
 			//overload
 			friend std::ostream& operator << (std::ostream& out, const Token& tok);
 			//other functions
 			bst::str toString() const;
+			static bst::str typeToString (Type t);
 
 		private:
-			const Position position;
 			const Type type;
 			const bst::str value;
+			const Position position;
 
 	};
 }// namespace
