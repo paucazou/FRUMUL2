@@ -1,0 +1,42 @@
+document ::= header | text
+
+header ::= '___header___' statement_list
+statement_list ::= declaration*
+declaration ::= (basic_definition | file_definition | namespace_definition | alias_definition)
+basic_definition ::= left_name declare_op options basic_value
+file_definition ::= left_name declare_op options 'file' path_value
+namespace_definition ::= left_name declare_op options namespace_value
+
+path_value ::= '«' path '»'
+path ::= relative_path | absolute_path
+absolute_path ::= '/' relative_path file_name
+relative_path ::= ('*'+ '/')+ file_name
+file_name ::= stdlib | custom_header
+stdlib ::= '*'+
+custom_header ::= '*'+ '.h'?
+
+namespace_value ::= "«" ((short_name | '(' long_name ')' | linked_names) whitespace*)* "»"
+linked_names ::= short_name whitespace* '(' long_name ')'
+
+left_name ::= whitespace name whitespace
+name ::= short_name | long_name
+short_name ::= '*'
+long_name ::= '*'*
+
+options ::= (mark_option | lang_option | param_options)*
+mark_option ::= whitespace 'mark' whitespace '«' [0-9]+ '»'
+lang_option ::= whitespace 'lang' whitespace '«' '*'+ ('|' '*'+)+ '»'
+param_options ::= whitespace 'arg' whitespace '«' param_value '»'
+param_value ::= ('{' variable_name ',' variable_type ',' arg_number (',' variable_value)? (',' choices) '}')+
+arg_number ::= compar_sign [0-9]+ (compar_sign [0-9])?
+compar_sign ::= '=' | '<' | '>' | '<=' | '>='
+choices ::= '[' variable_value '|' variable_value ('|' variable_value)* ']'
+
+variable_name ::= [a-zA-Z_]+
+variable_type ::= 'text' | 'int' | 'bool' | 'symbol'
+
+text ::= '___text___'
+
+whitespace ::= ( ' ' | '\n' | '\t')+
+comment ::= '//*' ( '*' - ('//*'|'*//') )* '*//'
+declare_op ::= ':'
