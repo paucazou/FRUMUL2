@@ -6,6 +6,21 @@ declaration ::= (basic_definition | file_definition | namespace_definition | ali
 basic_definition ::= left_name declare_op options basic_value
 file_definition ::= left_name declare_op options 'file' path_value
 namespace_definition ::= left_name declare_op options namespace_value
+alias_definition ::= left_name declare_op lang_option? alias_value
+
+basic_value ::= ( simple_text_value* | '{' programmatic_part '}' )*
+simple_text_value ::= ('*' | 'EOL' | 'TAB')* /* Strings/Characters that must be escaped with antislash \ : « » { //* \ EOL TAB */
+programmatic_part ::= variable_declaration | variable_assignment | expr | loop | condition
+
+variable_declaration ::= variable_name '=' expr ',' variable_type
+variable_assignment ::= reference '=' expr
+expr ::= term (('+' | '-' | '|') term)*
+term ::= factor (('*' | '/' | '%' | '&') factor)*
+factor ::= '-' factor | '+' factor | '!' factor | variable_value | symbol_call | reference | '(' expr ')'
+reference ::= variable_name | variable_name '[' expr ']' /* for list */
+
+loop ::= 'loop' expr '}' basic_value '{pool'
+condition ::= 'if' expr '}' basic_value ( '{else}' basic_value )? '{fi'
 
 path_value ::= '«' path '»'
 path ::= relative_path | absolute_path
@@ -18,6 +33,9 @@ custom_header ::= '*'+ '.h'?
 namespace_value ::= "«" ((short_name | '(' long_name ')' | linked_names) whitespace*)* "»"
 linked_names ::= short_name whitespace* '(' long_name ')'
 
+alias_value ::= parent TTT
+parent ::= '§'
+
 left_name ::= whitespace name whitespace
 name ::= short_name | long_name
 short_name ::= '*'
@@ -27,15 +45,26 @@ options ::= (mark_option | lang_option | param_options)*
 mark_option ::= whitespace 'mark' whitespace '«' [0-9]+ '»'
 lang_option ::= whitespace 'lang' whitespace '«' '*'+ ('|' '*'+)+ '»'
 param_options ::= whitespace 'arg' whitespace '«' param_value '»'
-param_value ::= ('{' variable_name ',' variable_type ',' arg_number (',' variable_value)? (',' choices) '}')+
+param_value ::= ('{' variable_name ',' variable_type ',' arg_number (',' variable_value)? (',' list) '}')+
 arg_number ::= compar_sign [0-9]+ (compar_sign [0-9])?
 compar_sign ::= '=' | '<' | '>' | '<=' | '>='
-choices ::= '[' variable_value '|' variable_value ('|' variable_value)* ']'
 
 variable_name ::= [a-zA-Z_]+
 variable_type ::= 'text' | 'int' | 'bool' | 'symbol'
+variable_value ::= int_value | text_value | bool_value | alias_value
+list ::= '[' variable_value '|' variable_value ('|' variable_value)* ']'
 
-text ::= '___text___'
+int_value ::= [0-9]+ 
+text_value ::= '«' simple_text_value* '»'
+bool_value ::=  ('true' | 'false' | '0' | '1')
+
+
+text ::= '___text___' (simple_text | symbol_call)*
+symbol_call ::= opening_tag TTT? (simple_text | symbol_call)*
+simple_text ::= ('*'-opening_tag)*
+opening_tag ::= name
+TTT ::= variable_name | ('.'? name)* privileged_arg? /* Tag Trailing Tail */
+privileged_arg ::= ('*'-whitespace)+
 
 whitespace ::= ( ' ' | '\n' | '\t')+
 comment ::= '//*' ( '*' - ('//*'|'*//') )* '*//'
