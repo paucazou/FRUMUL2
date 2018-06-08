@@ -2,11 +2,12 @@ document ::= header | text
 
 header ::= '___header___' statement_list
 statement_list ::= declaration*
-declaration ::= (basic_definition | file_definition | namespace_definition | alias_definition)
-basic_definition ::= left_name declare_op options basic_value
-file_definition ::= left_name declare_op options 'file' path_value
-namespace_definition ::= left_name declare_op options namespace_value
-alias_definition ::= left_name declare_op lang_option? alias_value
+declaration ::= left_name declare_op definition
+definition ::= basic_definition | file_definition | namespace_definition | alias_definition
+basic_definition ::= options basic_value
+file_definition ::= lang_option? 'file' path_value
+namespace_definition ::= options namespace_value '(' statement_list ')'
+alias_definition ::= lang_option? alias_value
 
 basic_value ::= ( simple_text_value* | '{' programmatic_part '}' )*
 simple_text_value ::= ('*' | 'EOL' | 'TAB')* /* Strings/Characters that must be escaped with antislash \ : « » { //* \ EOL TAB */
@@ -16,8 +17,8 @@ variable_declaration ::= variable_name '=' expr ',' variable_type
 variable_assignment ::= reference '=' expr
 expr ::= term (('+' | '-' | '|') term)*
 term ::= factor (('*' | '/' | '%' | '&') factor)*
-factor ::= '-' factor | '+' factor | '!' factor | variable_value | symbol_call | reference | '(' expr ')'
-reference ::= variable_name | variable_name '[' expr ']' /* for list */
+factor ::= '-' factor | '+' factor | '!' factor | variable_value | list | symbol_call | reference | '(' expr ')'
+reference ::= variable_name ('[' expr ']')? /* for list */
 
 loop ::= 'loop' expr '}' basic_value '{pool'
 condition ::= 'if' expr '}' basic_value ( '{else}' basic_value )? '{fi'
@@ -29,6 +30,7 @@ relative_path ::= ('*'+ '/')+ file_name
 file_name ::= stdlib | custom_header
 stdlib ::= '*'+
 custom_header ::= '*'+ '.h'?
+file_content ::= basic_definition | file_definition | namespace_definition /* This is what we should find inside a file */
 
 namespace_value ::= "«" ((short_name | '(' long_name ')' | linked_names) whitespace*)* "»"
 linked_names ::= short_name whitespace* '(' long_name ')'
