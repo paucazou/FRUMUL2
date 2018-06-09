@@ -14,14 +14,17 @@ namespace frumul {
 				 */
 				// inside header
 				HEADER,		// ___header___
-				LPAREN,		// (
+				LPAREN,		// ( 
 				RPAREN, 	// )
+				LAQUOTE,	// «
+				RAQUOTE,	// »
+				ID,		// everything else, enclosed by whitespaces
+				MAX_TYPES_HEADER,
+				// inside values
 				LBRACE,		// {
 				RBRACE,		// }
 				LBRACKET,	// [
 				RBRACKET,	// ]
-				LAQUOTE,	// «
-				RAQUOTE,	// »
 				COLON,		// :
 				COMMA,		// ,
 				VBAR,		// ¦
@@ -39,15 +42,15 @@ namespace frumul {
 				AND,		// &
 				OR,		// |
 				NOT,		// !
-				EOL,		// EOL, inside values
-				TAB,		// TAB, inside values
-				ID,		// everything else, enclosed by whitespaces
+				EOL,		// EOL
+				TAB,		// TAB
+				MAX_TYPES_VALUES,
 				// inside text
-				TEXT,		// ___text___
+				TEXT, 		// ___text___
 				TAG,		// opening or closing tag
 				TAIL,		// opening tag tail
 				SIMPLE_TEXT,	// everything else
-				MAX_TYPES,
+				MAX_TYPES_TEXT,
 			};
 			//constructors
 			Token (Type ntype, const bst::str& nvalue, const Position& pos);

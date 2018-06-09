@@ -10,6 +10,7 @@ compile () {
 	$compiler -Wextra -Wall -pedantic\
 		inttest.cpp\
 		frumul/position.cpp\
+		frumul/exception.cpp\
 		frumul/token.cpp\
 		-o inttest\
 		$bstrlib/bstrlib.o\

@@ -5,7 +5,7 @@
  * They are destined
  * to the end user of the program.
  */
-#include <position>
+#include "position.h"
 #include <iostream>
 
 namespace frumul {
@@ -22,7 +22,7 @@ namespace frumul {
 				MAX_TYPES,
 			};
 
-			BaseException (const bst::str& ninfo,const Position& npos);
+			BaseException (Type ntype,const bst::str& ninfo,const Position& npos);
 			virtual const bst::str what () const noexcept; // return a custom message
 		protected:
 			const Type type;
