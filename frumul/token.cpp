@@ -1,5 +1,10 @@
 #include "token.h"
 namespace frumul {
+#ifdef DEBUG
+	Token::Token () :
+		type{MAX_TYPES_TEXT}, value{"No value"}, position{1,1,1,1,"Nofile","Nocontent"}
+	{}
+#endif
 	Token::Token (Type ntype, const bst::str& nvalue, const Position& pos) :
 		type{ntype}, value{nvalue}, position{pos}
 	{}

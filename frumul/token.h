@@ -53,6 +53,9 @@ namespace frumul {
 				MAX_TYPES_TEXT,
 			};
 			//constructors
+#ifdef DEBUG
+			Token ();
+#endif
 			Token (Type ntype, const bst::str& nvalue, const Position& pos);
 			Token (Type ntype, const bst::str& nvalue,
 					int c1, int l1, int c2, int l2,

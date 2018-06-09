@@ -8,10 +8,12 @@ compile () {
 		compiler='g++'
 	fi
 	$compiler -Wextra -Wall -pedantic\
+		-D DEBUG\
 		inttest.cpp\
 		frumul/position.cpp\
 		frumul/exception.cpp\
 		frumul/token.cpp\
+		frumul/lexer.cpp\
 		-o inttest\
 		$bstrlib/bstrlib.o\
 		$bstrlib/bstrwrap.o\
