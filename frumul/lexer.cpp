@@ -1,18 +1,28 @@
 #include "lexer.h"
+#include "exception.h"
 #include <iostream>
 #include <locale>
 
 
 namespace frumul {
 #ifdef DEBUG
+#define printline std::cout << __LINE__ << std::endl
 	void Lexer::test () {
-	bst::str s{"#ifNdef"};
+	bst::str s{"___header___"};
 		std::cout << "Recognized: " << (recognizeCaselessID(s)? "Yes":"No") << "\n";
 		Token tok{getID()};
+		advanceBy();
 		std::cout << tok.getValue() << "\n";
 		std::cout << tok;
+		bst::str chars[] {"«","»","{","}","n","t","/","\\"};
+		for (int i{0}; i < 8; ++i)
+			std::cout << chars[i]  << ": " << chars[i].uRawAt(0)<< std::endl;
+		skipComment();
 		std::cout << pos << "\n";
-		std::cout << current_char << '-' << raw_current_char;
+		std::cout << current_char << " - " << raw_current_char;
+		std::cout << line << " c " << column << std::endl;
+		std::cout<<escape()<< "\n";
+
 
 
 	}
@@ -54,10 +64,10 @@ namespace frumul {
 			// columns and lines
 			bst::str range {source.uRange(pos,npos)};
 			int lnumber = range.lineNumber();
-			if (lnumber > 1) { // TODO à vérifier
-				for (int i{npos}; range.uAt(i) != "\n"; --i)
-
-				column = 1 + npos - i; 
+			if (lnumber > 1) { 
+				column = 0; 
+				for (int i{range.uLength() -1}; range.uAt(i) != "\n"; --i)
+					++column;
 				line += lnumber-1;
 			}
 			else
@@ -70,6 +80,74 @@ namespace frumul {
 			column = source.getLine(line).uLength();
 		}
 		pos = npos;
+		tempos = pos;
+	}
+
+	bool Lexer::skipComment () {
+		/* Tests if it is a comment
+		 * and skip it.
+		 * Must be called each time a '/' is found
+		 * Return true if is a comment.
+		 */
+		// Test
+		if (pos+2 >= source.uLength() || (source.uAt(pos+1) != "/" && source.uAt(pos+2) != "*"))
+			return false;
+
+		try {
+			while (!(source.uAt(tempos) == "*" && source.uAt(tempos+1) == "/" && source.uAt(tempos+2) == "/"))
+				++tempos;
+		} catch (bst::CBStringException) {
+			Point start{column,line};
+			advanceTo(tempos);
+			Point end{column,line};
+			throw BaseException(BaseException::SyntaxError,"Unfinished comment.",
+					Position{start,end, filepath, source});
+		}
+		advanceTo (tempos +3);
+		return true;
+	}
+
+	void Lexer::skipWhiteSpace () {
+		/* Skip whitespaces
+		 * including unbreakable spaces
+		 */
+		while (std::iswspace(raw_current_char) || current_char == unbreakable_space )
+			advanceBy();
+	}
+
+	bst::str Lexer::escape () {
+		/* Manages all escape characters
+		 */
+		// returned unmodified
+		static const cpUcs4 lquote {171}; // «
+		static const cpUcs4 rquote {187}; // »
+		static const cpUcs4 lbrace {123}; // {
+		static const cpUcs4 rbrace {125}; // }
+		static const cpUcs4 slash {47}; // /
+		static const cpUcs4 antislash {92}; // \ /
+		// returned modified
+		static const cpUcs4 newline {110}; // \n
+		static const cpUcs4 tab {116}; // \t
+		advanceBy();
+		switch (raw_current_char) {
+			case lquote:
+			case rquote:
+			case lbrace:
+			case rbrace:
+			case slash:
+			case antislash:
+				return current_char;
+			case newline:
+				return "\n";
+			case tab:
+				return "\t";
+			default:
+				Position errorpos {pos-1,pos,filepath,source};
+				throw BaseException(BaseException::SyntaxError,
+						bst::str{"Unrecognized espaced sequence: \\"} + current_char,
+						errorpos);
+
+		}
 	}
 
 	bool Lexer::recognizeCaselessID (const bst::str& candidate) {
@@ -77,7 +155,6 @@ namespace frumul {
 		 * at pos position.
 		 * candidate must be an ASCII string.
 		 */
-		tempos = pos;
 		bst::str c, d;
 		for (int cpos{0};
 				cpos < candidate.uLength() && 
@@ -99,7 +176,6 @@ namespace frumul {
 		 * An ID starts and ends with whitespace.
 		 */
 		//std::setlocale(LC_ALL,std::locale("").name().data()); WARNING do not forget to set locale
-		static bst::str unbreakable_space{L'\u00A0'}; // unbreakable space isn't considered a space
 		bst::str value;
 		Point start{column,line};
 		while (!std::iswspace(raw_current_char) && current_char != unbreakable_space && current_char != "") {
@@ -110,4 +186,5 @@ namespace frumul {
 		return Token{Token::ID,value,start,end,filepath,source};
 
 	}
+	const bst::str Lexer::unbreakable_space{L'\u00A0'}; // unbreakable space isn't considered a space
 }// namespace

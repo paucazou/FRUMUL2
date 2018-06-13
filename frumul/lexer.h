@@ -24,10 +24,15 @@ namespace frumul {
 
 			bst::str current_char; 
 			cpUcs4 raw_current_char;
+			// static attributes
+			static const bst::str unbreakable_space;
 			//functions
 			Token _getNextToken(std::initializer_list<Token::Type> expected);
 			void advanceBy (int step=1); 
 			void advanceTo (int npos);
+			bool skipComment (); // test and skip comments
+			void skipWhiteSpace (); 
+			bst::str escape ();
 			bool recognizeCaselessID (const bst::str& candidate);
 			Token getID ();
 	};
