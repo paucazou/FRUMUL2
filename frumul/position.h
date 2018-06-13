@@ -52,6 +52,7 @@ class Position {
 		Position (const Point& p1, const Point& p2, const char *fp, const bst::str& fc):
 			start{p1}, end{p2}, filepath{fp}, filecontent{fc}
 		{}
+		Position (int nstart, int nend, const bst::str& fp, const bst::str& fc); // nstart and nend are index in fc
 		Position (const Position& pos) :
 			start{pos.start}, end{pos.end}, filepath{pos.filepath}, filecontent{pos.filecontent}
 		{}
@@ -68,6 +69,7 @@ class Position {
 		}
 		// other functions
 		bst::str toString () const;
+		static Point getLineColumn (int pos, const bst::str& string);
 		// overload
 		friend std::ostream& operator<<(std::ostream& out, const Position& pos);
 };
