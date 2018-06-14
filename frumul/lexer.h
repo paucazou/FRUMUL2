@@ -5,6 +5,7 @@
 #include "token.h"
 
 namespace frumul {
+
 	class Lexer {
 		/* Tokenize the document
 		 */
@@ -35,7 +36,9 @@ namespace frumul {
 			bst::str escape ();
 			bool recognizeCaselessID (const bst::str& candidate);
 			Token getID ();
+			Token tokenizeBasicValue();
 	};
 }//namespace
 
+#include "functions.inl"
 #endif

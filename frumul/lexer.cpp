@@ -27,6 +27,7 @@ namespace frumul {
 
 	}
 #endif
+	// class members
 
 	Lexer::Lexer (const bst::str& nsource, const bst::str& nfilepath):
 		source{nsource}, filepath{nfilepath}, current_char{nsource.uAt(0)}, raw_current_char{nsource.uRawAt(0)}
@@ -186,5 +187,27 @@ namespace frumul {
 		return Token{Token::ID,value,start,end,filepath,source};
 
 	}
+	Token Lexer::tokenizeBasicValue () { // maybe it should take some parameters, some Token::Type expected
+		bst::str val;
+		int start = pos;
+		// basic case : regular string
+		while (current_char != "»") {
+			if (current_char == "\\")
+				val += escape();
+			else if (current_char == "{")
+				break; // in this case, the lexer must break because a programmatic part is discovered
+			else if (current_char == "\n" || current_char == "\t")
+				continue;
+			else if (current_char == "") {
+				throw BaseException(BaseException::SyntaxError,"Unfinished value.",
+						Position(start, pos-1,filepath,source));
+			} else
+				val += current_char;
+			advanceBy();
+		}
+		return Token {Token::VAL_TEXT,val,Position(start,pos-1,filepath,source)};
+
+	}
+
 	const bst::str Lexer::unbreakable_space{L'\u00A0'}; // unbreakable space isn't considered a space
 }// namespace

@@ -18,7 +18,8 @@ namespace frumul {
 				RPAREN, 	// )
 				LAQUOTE,	// «
 				RAQUOTE,	// »
-				ID,		// everything else, enclosed by whitespaces
+				KEYWORD,	// file, namespace, alias, arg, lang, mark
+				ID,		// everything else, followed by whitespace(s)
 				MAX_TYPES_HEADER,
 				// inside values
 				LBRACE,		// {
@@ -42,8 +43,7 @@ namespace frumul {
 				AND,		// &
 				OR,		// |
 				NOT,		// !
-				EOL,		// EOL
-				TAB,		// TAB
+				VAL_TEXT,	// everything else
 				MAX_TYPES_VALUES,
 				// inside text
 				TEXT, 		// ___text___
