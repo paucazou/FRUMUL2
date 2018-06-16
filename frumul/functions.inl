@@ -15,4 +15,15 @@ namespace frumul {
 					return true;
 		return false;
 	}
+
+	template <typename ELT, typename ITERABLE>
+	bool in (const ELT& elt, const ITERABLE& iterable) {
+		/* Checks wether the elt 
+		 * is in iterable
+		 */
+		for (const auto& item : iterable)
+			if (elt == item)
+				return true;
+		return false;
+	}
 }//namespace

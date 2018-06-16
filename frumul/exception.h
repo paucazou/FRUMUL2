@@ -19,6 +19,7 @@ namespace frumul {
 		public:
 			enum Type { // exception type
 				SyntaxError,
+				UnexpectedToken,
 				MAX_TYPES,
 			};
 

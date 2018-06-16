@@ -33,7 +33,7 @@ namespace frumul {
 		returned += pos.toString();
 		return returned;
 	}
-	const std::array<bst::str,BaseException::MAX_TYPES> BaseException::types {"SyntaxError",};
+	const std::array<bst::str,BaseException::MAX_TYPES> BaseException::types {"SyntaxError","UnexpectedToken"};
 
 
 

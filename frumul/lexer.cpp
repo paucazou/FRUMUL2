@@ -7,23 +7,12 @@
 namespace frumul {
 #ifdef DEBUG
 #define printline std::cout << __LINE__ << std::endl
+#define printl(elt) std::cout << elt << std::endl
 	void Lexer::test () {
-	bst::str s{"___header___"};
-		std::cout << "Recognized: " << (recognizeCaselessID(s)? "Yes":"No") << "\n";
-		Token tok{getID()};
-		advanceBy();
-		std::cout << tok.getValue() << "\n";
-		std::cout << tok;
-		bst::str chars[] {"«","»","{","}","n","t","/","\\"};
-		for (int i{0}; i < 8; ++i)
-			std::cout << chars[i]  << ": " << chars[i].uRawAt(0)<< std::endl;
-		skipComment();
-		std::cout << pos << "\n";
-		std::cout << current_char << " - " << raw_current_char;
-		std::cout << line << " c " << column << std::endl;
-		std::cout<<escape()<< "\n";
-
-
+		recognizeCaselessID("___header___");
+		advanceTo(tempos);
+		printl(skipNoToken());
+		printl(Position(pos,pos,filepath,source));
 
 	}
 #endif
@@ -45,6 +34,91 @@ namespace frumul {
 		 * is important: it is the order
 		 * of importance.
 		 */
+		if (intokl (Token::MAX_TYPES_HEADER, expected)) {
+			// inside header
+			skipWhiteSpace();
+			if (current_char == "/")
+				skipComment();
+
+			if (recognizeCaselessID("___header___")) {
+				const auto tok{Token(Token::HEADER,"___header___",
+					Position(pos,tempos,filepath,source))};
+				advanceTo(tempos);
+				return tok;
+
+			} else if (recognizeCaselessID("___text___")) {
+				const auto tok {Token(Token::HEADER,"___text___",
+						Position(pos,tempos,filepath,source))};
+				advanceTo(tempos);
+				return tok;
+
+			} else if (intokl(Token::ID,expected) && intokl(Token::RPAREN,expected) && current_char == ")") {
+				// special case : is ')' the end of a namespace
+				// or the start of an ID?
+				// This part only returns the RPAREN token
+				Token tok {Token::RPAREN,")",Position(pos,pos,filepath,source)}; // Token which may be returned if it is recognized
+				advanceBy();
+				bool isSkipped {skipNoToken()};
+				int oldpos {pos};
+				if (! isSkipped) {
+					advanceBy(oldpos);
+					return tok;
+				}
+				if (current_char != ":") {
+					advanceBy(oldpos);
+					return tok;
+				}
+				advanceBy();
+				if (! skipWhiteSpace()) {
+					advanceBy(oldpos);
+					return tok;
+				}
+				skipNoToken();
+				if (current_char != ":") {
+					advanceBy(oldpos);
+					return tok;
+				}
+			}
+			// no else here, because previous case may have found an ID is required
+			if (intokl(Token::ID,expected))
+				return getID();
+
+			else if (intokl(Token::KEYWORD,expected))
+				return getID();
+
+			else {
+				// values to return
+				bst::str val;
+				Token::Type t;
+				if (current_char == "(") {
+					val = ")";
+					t = Token::LPAREN;
+				} else if (current_char == ")") {
+					val = "(";
+					t = Token::RPAREN;
+				} else if (current_char == "«") {
+					val = "«";
+					t = Token::LAQUOTE;
+				} else if (current_char == "»") {
+					val = "»";
+					t = Token::RAQUOTE;
+				} else if (current_char == ":") {
+					val = ":";
+					t = Token::COLON;
+				}
+				advanceBy();
+				return Token(t,val,
+						Position(pos-1,pos-1,filepath,source));
+				
+
+			}
+			// if no token was recognized TODO create a function to create the exception instance
+			bst::str tokensexpected{"Following tokens were expected:\n"};
+			for (const auto & tok : expected)
+				tokensexpected += Token::typeToString(tok) + "\n";
+			throw BaseException(BaseException::UnexpectedToken,tokensexpected,
+					Position(pos,pos,filepath,source));
+		}
 		return Token();
 	}
 	void Lexer::advanceBy (int step) {
@@ -108,12 +182,24 @@ namespace frumul {
 		return true;
 	}
 
-	void Lexer::skipWhiteSpace () {
+	bool Lexer::skipWhiteSpace () {
 		/* Skip whitespaces
 		 * including unbreakable spaces
+		 * true if spaces have been skipped
 		 */
+		int oldpos = pos;
 		while (std::iswspace(raw_current_char) || current_char == unbreakable_space )
 			advanceBy();
+		return oldpos != pos;
+	}
+	bool Lexer::skipNoToken () {
+		/* Skip comments and whitespaces
+		 * return true if it has skipped something
+		 */
+		int oldpos = pos;
+		while (skipWhiteSpace() || (current_char == "/" && skipComment()));
+
+		return oldpos != pos;
 	}
 
 	bst::str Lexer::escape () {
@@ -157,6 +243,7 @@ namespace frumul {
 		 * candidate must be an ASCII string.
 		 */
 		bst::str c, d;
+		tempos = pos;
 		for (int cpos{0};
 				cpos < candidate.uLength() && 
 				tempos < source.uLength();
@@ -171,7 +258,7 @@ namespace frumul {
 		}
 		return true;
 	}
-	Token Lexer::getID() { // maybe return the value only TODO
+	Token Lexer::getID() { 
 		/* Recognize an ID
 		 * and return the token.
 		 * An ID starts and ends with whitespace.

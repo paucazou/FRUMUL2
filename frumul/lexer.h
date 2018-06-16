@@ -32,7 +32,8 @@ namespace frumul {
 			void advanceBy (int step=1); 
 			void advanceTo (int npos);
 			bool skipComment (); // test and skip comments
-			void skipWhiteSpace (); 
+			bool skipWhiteSpace (); 
+			bool skipNoToken ();
 			bst::str escape ();
 			bool recognizeCaselessID (const bst::str& candidate);
 			Token getID ();
@@ -41,4 +42,9 @@ namespace frumul {
 }//namespace
 
 #include "functions.inl"
+// aliasing some template functions
+namespace frumul {
+	const auto toklists {&intersection<std::initializer_list<Token::Type>>};
+	const auto intokl {&in<Token::Type,std::initializer_list<Token::Type>>};
+}
 #endif

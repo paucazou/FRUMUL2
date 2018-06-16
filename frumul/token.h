@@ -18,15 +18,16 @@ namespace frumul {
 				RPAREN, 	// )
 				LAQUOTE,	// «
 				RAQUOTE,	// »
+				COLON,		// :
 				KEYWORD,	// file, namespace, alias, arg, lang, mark
 				ID,		// everything else, followed by whitespace(s)
+				TEXT, 		// ___text___
 				MAX_TYPES_HEADER,
 				// inside values
 				LBRACE,		// {
 				RBRACE,		// }
 				LBRACKET,	// [
 				RBRACKET,	// ]
-				COLON,		// :
 				COMMA,		// ,
 				VBAR,		// ¦
 				EQUAL,		// =
@@ -46,7 +47,6 @@ namespace frumul {
 				VAL_TEXT,	// everything else
 				MAX_TYPES_VALUES,
 				// inside text
-				TEXT, 		// ___text___
 				TAG,		// opening or closing tag
 				TAIL,		// opening tag tail
 				SIMPLE_TEXT,	// everything else
