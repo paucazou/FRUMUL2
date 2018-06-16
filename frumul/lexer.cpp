@@ -165,7 +165,7 @@ namespace frumul {
 		 * Return true if is a comment.
 		 */
 		// Test
-		if (pos+2 >= source.uLength() || (source.uAt(pos+1) != "/" && source.uAt(pos+2) != "*"))
+		if (pos+2 >= source.uLength() || !(source.uAt(pos+1) == "/" && source.uAt(pos+2) == "*"))
 			return false;
 
 		try {
