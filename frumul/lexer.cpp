@@ -32,7 +32,7 @@ namespace frumul {
 			return _getNextToken({expected...});
 		}
 
-	void setOpeningTags(const std::vector<bst::str>& new_opening_tags) {
+	void Lexer::setOpeningTags(const std::vector<bst::str>& new_opening_tags) {
 		/* Set the opening tags
 		 */
 		opening_tags = new_opening_tags;
@@ -47,7 +47,7 @@ namespace frumul {
 		 * of importance.
 		 */
 		if (current_char == "")
-			return Token(Token::EOF,current_char,Position(pos,pos,filepath,source));
+			return Token(Token::EOFILE,current_char,Position(pos,pos,filepath,source));
 
 		if (intokl (Token::MAX_TYPES_HEADER, expected)) {
 			// inside header
@@ -339,7 +339,7 @@ namespace frumul {
 				advanceBy();
 			}
 		}
-		return Token(t,val,Position(olpos,pos-1,filepath,source));
+		return Token(t,val,Position(oldpos,pos-1,filepath,source));
 	}
 
 	Token Lexer::tokenizeValue (std::initializer_list<Token::Type> expected) {
@@ -353,7 +353,7 @@ namespace frumul {
 			return Token {Token::LBRACE,"{",Position(pos-1,pos-1,filepath,source)};
 		}
 		// basic case : regular string
-		if (intokl(Token::VAL_TEXT)) {
+		if (intokl(Token::VAL_TEXT,expected)) {
 			bst::str val;
 			int start = pos;
 			while (current_char != "»") {
@@ -494,6 +494,7 @@ namespace frumul {
 		/* Find the correct opening tag
 		 */
 		int remaining_length { source.uLength() - pos };
+		int oldpos{pos};
 		bst::str chosen;
 		for (const auto& tag : opening_tags) {
 			int taglen {tag.uLength()};
@@ -501,16 +502,15 @@ namespace frumul {
 				if (source.uRange(pos,taglen - 1) == tag && taglen > chosen.uLength())
 					chosen = tag;
 		}
-		if (chosen) {
-			advanceTo(pos+chosen.uLength());
-			return Token(Token::TAG,chosen,Position(oldpos,pos-1,filepath,source));
-		}
-		else {
+		if (!chosen) {
 			bst::str msg{"An opening tag was expected but wasn't found.\nHere is the list of the tags found in the header:\n"};
 			for (const auto& tag : opening_tags)
 				msg += tag + "\n";
 			throw BaseException(BaseException::TagNotFound,msg,Position(pos,pos,filepath,source));
 		}
+
+		advanceTo(pos+chosen.uLength());
+		return Token(Token::TAG,chosen,Position(oldpos,pos-1,filepath,source));
 	}
 
 	BaseException Lexer::createUnexpectedToken(std::initializer_list<Token::Type> expected) {

@@ -55,7 +55,7 @@ namespace frumul {
 				TAIL,		// opening tag tail
 				SIMPLE_TEXT,	// everything else
 				MAX_TYPES_TEXT,
-				EOF,		// End Of File
+				EOFILE,		// End Of File
 			};
 			//constructors
 #ifdef DEBUG

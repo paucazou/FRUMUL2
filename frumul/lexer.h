@@ -2,6 +2,8 @@
 #define LEXER_H
 //#include "parser.h" // not sure it's useful
 #include <initializer_list>
+#include <vector>
+#include "exception.h"
 #include "token.h"
 
 namespace frumul {
