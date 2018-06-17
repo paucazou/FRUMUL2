@@ -34,7 +34,6 @@ namespace frumul {
 				GREATER,	// >
 				LESS,		// <
 				NUMBER,		// 1,2,3...
-				ANTISLASH,	/* \  */
 				PARENT,		// §
 				PLUS,		// +
 				MINUS,		// -
@@ -44,13 +43,19 @@ namespace frumul {
 				AND,		// &
 				OR,		// |
 				NOT,		// !
+				VARIABLE,	// alphanumeric + _ name
 				VAL_TEXT,	// everything else
 				MAX_TYPES_VALUES,
+				// special namespaces types
+				LNAME,		// long name
+				SNAME,		// short name
+				MAX_TYPES_NAMESPACE_VALUES,
 				// inside text
 				TAG,		// opening or closing tag
 				TAIL,		// opening tag tail
 				SIMPLE_TEXT,	// everything else
 				MAX_TYPES_TEXT,
+				EOF,		// End Of File
 			};
 			//constructors
 #ifdef DEBUG

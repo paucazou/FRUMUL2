@@ -13,6 +13,7 @@ namespace frumul {
 			Lexer (const bst::str& nsource, const bst::str& nfilepath);
 			template <typename ...T>
 			Token getNextToken(T ...expected);
+			void setOpeningTags(const std::vector<bst::str>& new_opening_tags);
 			void test();
 		private:
 			//attributes
@@ -25,6 +26,8 @@ namespace frumul {
 
 			bst::str current_char; 
 			cpUcs4 raw_current_char;
+
+			std::vector<bst::str> opening_tags {}; // contains every opening tag discovered
 			// static attributes
 			static const bst::str unbreakable_space;
 			//functions
@@ -37,7 +40,13 @@ namespace frumul {
 			bst::str escape ();
 			bool recognizeCaselessID (const bst::str& candidate);
 			Token getID ();
-			Token tokenizeBasicValue();
+			Token tokenizeNamespaceValue(std::initializer_list<Token::Type> expected);
+			Token tokenizeValue(std::initializer_list<Token::Type> expected);
+
+			bool isStartOfTag();
+			Token findOpeningTag();
+
+			BaseException createUnexpectedToken(std::initializer_list<Token::Type> expected);
 	};
 }//namespace
 

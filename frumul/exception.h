@@ -20,6 +20,7 @@ namespace frumul {
 			enum Type { // exception type
 				SyntaxError,
 				UnexpectedToken,
+				TagNotFound,
 				MAX_TYPES,
 			};
 

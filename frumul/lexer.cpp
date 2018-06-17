@@ -3,6 +3,8 @@
 #include <iostream>
 #include <locale>
 
+// TODO end of file is not well handled
+
 
 namespace frumul {
 #ifdef DEBUG
@@ -17,6 +19,7 @@ namespace frumul {
 	}
 #endif
 	// class members
+	// public functions
 
 	Lexer::Lexer (const bst::str& nsource, const bst::str& nfilepath):
 		source{nsource}, filepath{nfilepath}, current_char{nsource.uAt(0)}, raw_current_char{nsource.uRawAt(0)}
@@ -28,17 +31,27 @@ namespace frumul {
 			 */
 			return _getNextToken({expected...});
 		}
+
+	void setOpeningTags(const std::vector<bst::str>& new_opening_tags) {
+		/* Set the opening tags
+		 */
+		opening_tags = new_opening_tags;
+	}
+
+	// private functions
+
 	Token Lexer::_getNextToken (std::initializer_list<Token::Type> expected) {
 		/* Return next token, following what
 		 * is expected. The order of the arguments
 		 * is important: it is the order
 		 * of importance.
 		 */
+		if (current_char == "")
+			return Token(Token::EOF,current_char,Position(pos,pos,filepath,source));
+
 		if (intokl (Token::MAX_TYPES_HEADER, expected)) {
 			// inside header
-			skipWhiteSpace();
-			if (current_char == "/")
-				skipComment();
+			skipNoToken();
 
 			if (recognizeCaselessID("___header___")) {
 				const auto tok{Token(Token::HEADER,"___header___",
@@ -93,9 +106,6 @@ namespace frumul {
 				if (current_char == "(") {
 					val = ")";
 					t = Token::LPAREN;
-				} else if (current_char == ")") {
-					val = "(";
-					t = Token::RPAREN;
 				} else if (current_char == "«") {
 					val = "«";
 					t = Token::LAQUOTE;
@@ -112,13 +122,38 @@ namespace frumul {
 				
 
 			}
-			// if no token was recognized TODO create a function to create the exception instance
-			bst::str tokensexpected{"Following tokens were expected:\n"};
-			for (const auto & tok : expected)
-				tokensexpected += Token::typeToString(tok) + "\n";
-			throw BaseException(BaseException::UnexpectedToken,tokensexpected,
-					Position(pos,pos,filepath,source));
+			// if no token was recognized 
+			throw createUnexpectedToken(expected);
 		}
+		if (intokl(Token::MAX_TYPES_VALUES,expected))
+			return tokenizeValue(expected);
+
+		if (intokl(Token::MAX_TYPES_TEXT,expected)) {
+			// tokenize the text TODO
+			bst::str val;
+			int oldpos {pos};
+
+			// tail
+			if (intokl(Token::TAIL,expected)) {
+				while (! (iswspace(raw_current_char) || current_char != unbreakable_space || current_char != "")) {
+					val += current_char;
+					advanceBy();
+				}
+				advanceBy(); // skip the next space
+				if (val) // return a token only if necessary
+					return Token(Token::TAIL,val,Position(oldpos,pos-1,filepath,source));
+			}
+			// simple text
+			while (!isStartOfTag() && current_char != "") {
+				val += current_char;
+				advanceBy();
+			}
+			if (val) // return token if necessary
+				return Token(Token::SIMPLE_TEXT,val,Position(oldpos,pos-1,filepath,source));
+			// tag
+			return findOpeningTag();
+		}
+
 		return Token();
 	}
 	void Lexer::advanceBy (int step) {
@@ -274,27 +309,219 @@ namespace frumul {
 		return Token{Token::ID,value,start,end,filepath,source};
 
 	}
-	Token Lexer::tokenizeBasicValue () { // maybe it should take some parameters, some Token::Type expected
+
+	Token Lexer::tokenizeNamespaceValue (std::initializer_list<Token::Type> expected) {
+		/* Lexicalize namespace values
+		 * LBRACE and RBRACE are managed by tokenizeValue
+		 */
 		bst::str val;
-		int start = pos;
-		// basic case : regular string
-		while (current_char != "»") {
-			if (current_char == "\\")
-				val += escape();
-			else if (current_char == "{")
-				break; // in this case, the lexer must break because a programmatic part is discovered
-			else if (current_char == "\n" || current_char == "\t")
-				continue;
-			else if (current_char == "") {
-				throw BaseException(BaseException::SyntaxError,"Unfinished value.",
-						Position(start, pos-1,filepath,source));
-			} else
-				val += current_char;
+		int oldpos{pos};
+		Token::Type t;
+		skipNoToken();
+
+		if (intokl(Token::SNAME,expected) && current_char != "{") {
+			// short name
+			t = Token::SNAME;
+			if (current_char == "\\") {
+				val = escape();
+			}
+			else
+				val = current_char;
 			advanceBy();
+		} else {
+			// long name
+			t = Token::LNAME;
+			while (current_char != "}" || current_char != "") {
+				if (current_char == "\\")
+					val += escape();
+				else
+					val += current_char;
+				advanceBy();
+			}
 		}
+		return Token(t,val,Position(olpos,pos-1,filepath,source));
+	}
+
+	Token Lexer::tokenizeValue (std::initializer_list<Token::Type> expected) {
+		/* Lexicalize inside values
+		 */
+
+
+		// Left brace, start of programmatic part
+		if (current_char == "{") {
+			advanceBy();
+			return Token {Token::LBRACE,"{",Position(pos-1,pos-1,filepath,source)};
+		}
+		// basic case : regular string
+		if (intokl(Token::VAL_TEXT)) {
+			bst::str val;
+			int start = pos;
+			while (current_char != "»") {
+				if (current_char == "\\")
+					val += escape();
+				else if (current_char == "{")
+					break; // in this case, the lexer must break because a programmatic part is discovered
+				else if (current_char == "/") {
+					skipComment();
+					continue;
+				}
+				else if (current_char == "\n" || current_char == "\t")
+					continue;
+				else if (current_char == "") {
+					throw BaseException(BaseException::SyntaxError,"Unfinished value.",
+							Position(start, pos-1,filepath,source));
+				}
+				val += current_char;
+				advanceBy();
+			}
 		return Token {Token::VAL_TEXT,val,Position(start,pos-1,filepath,source)};
+		}
+
+		skipNoToken(); // whitespaces and comments must be deleted inside programmatic parts
+		// rbrace: end of programmatic part
+		if (current_char == "}") {
+			advanceBy();
+			return Token {Token::RBRACE,"}",Position(pos-1,pos-1,filepath,source)};
+		}
+
+		// programmatic parts
+		if (std::iswdigit(raw_current_char)) {
+			// manages numbers
+			bst::str val;
+			int oldpos{pos};
+			while (iswdigit(raw_current_char)) {
+				val += current_char;
+				advanceBy();
+			}
+			return Token(Token::NUMBER,val,Position(oldpos,pos-1,filepath,source));
+		}
+		if (std::iswalnum(raw_current_char) || current_char == "_") {
+			bst::str val;
+			int oldpos{pos};
+			while (iswalnum(raw_current_char) || current_char == "_") {
+				val += current_char;
+				advanceBy();
+			}
+			return Token{Token::VARIABLE,val,Position(oldpos,pos-1,filepath,source)};
+		}
+		bst::str val;
+		Token::Type t;
+		if (current_char == "[") {
+			val = "[";
+			t = Token::LBRACKET;
+		}
+		else if (current_char == "]") {
+			val = "]";
+			t = Token::RBRACKET;
+		}
+		else if (current_char == ",") {
+			val = ",";
+			t = Token::COMMA;
+		}
+		else if (current_char == "¦") {
+			val = "¦";
+			t = Token::VBAR;
+		}
+		else if (current_char == "=") {
+			val = "=";
+			t = Token::EQUAL;
+		}
+		else if (current_char == ">") {
+			val = ">";
+			t = Token::GREATER;
+		}
+		else if (current_char == "<") {
+			val = ">";
+			t = Token::LESS;
+		}
+		else if (current_char == "§") {
+			val = "§";
+			t = Token::PARENT;
+		}
+		else if (current_char == "+") {
+			val = "+";
+			t = Token::PLUS;
+		}
+		else if (current_char == "-") {
+			val = "-";
+			t = Token::MINUS;
+		}
+		else if (current_char == "*") {
+			val = "*";
+			t = Token::MUL;
+		}
+		else if (current_char == "/") {
+			val = "/";
+			t = Token::DIV;
+		}
+		else if (current_char == "%") {
+			val = "%";
+			t = Token::MODULO;
+		}
+		else if (current_char == "&") {
+			val = "&";
+			t = Token::AND;
+		}
+		else if (current_char == "|") {
+			val = "|";
+			t = Token::OR;
+		}
+		else if (current_char == "!") {
+			val = "!";
+			t = Token::NOT;
+		}
+		else
+			throw createUnexpectedToken(expected);
+		advanceBy();
+		return Token(t,val,Position(pos-1,pos-1,filepath,source));
 
 	}
+	bool Lexer::isStartOfTag() {
+		/* Try to see if the current char is the start of
+		 * at least one tag
+		 */
+		int remaining_length { source.uLength() - pos};
+		for (const auto & tag : opening_tags) {
+			int taglen {tag.uLength()};
+			if (remaining_length >= taglen)
+				if (source.uRange(pos,taglen-1) == tag)
+					return true;
+		}
+		return false;
+	}
+
+	Token Lexer::findOpeningTag() {
+		/* Find the correct opening tag
+		 */
+		int remaining_length { source.uLength() - pos };
+		bst::str chosen;
+		for (const auto& tag : opening_tags) {
+			int taglen {tag.uLength()};
+			if (remaining_length >= taglen)
+				if (source.uRange(pos,taglen - 1) == tag && taglen > chosen.uLength())
+					chosen = tag;
+		}
+		if (chosen) {
+			advanceTo(pos+chosen.uLength());
+			return Token(Token::TAG,chosen,Position(oldpos,pos-1,filepath,source));
+		}
+		else {
+			bst::str msg{"An opening tag was expected but wasn't found.\nHere is the list of the tags found in the header:\n"};
+			for (const auto& tag : opening_tags)
+				msg += tag + "\n";
+			throw BaseException(BaseException::TagNotFound,msg,Position(pos,pos,filepath,source));
+		}
+	}
+
+	BaseException Lexer::createUnexpectedToken(std::initializer_list<Token::Type> expected) {
+			/* Instanciates an UnexpectedToken exception
+			 */
+			bst::str tokensexpected{"Following tokens were expected:\n"};
+			for (const auto & tok : expected)
+				tokensexpected += Token::typeToString(tok) + "\n";
+			return BaseException(BaseException::UnexpectedToken,tokensexpected,
+					Position(pos,pos,filepath,source));
+			}
 
 	const bst::str Lexer::unbreakable_space{L'\u00A0'}; // unbreakable space isn't considered a space
 }// namespace
