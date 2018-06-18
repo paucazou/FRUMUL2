@@ -25,22 +25,14 @@ namespace frumul {
 		source{nsource}, filepath{nfilepath}, current_char{nsource.uAt(0)}, raw_current_char{nsource.uRawAt(0)}
 	{}
 
-	template <typename ...T>
-		Token Lexer::getNextToken(T ...expected) {
-			/* Pass the arguments to the real function
-			 */
-			return _getNextToken({expected...});
-		}
-
 	void Lexer::setOpeningTags(const std::vector<bst::str>& new_opening_tags) {
 		/* Set the opening tags
 		 */
 		opening_tags = new_opening_tags;
 	}
 
-	// private functions
 
-	Token Lexer::_getNextToken (std::initializer_list<Token::Type> expected) {
+	Token Lexer::getNextToken (std::initializer_list<Token::Type> expected) {
 		/* Return next token, following what
 		 * is expected. The order of the arguments
 		 * is important: it is the order
@@ -156,6 +148,8 @@ namespace frumul {
 
 		return Token();
 	}
+	
+	// private functions
 	void Lexer::advanceBy (int step) {
 		/* Change the position
 		 * and the current_char

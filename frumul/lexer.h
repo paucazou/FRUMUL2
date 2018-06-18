@@ -14,8 +14,8 @@ namespace frumul {
 		public:
 			Lexer (const bst::str& nsource, const bst::str& nfilepath);
 			template <typename ...T>
-			Token getNextToken(T ...expected);
 			void setOpeningTags(const std::vector<bst::str>& new_opening_tags);
+			Token _getNextToken(std::initializer_list<Token::Type> expected);
 			void test();
 		private:
 			//attributes
@@ -33,7 +33,6 @@ namespace frumul {
 			// static attributes
 			static const bst::str unbreakable_space;
 			//functions
-			Token _getNextToken(std::initializer_list<Token::Type> expected);
 			void advanceBy (int step=1); 
 			void advanceTo (int npos);
 			bool skipComment (); // test and skip comments
