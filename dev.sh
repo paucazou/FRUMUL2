@@ -7,14 +7,17 @@ compile () {
 	else
 		compiler='g++'
 	fi
-	$compiler -Wextra -Wall -pedantic\
+	$compiler -std=c++11\
+		-Wextra -Wall -pedantic\
 		-D DEBUG\
-		inttest.cpp\
+		tests/astbrowser.cpp\
 		frumul/position.cpp\
 		frumul/exception.cpp\
 		frumul/token.cpp\
 		frumul/lexer.cpp\
-		-o inttest\
+		frumul/node.cpp\
+		frumul/parser.cpp\
+		-o out\
 		$bstrlib/bstrlib.o\
 		$bstrlib/bstrwrap.o\
 		$bstrlib/buniutil.o\

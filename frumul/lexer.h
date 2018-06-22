@@ -15,6 +15,10 @@ namespace frumul {
 			Lexer (const bst::str& nsource, const bst::str& nfilepath);
 			void setOpeningTags(const std::vector<bst::str>& new_opening_tags);
 			Token getNextToken(std::initializer_list<Token::Type> expected);
+			template <typename ...T>
+				Token getNextToken(T ...expected) {
+					return getNextToken({expected...});
+				}
 			void test();
 		private:
 			//attributes

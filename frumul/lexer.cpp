@@ -32,6 +32,7 @@ namespace frumul {
 	}
 
 
+
 	Token Lexer::getNextToken (std::initializer_list<Token::Type> expected) {
 		/* Return next token, following what
 		 * is expected. The order of the arguments
@@ -47,13 +48,13 @@ namespace frumul {
 
 			if (recognizeCaselessID("___header___")) {
 				const auto tok{Token(Token::HEADER,"___header___",
-					Position(pos,tempos,filepath,source))};
+					Position(pos,tempos-1,filepath,source))};
 				advanceTo(tempos);
 				return tok;
 
 			} else if (recognizeCaselessID("___text___")) {
-				const auto tok {Token(Token::HEADER,"___text___",
-						Position(pos,tempos,filepath,source))};
+				const auto tok {Token(Token::TEXT,"___text___",
+						Position(pos,tempos-1,filepath,source))};
 				advanceTo(tempos);
 				return tok;
 
@@ -121,7 +122,7 @@ namespace frumul {
 			return tokenizeValue(expected);
 
 		if (intokl(Token::MAX_TYPES_TEXT,expected)) {
-			// tokenize the text TODO
+			// tokenize the text 
 			bst::str val;
 			int oldpos {pos};
 

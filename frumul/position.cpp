@@ -9,20 +9,12 @@ namespace frumul {
 	{
 	}
 
-	Position::Position (int c1, int l1, int c2, int l2, const char*  fp, const bst::str& fc) :
-		start{getPosFromPoint(c1,l1,fc)}, end{getPosFromPoint(c2,l2,fc)}, filepath{fp}, filecontent{fc}
-	{
-	}
 
 	Position::Position (const Point& p1, const Point& p2, const bst::str& fp, const bst::str& fc) :
 		start{getPosFromPoint(p1,fc)}, end{getPosFromPoint(p2,fc)}, filepath{fp}, filecontent{fc}
 	{
 	}
 
-	Position::Position (const Point& p1, const Point& p2, const char* fp, const bst::str& fc) :
-		start{getPosFromPoint(p1,fc)}, end{getPosFromPoint(p2,fc)}, filepath{fp}, filecontent{fc}
-	{
-	}
 
 	Position::Position (int nstart, int nend, const bst::str& fp, const bst::str& fc) : start{nstart}, end{nend}, filepath{fp}, filecontent{fc}
 	{
@@ -69,16 +61,19 @@ namespace frumul {
 	Point Position::getLineColumn (int pos, const bst::str& string) {
 		/* Get the line and the column
 		 * of pos inside string
+		 * If the character at index pos is a newline,
+		 * it is considered the end of the line,
+		 * not the start of the following one.
 		 */
 		int line{1};
-		int column{0};
+		int column{(string.uAt(pos) == "\n")};
 		int i,lastline; // lastline is the last position of a newline
 		for (i=0, lastline=0; i <= pos; ++i)
-			if (string.uAt(i) == "\n") {
+			if (string.uAt(i) == "\n" && i != pos) {
 				++line;
 				lastline = i;
 			}
-		column = pos -lastline;
+		column += pos - lastline + (line == 1); // (line == 1) -> avoid error on first line
 		return Point(column,line);
 	}
 

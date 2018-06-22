@@ -34,16 +34,13 @@ class Position {
 	private:
 		const int start;	// first char
 		const int end; 		// last char
-		const bst::str filepath;
+		const bst::str& filepath;
 		const bst::str& filecontent;
 	public:
 		//constructors
 		Position (int c1, int l1, int c2, int l2,
 			      const bst::str& fp, const bst::str& fc);
-		Position (int c1, int l1, int c2, int l2,
-			       const char *fp, const bst::str& fc);
 		Position (const Point& p1, const Point& p2, const bst::str& fp, const bst::str& fc);
-		Position (const Point& p1, const Point& p2, const char *fp, const bst::str& fc);
 		Position (int nstart, int nend, const bst::str& fp, const bst::str& fc); // nstart and nend are index in fc
 		Position (const Position& pos) :
 			start{pos.start}, end{pos.end}, filepath{pos.filepath}, filecontent{pos.filecontent}

@@ -1,8 +1,10 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <map>
 #include "lexer.h"
 #include "node.h"
+#include "token.h"
 
 namespace frumul {
 	class Parser {
@@ -11,20 +13,28 @@ namespace frumul {
 		 * the AST
 		 */
 		public:
-			Parser (const bst::str& nsource);
-			DocumentNode& parse (); 
+			Parser (const bst::str& nsource,const bst::str& nfilepath);
+			~Parser();
+			Node& parse (); 
 		private:
 			//attributes
-			const bst::str source;
+			bool alreadyparsed{false};
+			const bst::str& source;
+			const bst::str& filepath;
 			Lexer lex;
-			DocumentNode doc;
+			Node AST;
+			Token * current_token {nullptr};
 			//member functions
-			DocumentNode document ();
+			template <typename ...T>
+				bool eat(Token::Type t, T ...expected);
+			bool _eat(Token::Type t, std::initializer_list<Token::Type> expected);
 
-			HeaderNode header ();
-			StatementListNode statement_list ();
+			Node document ();
 
-			TextNode text ();
+			Node header ();
+			std::map<bst::str,Node> statement_list ();
+
+			Node text ();
 	};
 }// namespace
 
