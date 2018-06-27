@@ -1,5 +1,6 @@
 #!/bin/zsh
 bstrlib=frumul/bstrlib
+odir=odir
 compile () {
 	if [[ $1 == 'clang' ]]; then
 		compiler=$1
@@ -13,17 +14,26 @@ compile () {
 		tests/astbrowser.cpp\
 		frumul/position.cpp\
 		frumul/exception.cpp\
-		frumul/token.cpp\
+		#frumul/token.cpp\
 		frumul/lexer.cpp\
 		frumul/node.cpp\
 		frumul/parser.cpp\
 		-o out\
+		$odir/token.o\
 		$bstrlib/bstrlib.o\
 		$bstrlib/bstrwrap.o\
 		$bstrlib/buniutil.o\
 		$bstrlib/utf8util.o\
 }
 
+objectify () {
+	cd $odir
+	g++ -std=c++11\
+		-Wextra -Wall -pedantic\
+		-D DEBUG\
+		-c ../$1
+	popd
+}
 
 	
 

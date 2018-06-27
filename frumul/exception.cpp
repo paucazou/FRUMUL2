@@ -28,7 +28,7 @@ namespace frumul {
 	{}
 
 	const bst::str BaseException::what () const noexcept {
-		bst::str returned{types.at(static_cast<int>(type))};
+		bst::str returned{typeToString(type)};
 		returned += ": " + addinfo + '\n';
 		returned += pos.toString();
 		return returned;

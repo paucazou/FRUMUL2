@@ -42,6 +42,9 @@ namespace frumul {
 		if (current_char == "")
 			return Token(Token::EOFILE,current_char,Position(pos,pos,filepath,source));
 
+		if (intokl (Token::MAX_TYPES_LANG_VALUES,expected))
+			return tokenizeLangValue(expected);
+
 		if (intokl (Token::MAX_TYPES_HEADER, expected)) {
 			// inside header
 			skipNoToken();
@@ -90,7 +93,7 @@ namespace frumul {
 				return getID();
 
 			else if (intokl(Token::KEYWORD,expected))
-				return getID();
+				return getID(true); // true: to lowercase the value
 
 			else {
 				// values to return
@@ -288,10 +291,12 @@ namespace frumul {
 		}
 		return true;
 	}
-	Token Lexer::getID() { 
+	Token Lexer::getID(bool kwExpected) { 
 		/* Recognize an ID
 		 * and return the token.
 		 * An ID starts and ends with whitespace.
+		 * if kwExpected is true (default is false)
+		 * , then the value is lowercased.
 		 */
 		//std::setlocale(LC_ALL,std::locale("").name().data()); WARNING do not forget to set locale
 		bst::str value;
@@ -301,6 +306,8 @@ namespace frumul {
 			advanceBy();
 		}
 		Point end{column-1,start.getLine()};
+		if (kwExpected)
+			value = value.tolower();
 		return Token{Token::ID,value,start,end,filepath,source};
 
 	}
@@ -337,10 +344,47 @@ namespace frumul {
 		return Token(t,val,Position(oldpos,pos-1,filepath,source));
 	}
 
+	Token Lexer::tokenizeLangValue (std::initializer_list<Token::Type> expected) {
+		/* Lexicalize inside lang values
+		 */
+		bst::str val;
+		int oldpos{pos};
+		Token::Type t;
+		if (intokl(Token::LANGNAME,expected)) {
+			t = Token::LANGNAME;
+			while (current_char != "¦" && current_char != "»") {
+				val += current_char;
+				advanceBy();
+			}
+			if (!val)
+				throw BaseException(BaseException::UnexpectedToken,"No language name entered.",Position(pos,pos,filepath,source));
+		}
+		else {
+			if (current_char == "¦") {
+				val = "¦";
+				t = Token::VBAR;
+			} else if (current_char == "»") {
+				val = "»";
+				t = Token::RAQUOTE;
+			}
+			else
+				throw createUnexpectedToken(expected);
+			advanceBy();
+		}
+
+		return Token(t,val,Position(oldpos,pos-1,filepath,source));
+	}
+
 	Token Lexer::tokenizeValue (std::initializer_list<Token::Type> expected) {
 		/* Lexicalize inside values
 		 */
 
+
+		// Right quote, end of the value
+		if (current_char == "»") {
+			advanceBy();
+			return Token(Token::RAQUOTE,"»",Position(pos-1,pos-1,filepath,source));
+		}
 
 		// Left brace, start of programmatic part
 		if (current_char == "{") {

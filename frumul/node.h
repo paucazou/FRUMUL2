@@ -3,42 +3,68 @@
 
 #include <map>
 #include <iostream>
+#include <vector>
+#include "macros.h"
 #include "position.h"
+
+#define LIST_NODES(NOD) \
+	NOD(DOCUMENT) \
+	NOD(EMPTY) \
+	NOD(HEADER) \
+	NOD(STATEMENT_LIST) \
+	NOD(DECLARATION) \
+	\
+	NOD(BASIC_VALUE) \
+	NOD(VAL_TEXT) \
+	\
+	NOD(OPTIONS) \
+	NOD(MARK) \
+	NOD(LANG) \
+	NOD(TEXT) \
+	NOD(SIMPLE_TEXT) \
+	NOD(MAX_TYPES) \
+
+
 
 namespace frumul {
 	class Node {
 		/* AST Node
 		 */
 		public:
-			enum Type {
-				// document
-				DOCUMENT,
-				EMPTY,
-				//header
-				HEADER,
-				STATEMENT_LIST,
-				//text
-				TEXT,
-				SIMPLE_TEXT,
-				MAX_TYPES,
-			};
-
-			Node (const Type ntype, const Position& npos, const std::map<bst::str,Node>& nattr = {});
+			ENUM(Type,LIST_NODES)
+			
+			// constructors
+			Node (const Type ntype, const Position& npos, const std::map<bst::str,Node>& nattr = {},const bst::str& nvalue = "");
+			Node (const Type ntype, const Position& npos, const std::vector<Node>& nattr = {}, const bst::str& nvalue = "");
 			Node (const Node& n);
 
-			const Position& getPosition() const;
-			const Node& get(const bst::str& key) const;
-			void addChild(const bst::str& name, const Node& child);
+			//getters
 			Type type() const;
+			bool areChildrenNamed () const;
 
+			const Position& getPosition() const;
+
+			const Node& get(const bst::str& key) const;
+			const Node& get(int index) const;
+			
+			//setters
+			void addChild(const bst::str& name, const Node& child);
+			void addChild(const Node& child);
+
+
+			// display functions
 			const bst::str toString() const;
-			static bst::str typeToString (Type t);
 
 			friend std::ostream& operator<< (std::ostream& out, const Node& n);
 		private:
 			const Type node_type;
 			const Position pos;
-			std::map<bst::str,Node> children;
+			const bst::str value;
+			union {
+				std::map<bst::str,Node> named_children;
+				std::vector<Node> numbered_children;
+			};
+			const bool childrenNamed {true};
 
 	};
 

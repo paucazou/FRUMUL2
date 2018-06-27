@@ -10,7 +10,7 @@ namespace_definition ::= options namespace_value '(' statement_list ')'
 alias_definition ::= lang_option? alias_value
 
 basic_value ::= ( simple_text_value* | '{' programmatic_part '}' )*
-simple_text_value ::= ('*' | 'EOL' | 'TAB')* /* Strings/Characters that must be escaped with antislash \ : « » { //* \ EOL TAB */
+simple_text_value ::= ('*' | '\n' | '\t')* /* Strings/Characters that must be escaped with antislash \ : « » { } //* \ \n \t*/
 programmatic_part ::= variable_declaration | variable_assignment | expr | loop | condition
 
 variable_declaration ::= variable_name '=' expr ',' variable_type

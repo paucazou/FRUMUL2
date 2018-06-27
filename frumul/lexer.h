@@ -43,8 +43,9 @@ namespace frumul {
 			bool skipNoToken ();
 			bst::str escape ();
 			bool recognizeCaselessID (const bst::str& candidate);
-			Token getID ();
+			Token getID (bool kwExpected = false);
 			Token tokenizeNamespaceValue(std::initializer_list<Token::Type> expected);
+			Token tokenizeLangValue (std::initializer_list<Token::Type> expected);
 			Token tokenizeValue(std::initializer_list<Token::Type> expected);
 
 			bool isStartOfTag();

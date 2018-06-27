@@ -25,6 +25,8 @@ namespace frumul {
 			Node AST;
 			Token * current_token {nullptr};
 			//member functions
+			inline int getTokenStart () const;
+
 			template <typename ...T>
 				bool eat(Token::Type t, T ...expected);
 			bool _eat(Token::Type t, std::initializer_list<Token::Type> expected);
@@ -32,7 +34,14 @@ namespace frumul {
 			Node document ();
 
 			Node header ();
-			std::map<bst::str,Node> statement_list ();
+			std::map<bst::str,Node> statement_list (bool isNamespace = false);
+			Node declaration ();
+
+			Node basic_value (int start);
+
+			Node options ();
+			Node mark_option ();
+			std::map<bst::str,Node> lang_option ();
 
 			Node text ();
 	};

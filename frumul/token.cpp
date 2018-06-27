@@ -39,10 +39,13 @@ namespace frumul {
 		return returned;
 	}
 
+#if 0
+	// DEPRECATED
 	bst::str Token::typeToString (Token::Type t) {
 		// TODO stays empty until all things are done
 		return bst::str{static_cast<int>(t)};
 	}
+#endif
 
 	std::ostream& operator << (std::ostream& out, const Token& tok) {
 			out << tok.toString();

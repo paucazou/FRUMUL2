@@ -1,0 +1,7 @@
+//* This comment should be ignored *//___header___
+//* This
+comment
+too*//
+___text___
+//* This text is not considered a comment
+because it is inside text*//
