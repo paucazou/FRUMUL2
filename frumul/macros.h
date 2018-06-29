@@ -12,7 +12,7 @@
 	enum NAME_ENUM { \
 		LIST(GENERATE_ENUM) \
 	}; \
-	const bst::str typeToString (NAME_ENUM t) const { \
+	static const bst::str typeToString (NAME_ENUM t) { \
 		static const bst::str enumstring[] = { \
 			LIST(GENERATE_STRING) \
 		}; \

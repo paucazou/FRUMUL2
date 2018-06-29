@@ -10,11 +10,11 @@ compile () {
 	fi
 	$compiler -std=c++11\
 		-Wextra -Wall -pedantic\
+		-Wfatal-errors\
 		-D DEBUG\
 		tests/astbrowser.cpp\
 		frumul/position.cpp\
 		frumul/exception.cpp\
-		#frumul/token.cpp\
 		frumul/lexer.cpp\
 		frumul/node.cpp\
 		frumul/parser.cpp\
@@ -24,6 +24,7 @@ compile () {
 		$bstrlib/bstrwrap.o\
 		$bstrlib/buniutil.o\
 		$bstrlib/utf8util.o\
+		$@
 }
 
 objectify () {

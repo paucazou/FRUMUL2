@@ -34,9 +34,18 @@ namespace frumul {
 			ENUM(Type,LIST_NODES)
 			
 			// constructors
-			Node (const Type ntype, const Position& npos, const std::map<bst::str,Node>& nattr = {},const bst::str& nvalue = "");
-			Node (const Type ntype, const Position& npos, const std::vector<Node>& nattr = {}, const bst::str& nvalue = "");
+			Node (const Type ntype, const Position& npos, const std::map<bst::str,Node>& nattr,const bst::str& nvalue);
+			Node (const Type ntype, const Position& npos, const std::vector<Node>& nattr, const bst::str& nvalue);
+
+			Node (const Type ntype, const Position& npos, const bst::str& nvalue);
+
+			Node (const Type ntype, const Position& npos, const std::map<bst::str,Node>& nattr);
+			Node (const Type ntype, const Position& npos, const std::vector<Node>& nattr={});
+
 			Node (const Node& n);
+
+			// destructor
+			~Node();
 
 			//getters
 			Type type() const;
@@ -51,6 +60,8 @@ namespace frumul {
 			void addChild(const bst::str& name, const Node& child);
 			void addChild(const Node& child);
 
+			// operators
+			void operator=(const Node& n);
 
 			// display functions
 			const bst::str toString() const;
@@ -59,14 +70,18 @@ namespace frumul {
 		private:
 			const Type node_type;
 			const Position pos;
-			const bst::str value;
 			union {
 				std::map<bst::str,Node> named_children;
 				std::vector<Node> numbered_children;
 			};
-			const bool childrenNamed {true};
+			const bst::str value{""};
+			const bool childrenNamed {false};
 
 	};
+
+	// two alias for widely used templates types
+	using NodeVector = std::vector<Node>;
+	using StrNodeMap = std::map<bst::str,Node>;
 
 }// namespace
 #endif

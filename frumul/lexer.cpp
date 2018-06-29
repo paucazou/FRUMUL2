@@ -88,6 +88,13 @@ namespace frumul {
 					return tok;
 				}
 			}
+			if (intokl(Token::LAQUOTE,expected) && current_char == "«") {
+				// it is possible that LAQUOTE is requested, 
+				// and ID too, but LAQUOTE should have precedence
+				Token t {Token::LAQUOTE,"«",Position(pos,pos,filepath,source)};
+				advanceBy();
+				return t;
+			}
 			// no else here, because previous case may have found an ID is required
 			if (intokl(Token::ID,expected))
 				return getID();
@@ -102,9 +109,6 @@ namespace frumul {
 				if (current_char == "(") {
 					val = ")";
 					t = Token::LPAREN;
-				} else if (current_char == "«") {
-					val = "«";
-					t = Token::LAQUOTE;
 				} else if (current_char == "»") {
 					val = "»";
 					t = Token::RAQUOTE;
@@ -307,7 +311,7 @@ namespace frumul {
 		}
 		Point end{column-1,start.getLine()};
 		if (kwExpected)
-			value = value.tolower();
+			value.tolower();
 		return Token{Token::ID,value,start,end,filepath,source};
 
 	}
@@ -395,7 +399,7 @@ namespace frumul {
 		if (intokl(Token::VAL_TEXT,expected)) {
 			bst::str val;
 			int start = pos;
-			while (current_char != "»") {
+			while (current_char != "»" && current_char != "") {
 				if (current_char == "\\")
 					val += escape();
 				else if (current_char == "{")
@@ -404,8 +408,10 @@ namespace frumul {
 					skipComment();
 					continue;
 				}
-				else if (current_char == "\n" || current_char == "\t")
+				else if (current_char == "\n" || current_char == "\t") {
+					advanceBy();
 					continue;
+				}
 				else if (current_char == "") {
 					throw BaseException(BaseException::SyntaxError,"Unfinished value.",
 							Position(start, pos-1,filepath,source));

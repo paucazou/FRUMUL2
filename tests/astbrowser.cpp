@@ -23,8 +23,12 @@ back: // there is a goto at the end of the function
 	std::cin >> answer;
 	if (answer == "parent")
 		return;
+	
 	try {
-		browser(parent.get(answer));
+		if (parent.areChildrenNamed())
+			browser(parent.get(answer));
+		else 
+			browser(parent.get(static_cast<int>(answer)));
 	}
 	catch (std::out_of_range) {
 		std::cerr << "No child of that name\n";

@@ -3,22 +3,72 @@
 
 namespace frumul {
 	Node::Node (const Node::Type ntype, const Position& npos, const std::map<bst::str,Node>& nchildren, const bst::str& nvalue) :
-		node_type{ntype}, pos{npos}, numbered_children{nchildren}, value{nvalue}, childrenNamed{true}
-	{}
+		node_type{ntype}, pos{npos}, named_children{nchildren}, value{nvalue}, childrenNamed{true}
+	{
+		/* Constructs the named_children
+		 * object with a value
+		 */
+	}
 
-	Node::Node (const Node::Type ntype, const Position& npos, const std::vector<Node>& nchildren, const bst::str& nvalue) :
+	Node::Node (const Node::Type ntype, const Position& npos, const std::vector<Node>& nchildren, const bst::str& nvalue):
 		node_type{ntype}, pos{npos}, numbered_children{nchildren}, value{nvalue}, childrenNamed{false}
-	{}
+	{
+		/* Constructs the numbered_children
+		 * object with a value
+		 */
+	}
+
+	Node::Node (const Type ntype, const Position& npos, const bst::str& nvalue) :
+		node_type{ntype}, pos{npos}, numbered_children{}, value{nvalue}, childrenNamed{false}
+	{
+		/* No child, only value
+		 */
+	}
+
+	Node::Node (const Type ntype, const Position& npos, const std::map<bst::str,Node>& nchildren) :
+		node_type{ntype}, pos{npos}, named_children{nchildren}, childrenNamed{true}
+	{
+		/* Constructs the named_children
+		 * and no value
+		 */
+	}
+
+	Node::Node (const Type ntype, const Position& npos, const std::vector<Node>& nchildren) :
+		node_type{ntype}, pos{npos}, numbered_children{nchildren}, childrenNamed{false}
+	{
+		/* Constructs the numbered_children
+		 * and no value
+		 */
+	}
 
 	Node::Node (const Node& n) :
-		node_type{n.node_type}, pos{n.pos}, children{n.children}
-	{}
+		node_type{n.node_type}, pos{n.pos}, 
+		value{n.value}, childrenNamed{n.childrenNamed}
+	{
+		/* copy constructor
+		 */
+		if (childrenNamed) {
+			new (&named_children) std::map<bst::str,Node>;
+			named_children = n.named_children;
+		}
+		else {
+			new (&numbered_children) std::vector<Node>;
+			numbered_children = n.numbered_children;
+		}
+	}
 
 	Node::Type Node::type() const {
 		return node_type;
 	}
 
-	bool areChildrenNamed () const {
+	Node::~Node () {
+		if (childrenNamed)
+			named_children.~map<bst::str,Node>();
+		else
+			numbered_children.~vector<Node>();
+	}
+
+	bool Node::areChildrenNamed () const {
 		/* true if children are a map,
 		 * false if a vector
 		 */
@@ -64,6 +114,18 @@ namespace frumul {
 		numbered_children.push_back(child);
 	}
 
+	void Node::operator= (const Node& n) {
+		/* Copy non constant members of n inside
+		 * this
+		 * Should not be used, actually
+		 */
+		assert(false&&"Operator= should not be used whith Node.");
+		if (n.childrenNamed)
+			named_children = n.named_children;
+		else
+			numbered_children = n.numbered_children;
+	}
+
 
 	const bst::str Node::toString() const {
 		/* Return a string
@@ -72,10 +134,12 @@ namespace frumul {
 		bst::str s{"<NODE|" + typeToString(node_type) + ">\n"};
 
 		if (childrenNamed) {
-			for (const auto& pair : children) 
+			for (const auto& pair : named_children) 
 				s += pair.first + ": " + typeToString(pair.second.node_type) + "\n";
 		} else {
-			for (int i{0}; i < numbered_children.length(); ++i)
+			// the following cast is ugly, but silent the stupid -Wsign-compare warning
+			// maybe I should have used decltype instead
+			for (int i{0}; i < static_cast<int>(numbered_children.size()); ++i)
 				s += bst::str(i) + ": " + typeToString(numbered_children.at(i).node_type) + "\n";
 		}
 

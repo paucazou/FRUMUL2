@@ -1,4 +1,4 @@
-#include "functions.inl"
+#include <cassert>
 #include "parser.h"
 
 namespace frumul {
@@ -6,7 +6,7 @@ namespace frumul {
 	Parser::Parser (const bst::str& nsource, const bst::str& nfilepath) :
 		source{nsource}, filepath{nfilepath},
 		lex{nsource,nfilepath},
-		AST{Node::DOCUMENT,Position{0,nsource.uLength()-1,nfilepath,source}}
+		AST{Node::DOCUMENT,Position{0,nsource.uLength()-1,nfilepath,source},StrNodeMap()}
 	{
 		current_token = new Token{lex.getNextToken(Token::MAX_TYPES_HEADER)};
 	}
@@ -31,7 +31,7 @@ namespace frumul {
 
 	// private functions
 	
-	int getTokenStart () const {
+	int Parser::getTokenStart () const {
 		/* return the position of the start
 		 * of the current_token
 		 * Crashes if no current token exists
@@ -51,16 +51,23 @@ namespace frumul {
 		 * delete current_token and set a new one
 		 * return false if type does not match.
 		 */
+#if DEBUG
+		if (current_token->getType() != Token::EOFILE)
+			std::cout << *current_token << std::endl;
+#endif
 		if (current_token->getType() == t) {
 			delete current_token;
 			current_token = new Token{lex.getNextToken(expected)};
 			return true;
 		}
+#if DEBUG
+		std::cout << *current_token << std::endl;
+#endif
 		throw BaseException(BaseException::UnexpectedToken,"Token expected: "+Token::typeToString(t),Position(current_token->getPosition()));
 		return false;
 	}
 
-	// parser itself
+	// parser core 
 	
 	Node Parser::document() {
 		/* return a document Node
@@ -109,7 +116,7 @@ namespace frumul {
 		for (int i{0};current_token->getType() == Token::ID; ++i) {
 			statements.insert({i,declaration()});
 
-			if (!namespace)
+			if (!isNamespace)
 				eat(Token::RAQUOTE,Token::ID,Token::MAX_TYPES_HEADER); 
 			else
 				eat(Token::RAQUOTE,Token::ID,Token::RPAREN,Token::MAX_TYPES_HEADER);
@@ -137,14 +144,17 @@ namespace frumul {
 		std::map<bst::str,Node> fields;
 		fields.insert({"options",options()});
 
+		int end; // should be deleted TODO
 		if (current_token->getType() == Token::LAQUOTE) { // we can assume it is a basic value
 			int start {getTokenStart()};
-			eat(Token::LAQUOTE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES);
+			eat(Token::LAQUOTE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // consume «
+			std::cout << *current_token << std::endl;
 			fields.insert({"value",basic_value(start)});
 			//RAQUOTE is eat in statement_list
+			end = fields.at("value").getPosition().getEnd(); // TODO should be deleted
 		}
 
-		int end {fields["value"].getPosition().getEnd()}; // end position
+		//int end {fields.at("value").getPosition().getEnd()}; // end position
 
 
 		return Node{Node::DECLARATION,Position(start,end,filepath,source),fields,name};
@@ -162,7 +172,7 @@ namespace frumul {
 		while (current_token->getType() != Token::RAQUOTE) {
 			// simple text
 			if (current_token->getType() == Token::VAL_TEXT) {
-				fields.push_back(Node(Node::VAL_TEXT,current_token->getPosition(),{},current_token->getValue()));
+				fields.push_back(Node(Node::VAL_TEXT,current_token->getPosition(),current_token->getValue()));
 				eat(Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES);
 			}
 		}
@@ -179,22 +189,22 @@ namespace frumul {
 		 * names.
 		 */
 		int start {getTokenStart()}; // start position
-		std::array<bst::str> optionsnames {"lang","mark","arg"};
+		std::array<bst::str,3> optionsnames {"lang","mark","arg"};
 		std::map<bst::str,Node> fields;
-		for (int i{0};in<bst::str,std::array<bst::str>>(current_token->getValue(),optionsnames);++i) {
+		for (int i{0};in<bst::str,std::array<bst::str,3>>(current_token->getValue(),optionsnames);++i) {
 				if (current_token->getValue() == "lang") {
-					for (const auto& child : lang_option();)
-						fields[i] = child.second;
+					for (const auto& child : lang_option())
+						fields.insert({i,child.second});
 					optionsnames[0] = "";
 				}
 				else if (current_token->getValue() == "mark") {
-					fields[i] = mark_option ();
+					fields.insert({i,mark_option()});
 					optionsnames[1] = "";
 				}
 
 				eat(Token::RAQUOTE,Token::LAQUOTE,Token::ID,Token::MAX_TYPES_HEADER); // consume the end of each option: », and expects either « or and id
 		}
-		int end { fields.rbegin()->second.getPosition().getEnd() }// end position
+		int end { fields.rbegin()->second.getPosition().getEnd() };// end position
 
 		return Node(Node::OPTIONS,Position(start,end,filepath,source),fields);
 	}
@@ -208,8 +218,9 @@ namespace frumul {
 		eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // consume "mark"
 		eat(Token::LAQUOTE,Token::NUMBER,Token::MAX_TYPES_VALUES); // consume «
 		bst::str value { current_token->getValue()};
+		eat(Token::NUMBER,Token::RAQUOTE,Token::MAX_TYPES_HEADER); // consume number
 		int end {current_token->getPosition().getEnd()};
-		return Node(Node::MARK,Position(start,end,filepath,source),{},value);
+		return Node(Node::MARK,Position(start,end,filepath,source),value);
 	}
 
 	std::map<bst::str,Node> Parser::lang_option () {
@@ -222,9 +233,9 @@ namespace frumul {
 		eat(Token::LAQUOTE,Token::LANGNAME,Token::MAX_TYPES_LANG_VALUES); // consume «
 
 		std::map<bst::str,Node> fields;
-		while (current_token->getType() != Token::RAQUOTE) {
-			Node n {Node::LANG,Token->getPosition(),{},Token->getValue()};
-			fields.insert{i,n};
+		for (int i{0}; current_token->getType() != Token::RAQUOTE;++i) {
+			Node n {Node::LANG,current_token->getPosition(),current_token->getValue()};
+			fields.insert({bst::str(i),n});
 			eat(Token::LANGNAME,Token::VBAR,Token::RAQUOTE,Token::MAX_TYPES_LANG_VALUES);
 			if (current_token->getType() == Token::VBAR)
 				eat(Token::VBAR,Token::LANGNAME,Token::MAX_TYPES_LANG_VALUES);

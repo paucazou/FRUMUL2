@@ -25,7 +25,7 @@ namespace frumul {
 			Node AST;
 			Token * current_token {nullptr};
 			//member functions
-			inline int getTokenStart () const;
+			int getTokenStart () const;
 
 			template <typename ...T>
 				bool eat(Token::Type t, T ...expected);
