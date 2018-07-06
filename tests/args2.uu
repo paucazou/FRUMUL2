@@ -1,0 +1,5 @@
+___header___
+one : mark «1» lang «every» arg «two,text» 
+	«some {} text{two} some text»
+___text___
+Some text one two one
