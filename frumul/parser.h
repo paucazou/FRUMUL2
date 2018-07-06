@@ -38,10 +38,22 @@ namespace frumul {
 			Node declaration ();
 
 			Node basic_value (int start);
+			Node programmatic_part ();
+			Node statement ();
+
+			Node variable_declaration ();
+			Node variable_assignment ();
+			Node comparison ();
+			Node expr ();
+			Node term ();
+			Node factor ();
+			Node reference ();
 
 			Node options ();
 			Node mark_option ();
 			std::map<bst::str,Node> lang_option ();
+			std::vector<Node> param_option ();
+			Node param_value ();
 
 			Node text ();
 	};

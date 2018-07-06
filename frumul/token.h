@@ -25,6 +25,7 @@
 	TOK(RBRACKET)		/* ] */\
 	TOK(COMMA)		/* , */\
 	TOK(VBAR)		/* ¦ */\
+	TOK(ASSIGN)		/* : */\
 	TOK(EQUAL)		/* = */\
 	TOK(GREATER)		/* > */\
 	TOK(LESS)		/* < */\
@@ -63,61 +64,6 @@ namespace frumul {
 		 */
 		public:
 			ENUM(Type,TOKENS_LIST)
-#if 0
-			enum Type {
-				/* Contains all the types 
-				 * which can be found
-				 * in a FRUMUL file
-				 */
-				// inside header
-				HEADER,		// ___header___
-				LPAREN,		// ( 
-				RPAREN, 	// )
-				LAQUOTE,	// «
-				RAQUOTE,	// »
-				COLON,		// :
-				KEYWORD,	// file, namespace, alias, arg, lang, mark
-				ID,		// everything else, followed by whitespace(s)
-				TEXT, 		// ___text___
-				MAX_TYPES_HEADER,
-				// inside values
-				LBRACE,		// {
-				RBRACE,		// }
-				LBRACKET,	// [
-				RBRACKET,	// ]
-				COMMA,		// ,
-				VBAR,		// ¦
-				EQUAL,		// =
-				GREATER,	// >
-				LESS,		// <
-				NUMBER,		// 1,2,3...
-				PARENT,		// §
-				PLUS,		// +
-				MINUS,		// -
-				MUL,		// *
-				DIV,		// /
-				MODULO,		// %
-				AND,		// &
-				OR,		// |
-				NOT,		// !
-				VARIABLE,	// alphanumeric + _ name
-				VAL_TEXT,	// everything else
-				MAX_TYPES_VALUES,
-				// special namespaces types
-				LNAME,		// long name
-				SNAME,		// short name
-				MAX_TYPES_NAMESPACE_VALUES,
-				// special lang types
-				LANGNAME,	// name of a language
-				MAX_TYPES_LANG_VALUES,
-				// inside text
-				TAG,		// opening or closing tag
-				TAIL,		// opening tag tail
-				SIMPLE_TEXT,	// everything else
-				MAX_TYPES_TEXT,
-				EOFILE,		// End Of File
-			};
-#endif
 			//constructors
 #ifdef DEBUG
 			Token ();

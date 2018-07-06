@@ -15,9 +15,16 @@ namespace frumul {
 			Lexer (const bst::str& nsource, const bst::str& nfilepath);
 			void setOpeningTags(const std::vector<bst::str>& new_opening_tags);
 			Token getNextToken(std::initializer_list<Token::Type> expected);
+
+			Token peekToken (std::initializer_list<Token::Type> expected, unsigned int rank=0);
 			template <typename ...T>
 				Token getNextToken(T ...expected) {
 					return getNextToken({expected...});
+				}
+
+			template <typename ...T>
+				Token peekToken(unsigned int rank=0, T ...expected) {
+					return peekToken({expected...}, rank);
 				}
 			void test();
 		private:
@@ -26,8 +33,8 @@ namespace frumul {
 			const bst::str& filepath;
 			int pos{0}; // used to get the current position in the source
 			int tempos{0}; // used to get temporary look further
-			int line{1}; // current line and column
-			int column{1};
+			//int line{1}; // current line and column
+			//int column{1};
 
 			bst::str current_char; 
 			cpUcs4 raw_current_char;

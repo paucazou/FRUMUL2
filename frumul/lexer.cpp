@@ -4,6 +4,7 @@
 #include <locale>
 
 // TODO end of file is not well handled
+// TODO string litteral, parentheses inside values
 
 
 namespace frumul {
@@ -156,6 +157,28 @@ namespace frumul {
 
 		return Token();
 	}
+
+	Token Lexer::peekToken (std::initializer_list<Token::Type> expected, unsigned int rank) {
+		/* without changing position,
+		 * find the token at the position
+		 * matching with rank. rank 0 = next token
+		 * Even if rank indicates a token out
+		 * of the boundaries of the source,
+		 * it return the EOFILE.
+		 */
+
+		// save the infos
+		int pos_saved{pos};
+
+		for (; rank >= 1; --rank) // rank is an unsigned int, since it should not be under zero
+			getNextToken(expected);
+		Token returned {getNextToken(expected)}; // Token is const, so it should
+
+		// reload the infos
+		advanceTo(pos_saved);
+
+		return returned;
+	}
 	
 	// private functions
 	void Lexer::advanceBy (int step) {
@@ -168,28 +191,14 @@ namespace frumul {
 	void Lexer::advanceTo (int npos) {
 		/* Change the position and the current char
 		 * by advancing to npos
-		 * Change column and line. 
 		 */
 		if (npos < source.uLength()) {
 			current_char = source.uAt(npos);
 			raw_current_char = source.uRawAt(npos);
-			// columns and lines
-			bst::str range {source.uRange(pos,npos)};
-			int lnumber = range.lineNumber();
-			if (lnumber > 1) { 
-				column = 0; 
-				for (int i{range.uLength() -1}; range.uAt(i) != "\n"; --i)
-					++column;
-				line += lnumber-1;
-			}
-			else
-				column = column + npos -pos;
 		}
 		else {// end of input 
 			current_char = "";
 			raw_current_char = 0;
-			line = source.lineNumber();
-			column = source.getLine(line).uLength();
 		}
 		pos = npos;
 		tempos = pos;
@@ -209,9 +218,9 @@ namespace frumul {
 			while (!(source.uAt(tempos) == "*" && source.uAt(tempos+1) == "/" && source.uAt(tempos+2) == "/"))
 				++tempos;
 		} catch (bst::CBStringException) {
-			Point start{column,line};
+			int start{pos};
 			advanceTo(tempos);
-			Point end{column,line};
+			int end{pos-1};
 			throw BaseException(BaseException::SyntaxError,"Unfinished comment.",
 					Position{start,end, filepath, source});
 		}
@@ -304,15 +313,15 @@ namespace frumul {
 		 */
 		//std::setlocale(LC_ALL,std::locale("").name().data()); WARNING do not forget to set locale
 		bst::str value;
-		Point start{column,line};
+		int start{pos};
 		while (!std::iswspace(raw_current_char) && current_char != unbreakable_space && current_char != "") {
 			value += current_char;
 			advanceBy();
 		}
-		Point end{column-1,start.getLine()};
+		int end{pos-1};
 		if (kwExpected)
 			value.tolower();
-		return Token{Token::ID,value,start,end,filepath,source};
+		return Token{Token::ID,value,Position(start,end,filepath,source)};
 
 	}
 
@@ -466,6 +475,10 @@ namespace frumul {
 		else if (current_char == "¦") {
 			val = "¦";
 			t = Token::VBAR;
+		}
+		else if (current_char == ":") {
+			val = ":";
+			t = Token::ASSIGN;
 		}
 		else if (current_char == "=") {
 			val = "=";

@@ -82,6 +82,14 @@ namespace frumul {
 		return pos;
 	}
 
+	const bst::str& Node::getValue () const {
+		/* Return the value
+		 * saved in the node
+		 * It can be an empty one
+		 */
+		return value;
+	}
+
 	const Node& Node::get (const bst::str& key) const {
 		/* Read only function to get
 		 * the node matching with key 
@@ -97,6 +105,24 @@ namespace frumul {
 		 */
 		assert(!childrenNamed&&"Children are a map.");
 		return numbered_children.at(index);
+	}
+
+	const std::map<bst::str,Node>& Node::getNamedChildren () const {
+		/* Return a reference to 
+		 * the named children
+		 * if they exist.
+		 */
+		assert(childrenNamed&&"Children are not named");
+		return named_children;
+	}
+
+	const std::vector<Node>& Node::getNumberedChildren () const {
+		/* Return a reference to the numbered
+		 * children if they 
+		 * exist
+		 */
+		assert(childrenNamed&&"Children are not numbered");
+		return numbered_children;
 	}
 
 	void Node::addChild(const bst::str& name, const Node& child) {
@@ -132,7 +158,10 @@ namespace frumul {
 		 * presenting the object
 		 */
 		bst::str s{"<NODE|" + typeToString(node_type) + ">\n"};
+		// value
+		s += bst::str(value ? "Has a value" : "Has no value") + ".\n";
 
+		//children
 		if (childrenNamed) {
 			for (const auto& pair : named_children) 
 				s += pair.first + ": " + typeToString(pair.second.node_type) + "\n";

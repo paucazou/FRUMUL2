@@ -18,6 +18,8 @@ void browser (const frumul::Node& parent) {
 
 back: // there is a goto at the end of the function
 	std::cout << parent;
+	if (parent.getValue())
+		std::cout << "VALUE: " << parent.getValue() << "\n";
 	std::cout << "Enter a name of a child, or 'parent' for the parent: ";
 	bst::str answer;
 	std::cin >> answer;

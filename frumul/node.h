@@ -15,11 +15,19 @@
 	NOD(DECLARATION) \
 	\
 	NOD(BASIC_VALUE) \
+	NOD(VARIABLE_DECLARATION)\
+	NOD(BIN_OP)\
+	NOD(UNARY_OP)\
 	NOD(VAL_TEXT) \
 	\
 	NOD(OPTIONS) \
 	NOD(MARK) \
 	NOD(LANG) \
+	NOD(PARAM)\
+	\
+	NOD(VARIABLE_NAME)\
+	NOD(VARIABLE_TYPE)\
+	\
 	NOD(TEXT) \
 	NOD(SIMPLE_TEXT) \
 	NOD(MAX_TYPES) \
@@ -53,8 +61,13 @@ namespace frumul {
 
 			const Position& getPosition() const;
 
+			const bst::str& getValue() const;
+
 			const Node& get(const bst::str& key) const;
 			const Node& get(int index) const;
+
+			const std::map<bst::str,Node>& getNamedChildren() const;
+			const std::vector<Node>& getNumberedChildren() const;
 			
 			//setters
 			void addChild(const bst::str& name, const Node& child);

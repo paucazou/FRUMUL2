@@ -62,6 +62,7 @@ namespace frumul {
 		}
 #if DEBUG
 		std::cout << *current_token << std::endl;
+		std::cout << __LINE__ << std::endl;
 #endif
 		throw BaseException(BaseException::UnexpectedToken,"Token expected: "+Token::typeToString(t),Position(current_token->getPosition()));
 		return false;
@@ -169,17 +170,236 @@ namespace frumul {
 		 * TODO not finished
 		 */
 		std::vector<Node> fields;
-		while (current_token->getType() != Token::RAQUOTE) {
+		while (current_token->getType() != Token::RAQUOTE && current_token->getType() != Token::EOFILE) {
 			// simple text
 			if (current_token->getType() == Token::VAL_TEXT) {
 				fields.push_back(Node(Node::VAL_TEXT,current_token->getPosition(),current_token->getValue()));
 				eat(Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES);
+			}
+			// programmatic part
+			else if (current_token->getType() == Token::LBRACE) {
+				eat(Token::LBRACE,Token::MAX_TYPES_VALUES); // eat {
+				fields.push_back(programmatic_part());
+				eat(Token::RBRACE,Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat }
 			}
 		}
 		int end {current_token->getPosition().getEnd()}; // should match with the position of RAQUOTE
 		return Node(Node::BASIC_VALUE,Position(start,end,filepath,source),fields);
 
 	}
+
+	Node Parser::programmatic_part () {
+		/* This function manages the
+		 * programmatic parts inside
+		 * the values
+		 * Node returned may be of various types.
+		 */
+		if (current_token->getType() == Token::RBRACE)
+			return Node{Node::EMPTY,current_token->getPosition()};
+
+		if (current_token->getType() != Token::VARIABLE) // we know it is not a statement
+			return expr(); 
+
+		if (current_token->getValue() == "if")
+			assert(false&&"If statement is not yet set");
+
+		if (current_token->getValue() == "loop")
+			assert(false&&"Loop statemetn is not yet set");
+
+		// we should now consider wether it is:
+		// - a declaration
+		// - an assignment
+		// - an expression starting by a variable
+		
+		Token nextToken {lex.peekToken(1,Token::MAX_TYPES_VALUES)};
+
+		// variable declaration without assignment
+		if (nextToken.getType() == Token::COMMA)
+			return variable_declaration();
+
+		// an expression starting by a variable
+		if (nextToken.getType() != Token::ASSIGN)
+			return expr();
+
+		// we can assume there is an assignment here
+		Node assign_node {variable_assignment()};
+
+		// check if it is a variable declaration with assignment
+		if (current_token->getType() == Token::COMMA) {
+			// we need to get the type
+			eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
+			assign_node.addChild("value",Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue()));
+			eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat type
+
+			int start{assign_node.getPosition().getStart()};
+			int end{current_token->getPosition().getEnd()};
+
+			return Node{ Node::VARIABLE_DECLARATION,Position(start,end,filepath,source),assign_node.getNamedChildren()};
+		}
+
+		return assign_node;
+
+	}
+
+	Node Parser::variable_declaration () {
+		/* Manages every variable declaration
+		 * Return a node with
+		 * three fields:
+		 * name, type,
+		 * and a value (optional)
+		 */
+		int start{getTokenStart()};
+		StrNodeMap fields;
+		fields.insert({"name" , Node(Node::VARIABLE_NAME,current_token->getPosition(),current_token->getValue())});
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat name
+		if (current_token->getType() == Token::ASSIGN) {
+			eat(Token::EQUAL,Token::MAX_TYPES_VALUES); // eat =
+			fields.insert({"value" , expr()});
+		}
+		eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
+		fields.insert({"type" , Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue())});
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat type
+		int end{current_token->getPosition().getEnd()};
+		return Node(Node::VARIABLE_DECLARATION,Position(start,end,filepath,source),fields);
+	}
+
+	Node Parser::variable_assignment () {
+		/* Manages the variable assignment
+		 * TODO
+		 */
+		return Node(Node::MAX_TYPES,Position(1,1,filepath,source),"");
+	}
+
+	Node Parser::expr () {
+		/* Manages all the expressions
+		 * Return a node
+		 * which can have a value
+		 * and/or children
+		 */
+
+		Node* temp_node = new Node(term());
+
+		while (intokl(current_token->getType(),{Token::PLUS,Token::MINUS,Token::OR})) {
+			bst::str val;
+			switch (current_token->getType()) {
+				case Token::PLUS:
+					val = "+";
+					break;
+				case Token::MINUS:
+					val = "-";
+					break;
+				case Token::OR:
+					val = "|";
+					break;
+				default: // f**** -Wswitch
+					break;
+			};
+
+			auto binop = new Node(Node::BIN_OP,current_token->getPosition(),StrNodeMap(),val);
+			eat(current_token->getType(),Token::MAX_TYPES_VALUES);
+			Node term2 {term()};
+			
+			binop->addChild("right",*temp_node);
+			binop->addChild("left",term2);
+
+			delete temp_node;
+			temp_node = new Node{*binop};
+		}
+
+		Node returned_node {*temp_node};
+		delete temp_node;
+
+		return returned_node;
+	}
+
+	Node Parser::term () {
+		/* Manages all the term.
+		 * return Node of various types
+		 * Recursive function
+		 */
+		Node factor1 {factor()};
+
+		bst::str val;
+		if (intokl(current_token->getType(),{Token::MUL,Token::DIV,Token::MODULO,Token::AND}))
+			val = current_token->getValue();
+		else
+			return factor1;
+
+		Node binop {Node::BIN_OP,current_token->getPosition(),StrNodeMap(),val};
+		eat(current_token->getType(),Token::MAX_TYPES_VALUES);
+
+		binop.addChild("right",factor1);
+		binop.addChild("left",term());
+
+		return binop;
+	}
+
+	Node Parser::factor () {
+		/* Manages all factor.
+		 * return Node of various types
+		 * Recursive function.
+		 */
+		// manages unary op: -,+,!
+		if (intokl(current_token->getType(),{Token::MINUS,Token::MUL,Token::NOT})) {
+			Node unop{Node::UNARY_OP,current_token->getPosition(),{{"expr",factor()}},current_token->getValue()};
+
+			eat(current_token->getType(),Token::MAX_TYPES_VALUES);
+			return unop;
+		}
+
+		// text, number and bool litteral
+		if (intokl(current_token->getType(), {Token::NUMBER,Token::LAQUOTE}) || in<bst::str,std::initializer_list<bst::str>>(current_token->getValue(),{"true","false"}))
+			assert(false&&"litteral not yet set");
+			//return litteral();
+
+		switch (current_token->getType()) {
+			case Token::PARENT:
+				// symbol call or alias litteral
+				assert(false&&"parent_expr not yet set");
+				//return parent_expr()
+			case Token::LBRACKET:
+				// list litteral
+				assert(false&&"list not yet set");
+				//return list();
+			case Token::LPAREN:
+				{
+				eat(Token::LPAREN,Token::MAX_TYPES_VALUES);
+				Node expression {expr()};
+				eat(Token::RPAREN,Token::MAX_TYPES_LANG_VALUES);
+				return expression;
+				}
+			default: // -Wswitch again
+				break;
+		};
+		// default: reference
+		return reference();
+	}
+
+	Node Parser::reference () {
+		/* Manages the references:
+		 * a variable or a list index
+		 * if it is a variable, return a node
+		 * with a value only;
+		 * else with a child named "index"
+		 */
+		int start {getTokenStart()};
+		int end {current_token->getPosition().getEnd()};
+
+		bst::str variable_name {current_token->getValue()};
+
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES);
+
+		if (current_token->getType() == Token::LBRACKET) {
+			eat(Token::LBRACKET,Token::MAX_TYPES_VALUES);
+			Node index{expr()};
+			eat(Token::RBRACKET,Token::MAX_TYPES_VALUES);
+			end = index.getPosition().getEnd();
+			return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),{{"index",index}},variable_name};
+		}
+
+		return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),variable_name};
+	}
+
 
 	Node Parser::options () {
 		/* Manages all the options:
@@ -197,9 +417,16 @@ namespace frumul {
 						fields.insert({i,child.second});
 					optionsnames[0] = "";
 				}
+
 				else if (current_token->getValue() == "mark") {
 					fields.insert({i,mark_option()});
 					optionsnames[1] = "";
+				}
+
+				else if (current_token->getValue() == "arg") {
+					for (const auto& child : param_option())
+						fields.insert({i,child});
+					optionsnames[2] = "";
 				}
 
 				eat(Token::RAQUOTE,Token::LAQUOTE,Token::ID,Token::MAX_TYPES_HEADER); // consume the end of each option: », and expects either « or and id
@@ -241,6 +468,38 @@ namespace frumul {
 				eat(Token::VBAR,Token::LANGNAME,Token::MAX_TYPES_LANG_VALUES);
 		}
 		return fields;
+	}
+
+	std::vector<Node> Parser::param_option () {
+		/* Manages the parameters.
+		 * Returns a map of param Nodes.
+		 * No value.
+		 */
+		eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // consume arg
+		eat(Token::LAQUOTE,Token::VARIABLE,Token::MAX_TYPES_VALUES); // consume «
+		NodeVector fields;
+		while ( current_token->getType() != Token::RAQUOTE ) {
+			fields.push_back(param_value ());
+			if (current_token->getType() == Token::VBAR)
+				eat(Token::VBAR,Token::VARIABLE,Token::MAX_TYPES_VALUES);
+		}
+		return fields;
+	}
+
+	Node Parser::param_value() {
+		/* Manages one parameter.
+		 * Return a Node
+		 * with three fields and no value:
+		 * variable_declaration,
+		 * number of args, TODO
+		 * choices TODO
+		 */
+		int start{getTokenStart()};
+		StrNodeMap fields;
+		fields.insert({"variable" , variable_declaration()});
+		int end{current_token->getPosition().getStart() -1};
+
+		return Node(Node::PARAM,Position(start,end,filepath,source),fields);
 	}
 
 	Node Parser::text() {
