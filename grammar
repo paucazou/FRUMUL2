@@ -11,17 +11,18 @@ alias_definition ::= lang_option? alias_value
 
 basic_value ::= ( simple_text_value* | '{' programmatic_part '}' )*
 simple_text_value ::= ('*' | '\n' | '\t')* /* Strings/Characters that must be escaped with antislash \ : « » { } //* \ \n \t*/
-programmatic_part ::= variable_declaration | variable_assignment | expr | loop | condition
+programmatic_part ::= variable_declaration | variable_assignment | comparison | loop | condition
 
-variable_declaration ::= variable_name '=' expr ',' variable_type
-variable_assignment ::= reference '=' expr
+variable_declaration ::= variable_name (':' comparison)? ',' variable_type
+variable_assignment ::= reference ':' comparison 
+comparison ::= expr (('=' | '>' | '<' | '<=' | '>=') expr)*
 expr ::= term (('+' | '-' | '|') term)*
 term ::= factor (('*' | '/' | '%' | '&') factor)*
-factor ::= '-' factor | '+' factor | '!' factor | variable_value | list | symbol_call | reference | '(' expr ')'
+factor ::= '-' factor | '+' factor | '!' factor | litteral | list | parent_expr | reference | '(' comparison ')'
 reference ::= variable_name ('[' expr ']')? /* for list */
 
-loop ::= 'loop' expr '}' basic_value '{pool'
-condition ::= 'if' expr '}' basic_value ( '{else}' basic_value )? '{fi'
+loop ::= 'loop' comparison '}' basic_value '{pool'
+condition ::= 'if' comparison '}' basic_value ( '{else}' basic_value )? '{fi'
 
 path_value ::= '«' path '»'
 path ::= relative_path | absolute_path
@@ -37,6 +38,7 @@ linked_names ::= short_name whitespace* '(' long_name ')'
 
 alias_value ::= parent TTT
 parent ::= '§'
+parent_expr ::= alias_value | symbol_call
 
 left_name ::= whitespace name whitespace
 name ::= short_name | long_name
@@ -45,16 +47,16 @@ long_name ::= '*'*
 
 options ::= (mark_option | lang_option | param_options)*
 mark_option ::= whitespace 'mark' whitespace '«' [0-9]+ '»'
-lang_option ::= whitespace 'lang' whitespace '«' '*'+ ('|' '*'+)+ '»'
+lang_option ::= whitespace 'lang' whitespace '«' '*'+ ('¦' '*'+)+ '»'
 param_options ::= whitespace 'arg' whitespace '«' param_value '»'
-param_value ::= ('{' variable_name ',' variable_type ',' arg_number (',' variable_value)? (',' list) '}')+
+param_value ::= (variable_declaration ',' arg_number (',' list)? '¦'? )+
 arg_number ::= compar_sign [0-9]+ (compar_sign [0-9])?
-compar_sign ::= '=' | '<' | '>' | '<=' | '>='
+compar_sign ::= '==' | '<' | '>' | '<=' | '>='
 
 variable_name ::= [a-zA-Z_]+
 variable_type ::= 'text' | 'int' | 'bool' | 'symbol'
-variable_value ::= int_value | text_value | bool_value | alias_value
-list ::= '[' variable_value '|' variable_value ('|' variable_value)* ']'
+litteral ::= int_value | text_value | bool_value | alias_value
+list ::= '[' comparison '|' comparison ('¦' comparison )* ']'
 
 int_value ::= [0-9]+ 
 text_value ::= '«' simple_text_value* '»'
