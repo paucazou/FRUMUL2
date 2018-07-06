@@ -1,5 +1,8 @@
 #include "position.h"
+#include <iostream>
 #include <string>
+#include <sys/ioctl.h>
+#include <unistd.h>
 namespace frumul {
 	
 	// constructors
@@ -35,16 +38,54 @@ namespace frumul {
 	bst::str Position::toString () const {
 		/* Return a string representation
 		 * of the instance
+		 * TODO manage \t; color in red the real portion
 		 */
+		// get the size of the terminal
+#ifdef __linux__
+		
+		winsize term;
+		ioctl(STDOUT_FILENO, TIOCGWINSZ, &term);
+		// to get line: term.ws_row, column: term.ws_col
+		int max_col = term.ws_col;
+#endif
+		// get the color
+#ifdef __linux__
+		const bst::str red("\033[0;31m");
+		const bst::str reset("\033[0m");
+#endif
+
 		Point startp {getLineColumn(start,filecontent)};
 		Point endp {getLineColumn(end,filecontent)};
 
 		bst::str returned{"File: "};
 		returned += filepath + '\n';
-		returned += bst::str{" "} * (startp.getColumn() + bst::str{startp.getLine()}.uLength() ) + "↓\n";
-		for (int cline{startp.getLine()}; cline <= endp.getLine();++cline)
-			returned += bst::str(cline) + " " + filecontent.getLine(cline) + '\n';
-		returned += bst::str{" "} * (endp.getColumn() + bst::str{endp.getLine()}.uLength() ) + "↑\n";
+		//returned += bst::str{" "} * (startp.getColumn() + bst::str{startp.getLine()}.uLength() ) + "↓\n";
+
+		
+		int startcol {startp.getColumn()-1};
+		for (int cline{startp.getLine()}; cline <= endp.getLine();++cline) {
+			bst::str curline {filecontent.getLine(cline)};
+			if (cline == startp.getLine()) {
+				if (startcol >= curline.uLength())
+					curline += red;
+				else
+					curline.uInsert(startcol,red);
+				if (cline == endp.getLine())
+					curline.uInsert(endp.getColumn() + red.uLength(), reset);
+				returned += bst::str(cline) + " " + curline + '\n';
+				continue;
+			}
+			else if (cline == endp.getLine()) {
+				if (endp.getColumn() >= curline.uLength())
+					curline += reset;
+				else
+					curline.uInsert(endp.getColumn(),reset);
+			}
+
+			returned += reset + bst::str(cline) + red + " " + curline + '\n';
+		}
+
+		//returned += bst::str{" "} * (endp.getColumn() + bst::str{endp.getLine()}.uLength() ) + "↑\n";
 
 		bst::str temp_line;
 		int max_length{0};
@@ -53,6 +94,9 @@ namespace frumul {
 			if (temp_line.uLength() > max_length)
 				max_length = temp_line.uLength();
 		}
+		if (max_length > max_col)
+			max_length = max_col;
+
 		bst::str sep{bst::str("=")*max_length + '\n'};
 		returned = sep + returned + sep;
 		return returned;
