@@ -1,0 +1,8 @@
+___header___
+loop : lang «every» mark «1»
+	«{loop 1}text inside loop{pool}»
+loop2 : lang «every» mark «1»
+	«Some text{loop true}infinite loop{//*programmatic part inside loop*//true}{pool}
+	Some text outside the loop.»
+___text___
+Some text in the text

@@ -167,7 +167,6 @@ namespace frumul {
 		 * Node has no value, but the fields are
 		 * filled with nodes ordered by digits
 		 * start is the position of the LAQUOTE
-		 * TODO not finished
 		 */
 		std::vector<Node> fields;
 		while (current_token->getType() != Token::RAQUOTE && current_token->getType() != Token::EOFILE) {
@@ -179,6 +178,8 @@ namespace frumul {
 			// programmatic part
 			else if (current_token->getType() == Token::LBRACE) {
 				eat(Token::LBRACE,Token::MAX_TYPES_VALUES); // eat {
+				if (current_token->getValue() == "fi" || current_token->getValue() == "pool")
+					break; // end of a loop or a condition
 				fields.push_back(programmatic_part());
 				eat(Token::RBRACE,Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat }
 			}
@@ -204,7 +205,7 @@ namespace frumul {
 			assert(false&&"If statement is not yet set");
 
 		if (current_token->getValue() == "loop")
-			assert(false&&"Loop statemetn is not yet set");
+			return loop();
 
 		// we should now consider wether it is:
 		// - a declaration
@@ -442,6 +443,33 @@ namespace frumul {
 
 		return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),variable_name};
 	}
+
+	Node Parser::loop () {
+		/* Manages the loop
+		 * Return a loop Node
+		 * which has two children:
+		 * the expression/number of times
+		 * the loop should be called;
+		 * and the text that will be printed
+		 * or parts that will be executed
+		 */
+		int start {getTokenStart()};
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat 'loop'
+		// get comparison/number of times
+		Node condition { comparison() };
+		eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // eat }
+		Node inside_loop {basic_value(getTokenStart()) };
+		if (current_token->getValue() != "pool")
+			throw BaseException(BaseException::UnexpectedToken,"The keyword 'pool' was expected to close the loop",Position(start,current_token->getPosition().getEnd(),filepath,source));
+
+		std::cout << __LINE__ << std::endl;
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat pool
+		// RBRACE is eat by programmatic_part
+		int end {getTokenStart()};
+
+		return Node {Node::LOOP,Position(start,end,filepath,source),{{"condition",condition},{"text",inside_loop}}};
+	}
+
 
 
 	Node Parser::options () {

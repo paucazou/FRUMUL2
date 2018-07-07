@@ -48,6 +48,8 @@ namespace frumul {
 			Node factor ();
 			Node reference ();
 
+			Node loop ();
+
 			Node options ();
 			Node mark_option ();
 			std::map<bst::str,Node> lang_option ();
