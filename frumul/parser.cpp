@@ -178,7 +178,7 @@ namespace frumul {
 			// programmatic part
 			else if (current_token->getType() == Token::LBRACE) {
 				eat(Token::LBRACE,Token::MAX_TYPES_VALUES); // eat {
-				if (current_token->getValue() == "fi" || current_token->getValue() == "pool")
+				if (in<bst::str,std::initializer_list<bst::str>>(current_token->getValue(),{"pool","else","fi"}))
 					break; // end of a loop or a condition
 				fields.push_back(programmatic_part());
 				eat(Token::RBRACE,Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat }
