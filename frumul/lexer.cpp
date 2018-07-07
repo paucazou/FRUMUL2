@@ -404,14 +404,14 @@ namespace frumul {
 			advanceBy();
 			return Token {Token::LBRACE,"{",Position(pos-1,pos-1,filepath,source)};
 		}
-		// basic case : regular string
-		if (intokl(Token::VAL_TEXT,expected)) {
+		// basic case : regular string, and litteral text
+		if (toklists({Token::VAL_TEXT,Token::LITTEXT},expected)) {
 			bst::str val;
 			int start = pos;
 			while (current_char != "»" && current_char != "") {
 				if (current_char == "\\")
 					val += escape();
-				else if (current_char == "{")
+				else if (current_char == "{" && !intokl(Token::LITTEXT,expected))
 					break; // in this case, the lexer must break because a programmatic part is discovered
 				else if (current_char == "/") {
 					skipComment();

@@ -51,7 +51,7 @@ lang_option ::= whitespace 'lang' whitespace '«' '*'+ ('¦' '*'+)+ '»'
 param_options ::= whitespace 'arg' whitespace '«' param_value '»'
 param_value ::= (variable_declaration ',' arg_number (',' list)? '¦'? )+
 arg_number ::= compar_sign [0-9]+ (compar_sign [0-9])?
-compar_sign ::= '==' | '<' | '>' | '<=' | '>='
+compar_sign ::= '=' | '<' | '>' | '<=' | '>='
 
 variable_name ::= [a-zA-Z_]+
 variable_type ::= 'text' | 'int' | 'bool' | 'symbol'

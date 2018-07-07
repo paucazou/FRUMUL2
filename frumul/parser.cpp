@@ -211,7 +211,7 @@ namespace frumul {
 		// - an assignment
 		// - an expression starting by a variable
 		
-		Token nextToken {lex.peekToken(1,Token::MAX_TYPES_VALUES)};
+		Token nextToken {lex.peekToken(0,Token::MAX_TYPES_VALUES)};
 
 		// variable declaration without assignment
 		if (nextToken.getType() == Token::COMMA)
@@ -253,7 +253,7 @@ namespace frumul {
 		fields.insert({"name" , Node(Node::VARIABLE_NAME,current_token->getPosition(),current_token->getValue())});
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat name
 		if (current_token->getType() == Token::ASSIGN) {
-			eat(Token::EQUAL,Token::MAX_TYPES_VALUES); // eat =
+			eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
 			fields.insert({"value" , expr()});
 		}
 		eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
@@ -268,6 +268,50 @@ namespace frumul {
 		 * TODO
 		 */
 		return Node(Node::MAX_TYPES,Position(1,1,filepath,source),"");
+	}
+
+	Node Parser::comparison () {
+		/* Manages the comparison
+		 * It can return a comparison if it found one,
+		 * or an expression.
+		 */
+		Node expression { expr() };
+		if (!intokl(current_token->getType(),{Token::EQUAL,Token::GREATER,Token::LESS}))
+			return expression;
+
+		int start { expression.getPosition().getStart() };
+		NodeVector fields;
+		fields.push_back(expression);
+
+		while (true) {
+			bst::str val;
+			int start{getTokenStart()};
+			int end {start};
+			switch (current_token->getType()) {
+				case Token::EQUAL:
+					val = "=";
+					end = start;
+					eat(current_token->getType(),Token::MAX_TYPES_VALUES);
+					break;
+				case Token::GREATER:
+				case Token::LESS:
+					val = current_token->getValue();
+					eat(current_token->getType(),Token::MAX_TYPES_VALUES);
+					if (current_token->getType() == Token::EQUAL) {
+						val += "=";
+						end = getTokenStart();
+						eat(Token::EQUAL,Token::MAX_TYPES_VALUES);
+					}
+				default:
+					break;
+			};
+			fields.push_back(Node{Node::COMPARE_OP,Position(start,end,filepath,source),val});
+			fields.push_back(expr());
+		}
+
+		int end { fields.back().getPosition().getEnd() };
+		Node compare_node{Node::COMPARISON,Position(start,end,filepath,source),fields};
+		return compare_node;
 	}
 
 	Node Parser::expr () {
@@ -349,8 +393,7 @@ namespace frumul {
 
 		// text, number and bool litteral
 		if (intokl(current_token->getType(), {Token::NUMBER,Token::LAQUOTE}) || in<bst::str,std::initializer_list<bst::str>>(current_token->getValue(),{"true","false"}))
-			assert(false&&"litteral not yet set");
-			//return litteral();
+			return litteral();
 
 		switch (current_token->getType()) {
 			case Token::PARENT:
@@ -403,35 +446,35 @@ namespace frumul {
 
 	Node Parser::options () {
 		/* Manages all the options:
-		 * lang, mark and arg (TODO)
+		 * lang, mark and arg 
 		 * Return a Node with no value
 		 * but fields named with options
 		 * names.
 		 */
 		int start {getTokenStart()}; // start position
 		std::array<bst::str,3> optionsnames {"lang","mark","arg"};
-		std::map<bst::str,Node> fields;
+		NodeVector fields;
 		for (int i{0};in<bst::str,std::array<bst::str,3>>(current_token->getValue(),optionsnames);++i) {
 				if (current_token->getValue() == "lang") {
 					for (const auto& child : lang_option())
-						fields.insert({i,child.second});
+						fields.push_back(child.second);
 					optionsnames[0] = "";
 				}
 
 				else if (current_token->getValue() == "mark") {
-					fields.insert({i,mark_option()});
+					fields.push_back(mark_option());
 					optionsnames[1] = "";
 				}
 
 				else if (current_token->getValue() == "arg") {
 					for (const auto& child : param_option())
-						fields.insert({i,child});
+						fields.push_back(child);
 					optionsnames[2] = "";
 				}
 
 				eat(Token::RAQUOTE,Token::LAQUOTE,Token::ID,Token::MAX_TYPES_HEADER); // consume the end of each option: », and expects either « or and id
 		}
-		int end { fields.rbegin()->second.getPosition().getEnd() };// end position
+		int end { fields.back().getPosition().getEnd() };// end position
 
 		return Node(Node::OPTIONS,Position(start,end,filepath,source),fields);
 	}
@@ -500,6 +543,40 @@ namespace frumul {
 		int end{current_token->getPosition().getStart() -1};
 
 		return Node(Node::PARAM,Position(start,end,filepath,source),fields);
+	}
+
+	Node Parser::litteral() {
+		/* Parses the litteral text, int
+		 * and bool.
+		 * Return a Node with 
+		 * a value.
+		 */
+		switch (current_token->getType()) {
+			case Token::NUMBER:
+				{
+					Node number {Node::LITINT,current_token->getPosition(),current_token->getValue()};
+					eat(Token::NUMBER,Token::MAX_TYPES_VALUES);
+					return number;
+				}
+			case Token::LAQUOTE:
+				{
+					int start {getTokenStart()};
+					eat(Token::LAQUOTE,Token::LITTEXT,Token::MAX_TYPES_VALUES); // eat «
+					bst::str val {current_token->getValue()};
+					eat(Token::LITTEXT,Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat text itself
+					int end {getTokenStart()};
+					eat(Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat »
+					return Node{ Node::LITTEXT,Position(start,end,filepath,source),val};
+				}
+			default:
+				//-Wswitch !!!
+				break;
+		};
+
+		// default: bool
+		Node b00l {Node::LITBOOL,current_token->getPosition(),current_token->getValue()};
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat false/true
+		return b00l;
 	}
 
 	Node Parser::text() {

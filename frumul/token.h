@@ -40,6 +40,7 @@
 	TOK(OR)			/* | */\
 	TOK(NOT)		/* ! */\
 	TOK(VARIABLE)		/* alphanumeric + _ name */\
+	TOK(LITTEXT)		/* litteral text */\
 	TOK(VAL_TEXT)		/* everything else */\
 	TOK(MAX_TYPES_VALUES)\
 	/* special namespaces types */ \
