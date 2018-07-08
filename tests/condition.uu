@@ -1,0 +1,7 @@
+___header___
+id : lang «html|xhtml|html5» mark «1»
+	«{if 1=1}text inside conditional block
+	{else}text inside block
+	{fi}»
+___text___
+Some text

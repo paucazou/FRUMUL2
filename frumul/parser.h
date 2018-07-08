@@ -49,6 +49,7 @@ namespace frumul {
 			Node reference ();
 
 			Node loop ();
+			Node condition ();
 
 			Node options ();
 			Node mark_option ();

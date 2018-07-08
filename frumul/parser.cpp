@@ -202,7 +202,7 @@ namespace frumul {
 			return expr(); 
 
 		if (current_token->getValue() == "if")
-			assert(false&&"If statement is not yet set");
+			return condition();
 
 		if (current_token->getValue() == "loop")
 			return loop();
@@ -284,7 +284,8 @@ namespace frumul {
 		NodeVector fields;
 		fields.push_back(expression);
 
-		while (true) {
+		bool isComparison{true};
+		while (isComparison) {
 			bst::str val;
 			int start{getTokenStart()};
 			int end {start};
@@ -303,11 +304,15 @@ namespace frumul {
 						end = getTokenStart();
 						eat(Token::EQUAL,Token::MAX_TYPES_VALUES);
 					}
+					break;
 				default:
+					isComparison = false;
 					break;
 			};
-			fields.push_back(Node{Node::COMPARE_OP,Position(start,end,filepath,source),val});
-			fields.push_back(expr());
+			if (isComparison) {
+				fields.push_back(Node{Node::COMPARE_OP,Position(start,end,filepath,source),val});
+				fields.push_back(expr());
+			}
 		}
 
 		int end { fields.back().getPosition().getEnd() };
@@ -462,13 +467,46 @@ namespace frumul {
 		if (current_token->getValue() != "pool")
 			throw BaseException(BaseException::UnexpectedToken,"The keyword 'pool' was expected to close the loop",Position(start,current_token->getPosition().getEnd(),filepath,source));
 
-		std::cout << __LINE__ << std::endl;
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat pool
 		// RBRACE is eat by programmatic_part
 		int end {getTokenStart()};
 
 		return Node {Node::LOOP,Position(start,end,filepath,source),{{"condition",condition},{"text",inside_loop}}};
 	}
+
+	Node Parser::condition () {
+		/* Manages the condition.
+		 * Return a condition Node
+		 * with two or three children:
+		 * - the condition
+		 * - the text inside the block
+		 * - the text inside the else block (optional)
+		 */
+		int start {getTokenStart()};
+		StrNodeMap fields;
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); //eat 'if'
+		// get comparison
+		fields.insert({"comparison",comparison()});
+		eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); //eat }
+		// get text inside
+		fields.insert({"text",basic_value(getTokenStart())});
+		// get the else or pass
+		if (current_token->getValue() == "else") {
+			eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); //eat 'else'
+			eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // eat }
+			fields.insert({"else_text",basic_value(getTokenStart())});
+		}
+		// check if 'fi' is present
+		if (current_token->getValue() != "fi")
+			throw BaseException{BaseException::UnexpectedToken,"The keyword 'fi' was expected to close the conditional block",Position(start,current_token->getPosition().getEnd(),filepath,source)};
+
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat fi
+		// RBRACE is eat by programmatic_part
+		int end {getTokenStart()};
+
+		return Node {Node::CONDITION,Position(start,end,filepath,source),fields};
+		}
+
 
 
 
