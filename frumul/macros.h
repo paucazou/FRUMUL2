@@ -28,3 +28,8 @@
  *
  * ENUM(FRUIT_ENUM,FOREACH_FRUIT)
  */
+
+// things that must go into main
+#define THINGS_IN_MAIN \
+	std::setlocale(LC_ALL,std::locale("").name().data());\
+	std::set_terminate (frumul::terminate)

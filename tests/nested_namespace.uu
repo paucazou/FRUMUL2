@@ -1,0 +1,9 @@
+___header___
+,, : Mark «1» lang «every» namespace «,{long}{long2}» (
+	long : «a value»
+	long2 : namespace «{first}s{second}»(
+		first : «some value»
+		second : «another value»
+	)
+)___text___
+some text

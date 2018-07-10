@@ -159,7 +159,7 @@ namespace frumul {
 			eat(Token::LAQUOTE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // consume «
 			fields.insert({"value",basic_value(start)});
 			//RAQUOTE is eat in statement_list
-			end = fields.at("value").getPosition().getEnd(); // TODO should be deleted
+			end = fields.at("value").getPosition().getEnd(); 
 		}
 
 		else if (current_token->getValue() == "namespace") { // namespace
@@ -175,8 +175,20 @@ namespace frumul {
 			//RPAREN is eat in statement_list
 			end = current_token->getPosition().getEnd();
 		}
+		else if (current_token->getValue() == "file") { // file insertion
+			eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); //eat 'file'
+			Node path {path_value ()};
+			fields.insert({"path",path});
+			end = current_token->getPosition().getEnd();
+			// RAQUOTE is eat in statement_list
 
-		//int end {fields.at("value").getPosition().getEnd()}; // end position
+			fields.insert({"value",file_content(path.getValue())});
+			for (const auto& elt : fields.get("value").get("options"))
+				fields.get("options").push_back(elt);
+			fields.get("value").removeChild("options");
+
+		}
+
 
 
 		return Node{Node::DECLARATION,Position(start,end,filepath,source),fields,name};
@@ -549,6 +561,25 @@ namespace frumul {
 		int end {getTokenStart()};
 
 		return Node {Node::CONDITION,Position(start,end,filepath,source),fields};
+	}
+
+	Node Parser::path_value () {
+		/* Manages the path value.
+		 * Return a node with the path as value
+		 * and no child.
+		 */
+		int start {getTokenStart()};
+		eat(Token::LAQUOTE,Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat «
+		bst::str val {current_token->getValue()};
+		int end {getTokenStart()};
+		// RAQUOTE is eat in statement_list
+		return Node{Node::PATH,Position(start,end,filepath,source),val};
+	}
+
+	Node Parser::file_content () {
+		/* Manages the content of a header file
+		 * Return a Node which can be of many types
+		 */
 	}
 
 	Node Parser::namespace_value (const int start) {

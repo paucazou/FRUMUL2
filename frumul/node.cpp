@@ -140,6 +140,22 @@ namespace frumul {
 		numbered_children.push_back(child);
 	}
 
+	void Node::removeChild(const bst::str& name) {
+		/* Remove a child if the children
+		 * are a map
+		 */
+		assert(childrenNamed&&"Children are a vector");
+		named_children.erase(name);
+	}
+
+	void Node::removeChild(const int i) {
+		/* Remove a child if the children
+		 * are a vector
+		 */
+		assert(!childrenNamed&&"Children are a map");
+		numbered_children.erase(i);
+	}
+
 	void Node::operator= (const Node& n) {
 		/* Copy non constant members of n inside
 		 * this

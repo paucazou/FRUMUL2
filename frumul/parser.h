@@ -51,6 +51,9 @@ namespace frumul {
 			Node loop ();
 			Node condition ();
 
+			Node path_value ();
+			Node file_content ();
+
 			Node namespace_value (const int start);
 			Node short_name ();
 			Node long_name ();

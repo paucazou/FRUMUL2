@@ -26,6 +26,8 @@
 	NOD(LOOP)\
 	NOD(CONDITION)\
 	\
+	NOD(PATH)\
+	\
 	NOD(LONG_NAME)\
 	NOD(SHORT_NAME)\
 	NOD(LINKED_NAMES)\
@@ -86,6 +88,9 @@ namespace frumul {
 			//setters
 			void addChild(const bst::str& name, const Node& child);
 			void addChild(const Node& child);
+
+			void removeChild(const bst::str& name);
+			void removeChild(const int i);
 
 			// operators
 			void operator=(const Node& n);
