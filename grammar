@@ -6,7 +6,7 @@ declaration ::= left_name declare_op definition
 definition ::= basic_definition | file_definition | namespace_definition | alias_definition
 basic_definition ::= options basic_value
 file_definition ::= lang_option? 'file' path_value
-namespace_definition ::= options namespace_value '(' statement_list ')'
+namespace_definition ::= options 'namespace' namespace_value '(' statement_list ')'
 alias_definition ::= lang_option? alias_value
 
 basic_value ::= ( simple_text_value* | '{' programmatic_part '}' )*
@@ -21,7 +21,7 @@ term ::= factor (('*' | '/' | '%' | '&') factor)*
 factor ::= '-' factor | '+' factor | '!' factor | litteral | list | parent_expr | reference | '(' comparison ')'
 reference ::= variable_name ('[' expr ']')? /* for list */
 
-loop ::= 'loop' comparison '}' basic_value '{pool'
+loop ::= 'loop' variable? comparison '}' basic_value '{pool'
 condition ::= 'if' comparison '}' basic_value ( '{else}' basic_value )? '{fi'
 
 path_value ::= '«' path '»'
@@ -33,10 +33,10 @@ stdlib ::= '*'+
 custom_header ::= '*'+ '.h'?
 file_content ::= basic_definition | file_definition | namespace_definition /* This is what we should find inside a file */
 
-namespace_value ::= "«" ((short_name | '(' long_name ')' | linked_names) whitespace*)* "»"
-linked_names ::= short_name whitespace* '(' long_name ')'
+namespace_value ::= "«" ((short_name | '{' long_name '}' | linked_names) whitespace*)* "»"
+linked_names ::= short_name whitespace* '{' long_name '}'
 
-alias_value ::= parent TTT
+alias_value ::= parent TTT?
 parent ::= '§'
 parent_expr ::= alias_value | symbol_call
 
@@ -49,7 +49,7 @@ options ::= (mark_option | lang_option | param_options)*
 mark_option ::= whitespace 'mark' whitespace '«' [0-9]+ '»'
 lang_option ::= whitespace 'lang' whitespace '«' '*'+ ('¦' '*'+)+ '»'
 param_options ::= whitespace 'arg' whitespace '«' param_value '»'
-param_value ::= (variable_declaration ',' arg_number (',' list)? '¦'? )+
+param_value ::= (variable_declaration (',' arg_number)? (',' list)? '¦'? )+
 arg_number ::= compar_sign [0-9]+ (compar_sign [0-9])?
 compar_sign ::= '=' | '<' | '>' | '<=' | '>='
 

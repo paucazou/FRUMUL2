@@ -46,6 +46,9 @@ namespace frumul {
 		if (intokl (Token::MAX_TYPES_LANG_VALUES,expected))
 			return tokenizeLangValue(expected);
 
+		if (intokl (Token::MAX_TYPES_NAMESPACE_VALUES,expected))
+			return tokenizeNamespaceValue(expected);
+
 		if (intokl (Token::MAX_TYPES_HEADER, expected)) {
 			// inside header
 			skipNoToken();
@@ -71,16 +74,16 @@ namespace frumul {
 				bool isSkipped {skipNoToken()};
 				int oldpos {pos};
 				if (! isSkipped) {
-					advanceBy(oldpos);
+					advanceTo(oldpos);
 					return tok;
 				}
 				if (current_char != ":") {
-					advanceBy(oldpos);
+					advanceTo(oldpos);
 					return tok;
 				}
 				advanceBy();
 				if (! skipWhiteSpace()) {
-					advanceBy(oldpos);
+					advanceTo(oldpos);
 					return tok;
 				}
 				skipNoToken();
@@ -327,14 +330,48 @@ namespace frumul {
 
 	Token Lexer::tokenizeNamespaceValue (std::initializer_list<Token::Type> expected) {
 		/* Lexicalize namespace values
-		 * LBRACE and RBRACE are managed by tokenizeValue
 		 */
 		bst::str val;
 		int oldpos{pos};
 		Token::Type t;
 		skipNoToken();
 
-		if (intokl(Token::SNAME,expected) && current_char != "{") {
+		if (intokl(Token::LNAME,expected)) {
+			// long name
+			t = Token::LNAME;
+			while (current_char != "}" && current_char != "") {
+				if (current_char == "\\")
+					val += escape();
+				else if (current_char == "/") {
+					skipComment();
+					continue;
+				}
+				else if (current_char == "\n" || current_char == "\t") {
+					advanceBy();
+					continue;
+				}
+				else
+					val += current_char;
+				advanceBy();
+			}
+		}
+
+		else if (current_char == "{") {
+			t = Token::LBRACE;
+			val = "{";
+			advanceBy();
+		} else if (current_char == "}") {
+			t = Token::RBRACE;
+			val = "}";
+			advanceBy();
+		}
+		else if (current_char == "»") {
+			t = Token::RAQUOTE;
+			val = "»";
+			advanceBy();
+		}
+
+		else {
 			// short name
 			t = Token::SNAME;
 			if (current_char == "\\") {
@@ -343,16 +380,6 @@ namespace frumul {
 			else
 				val = current_char;
 			advanceBy();
-		} else {
-			// long name
-			t = Token::LNAME;
-			while (current_char != "}" || current_char != "") {
-				if (current_char == "\\")
-					val += escape();
-				else
-					val += current_char;
-				advanceBy();
-			}
 		}
 		return Token(t,val,Position(oldpos,pos-1,filepath,source));
 	}

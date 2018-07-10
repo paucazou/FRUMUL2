@@ -34,10 +34,10 @@ namespace frumul {
 			Node document ();
 
 			Node header ();
-			std::map<bst::str,Node> statement_list (bool isNamespace = false);
+			std::vector<Node> statement_list (bool isNamespace = false);
 			Node declaration ();
 
-			Node basic_value (int start);
+			Node basic_value (const int start);
 			Node programmatic_part ();
 
 			Node variable_declaration ();
@@ -51,13 +51,19 @@ namespace frumul {
 			Node loop ();
 			Node condition ();
 
+			Node namespace_value (const int start);
+			Node short_name ();
+			Node long_name ();
+
 			Node options ();
 			Node mark_option ();
 			std::map<bst::str,Node> lang_option ();
 			std::vector<Node> param_option ();
 			Node param_value ();
+			std::vector<Node> arg_number ();
 
 			Node litteral ();
+			Node list ();
 
 			Node text ();
 	};

@@ -93,7 +93,7 @@ namespace frumul {
 		// eat ___header___
 		eat(Token::HEADER,Token::ID,Token::MAX_TYPES_HEADER);
 		// get the statement list
-		std::map<bst::str,Node> stlist {statement_list()};
+		std::vector<Node> stlist {statement_list()};
 
 		int end {current_token->getPosition().getStart() - 1};
 		return Node{Node::HEADER,Position(start,end,filepath,source),
@@ -101,26 +101,34 @@ namespace frumul {
 
 	}
 
-	std::map<bst::str,Node> Parser::statement_list(bool isNamespace) { // lui faire passer un bool si namespace ou non
+	std::vector<Node> Parser::statement_list(bool isNamespace) { // lui faire passer un bool si namespace ou non
 		/* Manages the list of declarations
 		 * Return a map of declaration, with key
 		 * as a digit
 		 * isNamespace defines whether it is inside a namespace or not
 		 * default: false
 		 */
-		std::map<bst::str,Node> statements;
+		std::vector<Node> statements;
 		if (current_token->getType() != Token::ID) {
 			int nodepos {current_token->getPosition().getStart()};
-			statements.insert({bst::str(0),Node(Node::EMPTY,Position(nodepos,nodepos,filepath,source))});
+			statements.push_back(Node(Node::EMPTY,Position(nodepos,nodepos,filepath,source)));
 		}
 		// get declaration each after the other
 		for (int i{0};current_token->getType() == Token::ID; ++i) {
-			statements.insert({i,declaration()});
+			statements.push_back(declaration());
+
+			Token::Type t;
+			// we need to know if current_token is supposed to be ) or »
+			if (statements.back().get("value").type() == Node::NAMESPACE_VALUE)
+				t = Token::RPAREN;
+			else
+				t = Token::RAQUOTE;
 
 			if (!isNamespace)
-				eat(Token::RAQUOTE,Token::ID,Token::MAX_TYPES_HEADER); 
+				eat(t,Token::ID,Token::MAX_TYPES_HEADER); 
 			else
-				eat(Token::RAQUOTE,Token::ID,Token::RPAREN,Token::MAX_TYPES_HEADER);
+				// if we are inside a namespace, we can expect an ID or a RPAREN
+				eat(t,Token::ID,Token::RPAREN,Token::MAX_TYPES_HEADER);
 		}
 
 
@@ -149,10 +157,23 @@ namespace frumul {
 		if (current_token->getType() == Token::LAQUOTE) { // we can assume it is a basic value
 			int start {getTokenStart()};
 			eat(Token::LAQUOTE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // consume «
-			std::cout << *current_token << std::endl;
 			fields.insert({"value",basic_value(start)});
 			//RAQUOTE is eat in statement_list
 			end = fields.at("value").getPosition().getEnd(); // TODO should be deleted
+		}
+
+		else if (current_token->getValue() == "namespace") { // namespace
+			eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // eat 'namespace'
+			int start {getTokenStart()};
+			eat(Token::LAQUOTE,Token::MAX_TYPES_NAMESPACE_VALUES); // eat «
+			fields.insert({"value",namespace_value(start)});
+			eat(Token::RAQUOTE,Token::LPAREN,Token::MAX_TYPES_HEADER); // eat »
+			eat(Token::LPAREN,Token::ID,Token::MAX_TYPES_HEADER); // eat (
+			NodeVector stlist {statement_list(true)};
+			for (unsigned int i{0}; i < stlist.size(); ++i)
+				fields.insert({bst::str("stmt") + i,stlist[i]});
+			//RPAREN is eat in statement_list
+			end = current_token->getPosition().getEnd();
 		}
 
 		//int end {fields.at("value").getPosition().getEnd()}; // end position
@@ -161,7 +182,7 @@ namespace frumul {
 		return Node{Node::DECLARATION,Position(start,end,filepath,source),fields,name};
 	}
 
-	Node Parser::basic_value (int start) {
+	Node Parser::basic_value (const int start) {
 		/* Manages basic value
 		 * Return a node with the basic value
 		 * Node has no value, but the fields are
@@ -266,9 +287,22 @@ namespace frumul {
 
 	Node Parser::variable_assignment () {
 		/* Manages the variable assignment
-		 * TODO
+		 * Return a node with two fields:
+		 * a name and a value
 		 */
-		return Node(Node::MAX_TYPES,Position(1,1,filepath,source),"");
+		int start {getTokenStart()};
+		StrNodeMap fields;
+		//get name
+		fields.insert({"name",Node{Node::VARIABLE_NAME,current_token->getPosition(),current_token->getValue()}});
+
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat name
+		// get assign
+		eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
+		// get value
+		fields.insert({"value",expr()});
+
+		int end{fields.at("value").getPosition().getEnd()};
+		return Node{Node::VARIABLE_ASSIGNMENT,Position(start,end,filepath,source),fields};
 	}
 
 	Node Parser::comparison () {
@@ -349,8 +383,8 @@ namespace frumul {
 			eat(current_token->getType(),Token::MAX_TYPES_VALUES);
 			Node term2 {term()};
 			
-			binop->addChild("right",*temp_node);
-			binop->addChild("left",term2);
+			binop->addChild("left",*temp_node);
+			binop->addChild("right",term2);
 
 			delete temp_node;
 			temp_node = new Node{*binop};
@@ -408,8 +442,7 @@ namespace frumul {
 				//return parent_expr()
 			case Token::LBRACKET:
 				// list litteral
-				assert(false&&"list not yet set");
-				//return list();
+				return list();
 			case Token::LPAREN:
 				{
 				eat(Token::LPAREN,Token::MAX_TYPES_VALUES);
@@ -459,11 +492,22 @@ namespace frumul {
 		 * or parts that will be executed
 		 */
 		int start {getTokenStart()};
+		StrNodeMap fields;
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat 'loop'
 		// get comparison/number of times
 		Node condition { comparison() };
+		// get the iterable if it exists
+		if (current_token->getType() == Token::ASSIGN) {
+			eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
+			Node iterable { comparison() };
+			fields.insert({"variable",condition});
+			fields.insert({"iterable",iterable});
+		} else
+			fields.insert({"condition",condition});
+			
 		eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // eat }
 		Node inside_loop {basic_value(getTokenStart()) };
+		fields.insert({"inside_loop",inside_loop});
 		if (current_token->getValue() != "pool")
 			throw BaseException(BaseException::UnexpectedToken,"The keyword 'pool' was expected to close the loop",Position(start,current_token->getPosition().getEnd(),filepath,source));
 
@@ -471,7 +515,7 @@ namespace frumul {
 		// RBRACE is eat by programmatic_part
 		int end {getTokenStart()};
 
-		return Node {Node::LOOP,Position(start,end,filepath,source),{{"condition",condition},{"text",inside_loop}}};
+		return Node {Node::LOOP,Position(start,end,filepath,source),fields};
 	}
 
 	Node Parser::condition () {
@@ -505,10 +549,69 @@ namespace frumul {
 		int end {getTokenStart()};
 
 		return Node {Node::CONDITION,Position(start,end,filepath,source),fields};
+	}
+
+	Node Parser::namespace_value (const int start) {
+		/* Manages the namespace value.
+		 * Return a Node NAMESPACE_VALUE
+		 * with at least one child,
+		 * long name, short name or linked name
+		 */
+		NodeVector fields;
+		while (current_token->getType() != Token::RAQUOTE) {
+			switch (current_token->getType()) {
+				case Token::SNAME:
+					fields.push_back(short_name());
+					break;
+				case Token::LBRACE:
+					fields.push_back(long_name());
+					break;
+				default:
+					throw BaseException(BaseException::SyntaxError,"A short name or a long name is expected.",current_token->getPosition());
+			};
 		}
+		int end{fields.back().getPosition().getEnd()};
+		return Node{Node::NAMESPACE_VALUE,Position(start,end,filepath,source),fields};
 
+	}
 
+	Node Parser::short_name () {
+		/* Manages the short name.
+		 * Can return a short name
+		 * (only a value)
+		 * or a linked name
+		 * (two children: short name
+		 * and long name)
+		 */	
+		Node shortn{Node::SHORT_NAME,current_token->getPosition(),current_token->getValue()};
+		eat(Token::SNAME,Token::MAX_TYPES_NAMESPACE_VALUES); // eat sname
+		// get a potential long name associated
+		if (current_token->getType() == Token::LBRACE) {
+			Node longn {long_name()};
+			Node linkedn {Node::LINKED_NAMES,Position(
+					shortn.getPosition().getStart(),
+					longn.getPosition().getEnd(),
+					filepath,source),{{"short",shortn},{"long",longn}}
+			};
+			return linkedn;
+		} 
+		return shortn;
+	}
 
+	Node Parser::long_name () {
+		/* Manages the long name.
+		 * Return a node with a value.
+		 */
+		int start {getTokenStart()};
+		eat(Token::LBRACE,Token::LNAME,Token::MAX_TYPES_NAMESPACE_VALUES); // eat { and get long name
+		bst::str val {current_token->getValue()};
+		eat(Token::LNAME,Token::MAX_TYPES_NAMESPACE_VALUES); // eat lname
+		int end {getTokenStart()};
+		eat(Token::RBRACE,Token::MAX_TYPES_NAMESPACE_VALUES); // eat }
+		
+		return Node{Node::LONG_NAME,Position(start,end,filepath,source),val};
+	}
+	
 
 	Node Parser::options () {
 		/* Manages all the options:
@@ -540,6 +643,9 @@ namespace frumul {
 
 				eat(Token::RAQUOTE,Token::LAQUOTE,Token::ID,Token::MAX_TYPES_HEADER); // consume the end of each option: », and expects either « or and id
 		}
+		if (fields.size () == 0) 
+			return Node(Node::EMPTY,Position(start,start,filepath,source));
+
 		int end { fields.back().getPosition().getEnd() };// end position
 
 		return Node(Node::OPTIONS,Position(start,end,filepath,source),fields);
@@ -600,15 +706,58 @@ namespace frumul {
 		 * Return a Node
 		 * with three fields and no value:
 		 * variable_declaration,
-		 * number of args, TODO
-		 * choices TODO
+		 * number of args, 
+		 * choices 
 		 */
 		int start{getTokenStart()};
 		StrNodeMap fields;
 		fields.insert({"variable" , variable_declaration()});
+		if (current_token->getType() == Token::COMMA) {
+			eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
+			if (intokl(current_token->getType(),{Token::EQUAL,Token::LESS,Token::GREATER})){ // number of args
+				NodeVector argnb {arg_number()};
+				for (unsigned int i{0}; i < argnb.size();++i)
+					fields.insert({bst::str("argnb") + i,argnb.at(i)});
+
+				if (current_token->getType() == Token::COMMA)
+					eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
+			}
+			
+			if (current_token->getType() == Token::LBRACKET) // list
+				fields.insert({"choices",list()});
+		}
+
 		int end{current_token->getPosition().getStart() -1};
 
 		return Node(Node::PARAM,Position(start,end,filepath,source),fields);
+	}
+
+	NodeVector Parser::arg_number () {
+		/* Manages the number of args.
+		 * Return a NodeVector with at max
+		 * two fields
+		 */
+
+		NodeVector fields;
+		while (intokl(current_token->getType(),{Token::EQUAL,Token::GREATER,Token::LESS})) {
+			int start{getTokenStart()};
+			bst::str val { current_token->getValue()};
+			eat(current_token->getType(),Token::MAX_TYPES_VALUES); // eat =,> or <
+			if ((val == ">" || val == "<") && current_token->getType() == Token::EQUAL) {
+				val += "=";
+				eat(Token::EQUAL,Token::MAX_TYPES_VALUES);
+			}
+			Node expression{expr()}; // get the number. We do not call comparison, since we don't expect one. Actually, calling comparison would create an error if another comparison sign is found
+			int end {expression.getPosition().getEnd()};
+			fields.push_back(Node{Node::BIN_OP,Position(start,end,filepath,source),{expression},val});
+		}
+		if (fields.size() > 2) {
+			int start {fields.at(0).getPosition().getStart()};
+			int end {fields.back().getPosition().getEnd()};
+			throw BaseException(BaseException::SyntaxError,"It is impossible to specify more than two limits for the number of arguments.",Position(start,end,filepath,source));
+		}
+
+		return fields;
 	}
 
 	Node Parser::litteral() {
@@ -643,6 +792,24 @@ namespace frumul {
 		Node b00l {Node::LITBOOL,current_token->getPosition(),current_token->getValue()};
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat false/true
 		return b00l;
+	}
+
+	Node Parser::list() {
+		/* Manages the list
+		 * Return a Node list
+		 * with the elements inside the list
+		 */
+		int start{getTokenStart()};
+		NodeVector elements;
+		eat(Token::LBRACKET,Token::MAX_TYPES_VALUES); // eat [
+		while (current_token->getType() != Token::RBRACKET) {
+			elements.push_back(comparison());
+			if (current_token->getType() == Token::VBAR)
+				eat(Token::VBAR,Token::MAX_TYPES_VALUES); // eat ¦
+		}
+		int end{getTokenStart()};
+		eat(Token::RBRACKET,Token::MAX_TYPES_VALUES); // eat ]
+		return Node{Node::LIST,Position(start,end,filepath,source),elements};
 	}
 
 	Node Parser::text() {
