@@ -13,10 +13,12 @@ namespace frumul {
 		 * the AST
 		 */
 		public:
-			Parser (const bst::str& nsource,const bst::str& nfilepath);
+			Parser (const bst::str& nsource,const bst::str& nfilepath,const Token::Type next_token=Token::MAX_TYPES_HEADER);
 			~Parser();
 			Node& parse (); 
 		private:
+			//static attributes
+			static std::map<bst::str,bst::str> files; // files already loaded
 			//attributes
 			bool alreadyparsed{false};
 			const bst::str& source;
@@ -35,7 +37,7 @@ namespace frumul {
 
 			Node header ();
 			std::vector<Node> statement_list (bool isNamespace = false);
-			Node declaration ();
+			Node declaration (const bool isNameRequired=true);
 
 			Node basic_value (const int start);
 			Node programmatic_part ();
@@ -52,7 +54,7 @@ namespace frumul {
 			Node condition ();
 
 			Node path_value ();
-			Node file_content ();
+			Node file_content (const Node& path_node);
 
 			Node namespace_value (const int start);
 			Node short_name ();

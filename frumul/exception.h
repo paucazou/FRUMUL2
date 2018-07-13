@@ -13,6 +13,7 @@
 	E(SyntaxError)\
 	E(UnexpectedToken)\
 	E(TagNotFound)\
+	E(FileError)\
 	E(MAX_TYPES)\
 
 namespace frumul {
@@ -33,6 +34,7 @@ namespace frumul {
 			const bst::str addinfo;		// infos entered while creating the instance
 			const Position pos;		// where the error has occured
 	};
+	using exc = BaseException;
 
 }//namespace
 

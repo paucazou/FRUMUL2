@@ -121,7 +121,7 @@ namespace frumul {
 		 * children if they 
 		 * exist
 		 */
-		assert(childrenNamed&&"Children are not numbered");
+		assert(!childrenNamed&&"Children are not numbered");
 		return numbered_children;
 	}
 
@@ -136,7 +136,7 @@ namespace frumul {
 		/* Overloaded function.
 		 * Add a child in children
 		 */
-		assert(childrenNamed&&"Children are a map.");
+		assert(!childrenNamed&&"Children are a map.");
 		numbered_children.push_back(child);
 	}
 
@@ -153,7 +153,7 @@ namespace frumul {
 		 * are a vector
 		 */
 		assert(!childrenNamed&&"Children are a map");
-		numbered_children.erase(i);
+		numbered_children.erase(numbered_children.begin() + (i-1));
 	}
 
 	void Node::operator= (const Node& n) {

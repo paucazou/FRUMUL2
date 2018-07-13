@@ -1,14 +1,19 @@
 #include <cassert>
+#include <experimental/filesystem>
+#include <system_error>
 #include "parser.h"
+#include "util.h"
+
+namespace fs = std::experimental::filesystem;
 
 namespace frumul {
  	// constructors
-	Parser::Parser (const bst::str& nsource, const bst::str& nfilepath) :
+	Parser::Parser (const bst::str& nsource, const bst::str& nfilepath, const Token::Type next_token) :
 		source{nsource}, filepath{nfilepath},
 		lex{nsource,nfilepath},
 		AST{Node::DOCUMENT,Position{0,nsource.uLength()-1,nfilepath,source},StrNodeMap()}
 	{
-		current_token = new Token{lex.getNextToken(Token::MAX_TYPES_HEADER)};
+		current_token = new Token{lex.getNextToken(next_token,Token::MAX_TYPES_HEADER)};
 	}
 
 	Parser::~Parser() {
@@ -135,20 +140,24 @@ namespace frumul {
 		return statements;
 	}
 
-	Node Parser::declaration () {
+	Node Parser::declaration (const bool isNameRequired) {
 		/* Manages the declarations.
 		 * Return a Node with following fields:
 		 * options,value.
 		 * the name is saved in the value
+		 * If isNameRequired is set, it tries to get a name
 		 */
 		int start {current_token->getPosition().getStart()}; // start position
 
-		bst::str name{current_token->getValue()}; // get name
-		eat(Token::ID,Token::COLON,Token::MAX_TYPES_HEADER); // eat id
-		eat(Token::COLON,				// eat declare op
-				Token::LAQUOTE,			// can expect value
-				Token::KEYWORD,			// or a keyword like mark, etc.
-				Token::MAX_TYPES_HEADER); 
+		bst::str name{""};
+		if (isNameRequired) {
+			name = current_token->getValue(); // get name
+			eat(Token::ID,Token::COLON,Token::MAX_TYPES_HEADER); // eat id
+			eat(Token::COLON,				// eat declare op
+					Token::LAQUOTE,			// can expect value
+					Token::KEYWORD,			// or a keyword like mark, etc.
+					Token::MAX_TYPES_HEADER); 
+		}
 
 		std::map<bst::str,Node> fields;
 		fields.insert({"options",options()});
@@ -170,8 +179,9 @@ namespace frumul {
 			eat(Token::RAQUOTE,Token::LPAREN,Token::MAX_TYPES_HEADER); // eat »
 			eat(Token::LPAREN,Token::ID,Token::MAX_TYPES_HEADER); // eat (
 			NodeVector stlist {statement_list(true)};
-			for (unsigned int i{0}; i < stlist.size(); ++i)
-				fields.insert({bst::str("stmt") + i,stlist[i]});
+			Node stmt_node{Node::NAMESPACE_STATEMENTS,
+				Position(stlist.at(0).getPosition().getStart(),stlist.back().getPosition().getEnd(),filepath,source),stlist};
+			fields.insert({"statements",stmt_node});
 			//RPAREN is eat in statement_list
 			end = current_token->getPosition().getEnd();
 		}
@@ -182,10 +192,19 @@ namespace frumul {
 			end = current_token->getPosition().getEnd();
 			// RAQUOTE is eat in statement_list
 
-			fields.insert({"value",file_content(path.getValue())});
-			for (const auto& elt : fields.get("value").get("options"))
-				fields.get("options").push_back(elt);
-			fields.get("value").removeChild("options");
+			Node content {file_content(path)}; // return a declaration
+			fields.insert({"value",content.get("value")});
+			if (fields.at("value").type() == Node::NAMESPACE_VALUE)
+				fields.insert({"statements",content.get("statements")});
+
+			if (fields.at("options").type() == Node::EMPTY) {
+				fields.erase("options");
+				fields.insert({"options",content.get("options")});
+			} else 
+				for (const auto& elt : content.get("options").getNumberedChildren())
+					fields.at("options").addChild(elt);
+			//fields.at("value").removeChild("options");TODO REMOVE?
+
 
 		}
 
@@ -571,15 +590,32 @@ namespace frumul {
 		int start {getTokenStart()};
 		eat(Token::LAQUOTE,Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat «
 		bst::str val {current_token->getValue()};
+		eat(Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat path
 		int end {getTokenStart()};
 		// RAQUOTE is eat in statement_list
 		return Node{Node::PATH,Position(start,end,filepath,source),val};
 	}
 
-	Node Parser::file_content () {
+	Node Parser::file_content (const Node& path_node) {
 		/* Manages the content of a header file
-		 * Return a Node which can be of many types
+		 * Return a Declaration Node 
+		 * TODO include standard lib
 		 */
+		// load file
+		fs::path calling_file_path(reinterpret_cast<char*>(filepath.data));
+		fs::path parent {calling_file_path.parent_path()};
+		fs::path real_path {parent.append(reinterpret_cast<char*>(path_node.getValue().data))};
+		try {
+		Parser::files[path_node.getValue()] = readfile(real_path.native());
+		} catch (std::system_error)
+		{
+			throw BaseException{exc::FileError,"Invalid file path.",path_node.getPosition()};
+		}
+		std::map<bst::str,bst::str>::iterator i{Parser::files.find(path_node.getValue())};
+		const bst::str& path = i->first;
+		// create parser
+		Parser p{Parser::files[path],path,Token::ID};
+		return p.declaration(false);
 	}
 
 	Node Parser::namespace_value (const int start) {
@@ -883,5 +919,7 @@ namespace frumul {
 
 		return text;
 	}
+
+	std::map<bst::str,bst::str>Parser::files {};
 
 } // namespace

@@ -109,7 +109,7 @@ namespace frumul {
 			else {
 				// values to return
 				bst::str val;
-				Token::Type t;
+				Token::Type t{Token::MAX_TYPES_VALUES}; // initial value to silent -Wsometimes-unitialized
 				if (current_char == "(") {
 					val = ")";
 					t = Token::LPAREN;
@@ -119,7 +119,8 @@ namespace frumul {
 				} else if (current_char == ":") {
 					val = ":";
 					t = Token::COLON;
-				}
+				} else
+					throw createUnexpectedToken(expected);
 				advanceBy();
 				return Token(t,val,
 						Position(pos-1,pos-1,filepath,source));
@@ -441,8 +442,8 @@ namespace frumul {
 				else if (current_char == "{" && !intokl(Token::LITTEXT,expected))
 					break; // in this case, the lexer must break because a programmatic part is discovered
 				else if (current_char == "/") {
-					skipComment();
-					continue;
+					if (skipComment())
+						continue;
 				}
 				else if (current_char == "\n" || current_char == "\t") {
 					advanceBy();

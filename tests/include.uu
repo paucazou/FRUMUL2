@@ -1,0 +1,7 @@
+___header___
+//* This file tests the inclusion
+of a header file
+*//
+/sval : file «headers/basic.h»
+___text___
+Some text
