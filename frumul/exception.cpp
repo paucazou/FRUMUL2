@@ -23,6 +23,7 @@ namespace frumul {
         }
 	
 	//classes
+	//Base class
 	BaseException::BaseException (Type ntype, const bst::str& ninfo, const Position& npos) :
 		type{ntype}, addinfo{ninfo}, pos{npos}
 	{}
@@ -32,6 +33,24 @@ namespace frumul {
 		returned += ": " + addinfo + '\n';
 		returned += pos.toString();
 		return returned;
+	}
+
+	// Inconsistant class
+	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo, const Position& npos, const bst::str& ninfo2, const std::vector<const Position*> npositions) :
+		BaseException(ntype,ninfo,npos), info2{ninfo2}
+	{
+		for (const auto elt : npositions)
+			positions.push_back(elt);
+	}
+
+	const bst::str InconsistantException::what () const noexcept {
+		const bst::str base_what {BaseException::what()};
+		bst::str returned{base_what};
+		returned += info2;
+		for (const auto& elt : positions)
+			returned += elt.toString();
+		return returned;
+	}
 	}
 
 

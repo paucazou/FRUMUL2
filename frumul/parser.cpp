@@ -124,7 +124,8 @@ namespace frumul {
 
 			Token::Type t;
 			// we need to know if current_token is supposed to be ) or »
-			if (statements.back().get("value").type() == Node::NAMESPACE_VALUE)
+			// if the last statement is a namespace, we expect a ), but if it is included in a file, we expect »
+			if (statements.back().get("value").type() == Node::NAMESPACE_VALUE && !statements.back().getNamedChildren().count("path"))
 				t = Token::RPAREN;
 			else
 				t = Token::RAQUOTE;
@@ -600,6 +601,8 @@ namespace frumul {
 		/* Manages the content of a header file
 		 * Return a Declaration Node 
 		 * TODO include standard lib
+		 * TODO eat the last token manually: it can be a RPAREN (namespace)
+		 * or a RAQUOTE (other values)
 		 */
 		// load file
 		fs::path calling_file_path(reinterpret_cast<char*>(filepath.data));
