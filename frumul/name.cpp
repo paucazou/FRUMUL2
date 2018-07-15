@@ -105,7 +105,7 @@ namespace frumul {
 		return ALL;
 	}
 
-	PPosVect Name::getShortNamePositions() const {
+	PosVect Name::getShortNamePositions() const {
 		/* Return an array of const pointers
 		 * to every position of the short names
 		 * This array is static and does not reflect
@@ -114,25 +114,25 @@ namespace frumul {
 		return getPositions("short");
 	}
 
-	PPosVect Name::getLongNamePositions() const {
+	PosVect Name::getLongNamePositions() const {
 		/* Idem for long names
 		 */
 		return getPositions("long");
 	}
 
-	PPosVect Name::getBothPositions() const {
+	PosVect Name::getBothPositions() const {
 		/* return positions for both names
 		 */
 		return getPositions("both");
 	}
 
-	PPosVect Name::getPositionsOf(const bst::str& type) const {
+	PosVect Name::getPositionsOf(const bst::str& type) const {
 		/* Return the positions where type is found
 		 */
 		assert(!in<bst::str,std::array<bst::str,3>>(type,{"short","long","both"})
 				&& "type must be short, long or both");
 
-		PPosVect vect;
+		PosVect vect;
 		for (const auto& pair : positions)
 			if (pair.first == type)
 				vect.push_back(pair.second);

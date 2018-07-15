@@ -36,7 +36,7 @@ namespace frumul {
 	}
 
 	// Inconsistant class
-	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo, const Position& npos, const bst::str& ninfo2, const std::vector<const Position*> npositions) :
+	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo, const Position& npos, const bst::str& ninfo2, const std::vector<Position> npositions) :
 		BaseException(ntype,ninfo,npos), info2{ninfo2}
 	{
 		for (const auto elt : npositions)
@@ -51,10 +51,6 @@ namespace frumul {
 			returned += elt.toString();
 		return returned;
 	}
-	}
-
-
-
 
 
 }// namespace

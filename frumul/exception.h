@@ -16,6 +16,8 @@
 	E(FileError)\
 	E(InvalidName)\
 	E(NameAlreadyDefined)\
+	E(InvalidMark)\
+	E(InconsistentMark)\
 	E(MAX_TYPES)\
 
 namespace frumul {
@@ -39,12 +41,12 @@ namespace frumul {
 
 	class InconsistantException : public BaseException {
 		public:
-			InconsistantException (Type ntype, const bst::str& ninfo,const Position& npos, const bst::str& ninfo2, const std::vector<const Position> npositions);
+			InconsistantException (Type ntype, const bst::str& ninfo,const Position& npos, const bst::str& ninfo2, const std::vector<Position> npositions);
 
 			virtual const bst::str what () const noexcept;
 		protected:
 			const bst::str info2; // this info will be print just before 'positions'
-			std::vector<const Position> positions;
+			std::vector<Position> positions;
 	};
 
 	using exc = BaseException;

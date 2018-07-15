@@ -10,7 +10,7 @@
 
 namespace frumul {
 	using StrPosMap = std::unordered_multimap<bst::str,Position>;
-	using PPosVect= std::vector<const Position>;
+	using PosVect= std::vector<Position>;
 
 	class Name {
 		/* Class
@@ -37,10 +37,10 @@ namespace frumul {
 			bool hasShort() const;
 			bool hasLong() const;
 			Filling contenance () const;
-			PPosVect getShortNamePositions () const;
-			PPosVect getLongNamePositions () const;
-			PPosVect getBothPositions () const;
-			PPosVect getPositionsOf(const bst::str& type) const;
+			PosVect getShortNamePositions () const;
+			PosVect getLongNamePositions () const;
+			PosVect getBothPositions () const;
+			PosVect getPositionsOf(const bst::str& type) const;
 			std::unordered_multimap<bst::str,Position>& getPositions() const;
 			//display
 			bst::str toString() const;
