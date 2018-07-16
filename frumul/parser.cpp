@@ -145,7 +145,7 @@ namespace frumul {
 		/* Manages the declarations.
 		 * Return a Node with following fields:
 		 * options,value.
-		 * the name is saved in the value
+		 * the name is saved in the value: TODO : à mettre dans un node!!! sinon on ne peut pas tracer
 		 * If isNameRequired is set, it tries to get a name
 		 */
 		int start {current_token->getPosition().getStart()}; // start position

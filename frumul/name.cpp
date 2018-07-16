@@ -6,6 +6,24 @@ namespace frumul {
 	Name::Name ()
 	{}
 
+	Name::Name (const Name& other) {
+		/* Copy constructor.
+		 * Update the instance
+		 */
+		if (other.sname && !sname)
+			sname = other.sname;
+		else if (other.sname && other.sname != sname)
+			throw iexc(exc::NameAlreadyDefined,"The short name has already been defined here:",getShortNamePositions(),"New short name defined here:",other.getShortNamePositions());
+
+		if (other.lname && !lname)
+			lname = other.lname;
+		else if (other.lname && other.lname != lname)
+			throw iexc(exc::NameAlreadyDefined,"The long name has already been defined here:",getLongNamePositions(),"New long name defined here:",other.getLongNamePositions());
+
+		for (const auto& pair : other.positions)
+			positions.emplace(pair.first,pair.second);
+	}
+
 	void Name::addShort(const Node& node) {
 		/* Add a short name
 		 */
@@ -158,6 +176,12 @@ namespace frumul {
 		for (const auto& pair : positions)
 			returned += pair.second.toString();
 		return returned;
+	}
+
+	bool Name::operator == (const bst::str& name) {
+		/* true if name is one of the two names
+		 */
+		return name == sname || name == lname;
 	}
 
 	bool Name::operator && (const Name& other) const {

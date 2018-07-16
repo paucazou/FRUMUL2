@@ -27,6 +27,7 @@ namespace frumul {
 			};
 			// constructors
 			Name ();
+			Name (const Name& other);
 			// setters
 			void addShort(const Node& node);
 			void addLong(const Node& node);
@@ -45,6 +46,7 @@ namespace frumul {
 			//display
 			bst::str toString() const;
 			//overload
+			bool operator == (const bst::str& name) const;
 			// operator && returns true if short and long names are equal
 			bool operator && (const Name& other) const;
 			// operator || returns true if at least one of the name is equal to one of the other

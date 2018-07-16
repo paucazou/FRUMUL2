@@ -13,6 +13,7 @@ namespace frumul {
 	class Mark {
 		public:
 			Mark();
+			Mark(const Mark& other);
 			// add a value
 			void set (const Node& node);
 			void operator (const Node& node);
@@ -21,10 +22,11 @@ namespace frumul {
 			int operator ()() const;
 			// representation
 			bst::str toString() const;
-			friend operator<<(std::ostream& out,const Mark& m);
+			friend std::ostream& operator<<(std::ostream& out,const Mark& m);
 		private:
 			int val{0};
-			PosVect positions;
+			PosVect positions {};
+			// private functions
 	};
 }
 

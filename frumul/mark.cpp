@@ -2,8 +2,24 @@
 #include "mark.h"
 
 namespace frumul {
+
+	// constructors
 	Mark::Mark ()
 	{}
+
+	Mark::Mark (const Mark& other) {
+		/* This copy constructor actually
+		 * set the value
+		 * and append the positions
+		 */
+		if (!val)
+			val = other.val;
+		if (val != nval)
+			throw iexc(exc::InconsistentMark,"Mark does not match with previous mark settings",other.positions,"Previous mark settings here:",positions);
+
+		for (const auto& elt : other.positions)
+			positions.push_back(elt);
+	}
 
 	void Mark::set (const Node& node) {
 		/* set the value
