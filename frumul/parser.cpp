@@ -144,23 +144,30 @@ namespace frumul {
 	Node Parser::declaration (const bool isNameRequired) {
 		/* Manages the declarations.
 		 * Return a Node with following fields:
-		 * options,value.
-		 * the name is saved in the value: TODO : à mettre dans un node!!! sinon on ne peut pas tracer
+		 * for all:
+		 * 	name,options,value
+		 * for namespace:
+		 * 	statements
+		 * for file:
+		 * 	path	
 		 * If isNameRequired is set, it tries to get a name
 		 */
 		int start {current_token->getPosition().getStart()}; // start position
 
-		bst::str name{""};
+
+		std::map<bst::str,Node> fields;
+
 		if (isNameRequired) {
-			name = current_token->getValue(); // get name
+			bst::str name{current_token->getValue()}; // get name
+			Node::Type t = (name.uLength() > 1 ? Node::LONG_NAME : Node::SHORT_NAME);
+			fields.insert({"name",Node(t,current_token->getPosition(),name)});
+
 			eat(Token::ID,Token::COLON,Token::MAX_TYPES_HEADER); // eat id
 			eat(Token::COLON,				// eat declare op
 					Token::LAQUOTE,			// can expect value
 					Token::KEYWORD,			// or a keyword like mark, etc.
 					Token::MAX_TYPES_HEADER); 
 		}
-
-		std::map<bst::str,Node> fields;
 		fields.insert({"options",options()});
 
 		int end; // should be deleted TODO
@@ -207,11 +214,12 @@ namespace frumul {
 			//fields.at("value").removeChild("options");TODO REMOVE?
 
 
-		}
+		} else
+			assert(false&&"No option selected");
 
 
 
-		return Node{Node::DECLARATION,Position(start,end,filepath,source),fields,name};
+		return Node{Node::DECLARATION,Position(start,end,filepath,source),fields};
 	}
 
 	Node Parser::basic_value (const int start) {
