@@ -4,6 +4,7 @@
  */
 
 #include <vector>
+#include "node.h"
 #include "symbol.h"
 
 namespace frumul {
@@ -14,14 +15,15 @@ namespace frumul {
 		public:
 			Schildren ();
 			Schildren (const Symbol& np);
-			//getters/setters
-			//These functions set if the can't get
-			Symbol& getChild(const bst::str& name);
-			Symbol& getChild(const bst::str& sn, const bst::str& ln);
-			Symbol& getChild(const Name& name);
-			// pure getters
+			// getters-setters
+			Symbol& getChild(const Node& node);
+			// getters
+			Symbol& getChild(const bst::str& name) const;
 			bool hasChildren() const;
-			// pure setters
+			bool hasChild(const bst::str& name) const;
+			bool hasChild(const Node& node) const;
+			bool hasParent() const;
+			// setters
 			Symbol& addChild(const Symbol& s);
 			Symbol& appendChild();
 			Symbol& appendChild(const bst::str& name);

@@ -14,12 +14,18 @@ compile () {
 		-D DEBUG\
 		-g\
 		tests/astbrowser.cpp\
-		frumul/position.cpp\
 		frumul/exception.cpp\
+		frumul/hinterpreter.cpp\
 		frumul/lexer.cpp\
+		frumul/mark.cpp\
+		frumul/name.cpp\
 		frumul/node.cpp\
 		frumul/parser.cpp\
+		frumul/position.cpp\
+		frumul/schildren.cpp\
+		frumul/symbol.cpp\
 		frumul/util.cpp\
+		frumul/value.cpp\
 		-o out\
 		$odir/token.o\
 		$bstrlib/bstrlib.o\

@@ -29,6 +29,7 @@ namespace frumul {
 			Name ();
 			Name (const Name& other);
 			// setters
+			void add(const Node& node);
 			void addShort(const Node& node);
 			void addLong(const Node& node);
 			void addBoth(const Node& node);

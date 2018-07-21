@@ -16,7 +16,7 @@ namespace frumul {
 			Mark(const Mark& other);
 			// add a value
 			void set (const Node& node);
-			void operator (const Node& node);
+			void operator ()(const Node& node);
 			// get the value
 			int get () const;
 			int operator ()() const;
