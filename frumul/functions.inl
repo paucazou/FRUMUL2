@@ -1,3 +1,5 @@
+#ifndef FUNCTIONS_INL
+#define FUNCTIONS_INL
 /* This file contains only
  * function templates
  */
@@ -27,3 +29,4 @@ namespace frumul {
 		return false;
 	}
 }//namespace
+#endif

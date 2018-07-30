@@ -1,4 +1,7 @@
+#ifndef HINTEPRETER_H
+#define HINTEPRETER_H
 /* This file contains the Hinterpreter
+ * (Header Interpreter)
  * class, which has the task to interpret
  * the header part
  */
@@ -12,18 +15,19 @@ namespace frumul {
 		 * tree
 		 */
 		public:
-			Hinterpreter (Node& nheader);
+			Hinterpreter (const Node& nheader);
 			const Symbol& getSymbolTree();
 		private:
 			//attributes
 			bool jobDone{false};
 			Symbol main_symbol{};
-			Node& header;
+			const Node& header;
 
 			// functions
-			void visit(Node& node, Symbol& parent);
-			void visit_declaration(Node& node, Symbol& parent);
-			void visit_options(Node& node, Symbol& parent);
-			void visit_basic_value(Node& node, Symbol& parent);
+			void visit(const Node& node, Symbol& parent);
+			void visit_declaration(const Node& node, Symbol& parent);
+			OneValue& visit_options(const Node& node, Symbol& parent);
+			void visit_basic_value(const Node& node, OneValue& oval);
 	};
 }
+#endif

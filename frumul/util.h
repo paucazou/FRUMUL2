@@ -1,3 +1,5 @@
+#ifndef UTIL_H
+#define UTIL_H
 // this file contains utilities
 
 #include <fstream>
@@ -9,4 +11,4 @@ namespace frumul {
 	std::string slurp (std::ifstream&);
 	bst::str readfile (const bst::str&);
 } // namespace 
-
+#endif

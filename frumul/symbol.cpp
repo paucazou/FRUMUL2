@@ -6,6 +6,13 @@ namespace frumul {
 	{
 	}
 
+	Alias::Alias(const Alias& other) :
+		val{other.val}, path{other.path}
+	{
+		if (other.pos)
+			pos = std::make_unique<Position>(*other.pos);
+	}
+
 	Alias::operator bool () const {
 		/* true if it is a valid and usable
 		 * alias
@@ -16,7 +23,7 @@ namespace frumul {
 	const Position& Alias::getPosition() const {
 		/* return the position of the alias
 		 */
-		return pos;
+		return *pos;
 	}
 
 	const Symbol& Alias::getVal() const {
@@ -38,7 +45,7 @@ namespace frumul {
 	}
 
 	void Alias::setVal(const Symbol& nalias) {
-		/* set the pointer
+		/* set the pointer to symbol
 		 * Please check before that the pointer
 		 * has been set yet.
 		 */
@@ -46,9 +53,20 @@ namespace frumul {
 		val = &nalias;
 	}
 
+	void Alias::setPosition(const Position& npos) {
+		/*Set the pointer to position
+		 */
+		pos = std::make_unique<Position>(npos);
+	}
+
 	// Symbol
 	
 	Symbol::Symbol()
+	{
+	}
+
+	Symbol::Symbol(const Symbol& other) :
+		name{other.name}, mark{other.mark}, children{other.children}, parent{other.parent}, alias{alias}, value{value}
 	{
 	}
 
@@ -83,6 +101,11 @@ namespace frumul {
 		 */
 		return value;
 	}
+	// const getters
+	
+	const Name& Symbol::getName() const {
+		return name;
+	}
 	
 	// booleans
 	bool Symbol::hasParent() const {
@@ -115,6 +138,7 @@ namespace frumul {
 		 */
 		return value;
 	}
+}
 
 
 

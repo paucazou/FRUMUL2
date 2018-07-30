@@ -2,7 +2,9 @@
  * macro utilities
  */
 
-// enum to strings
+/*****************
+*  enum to strings
+*****************/
 //https://stackoverflow.com/questions/9907160/how-to-convert-enum-names-to-string-in-c
 
 #define GENERATE_ENUM(ENUM) ENUM, // note the comma at the end
@@ -29,7 +31,22 @@
  * ENUM(FRUIT_ENUM,FOREACH_FRUIT)
  */
 
+/*******************************
 // things that must go into main
+*******************************/
 #define THINGS_IN_MAIN \
 	std::setlocale(LC_ALL,std::locale("").name().data());\
 	std::set_terminate (frumul::terminate)
+
+/******************************
+ * Print a class to stdout.
+ * This class must have toString
+ * member function
+ * T is a typename
+ ******************************/
+
+#define STDOUT(T) \
+	friend std::ostream& operator<< (std::ostream& out, const T& elt) {\
+		out << elt.toString();\
+		return out;\
+	}

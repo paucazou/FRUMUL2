@@ -8,7 +8,7 @@ compile () {
 	else
 		compiler='g++'
 	fi
-	$compiler -std=c++11\
+	$compiler -std=c++14\
 		-Wextra -Wall -pedantic\
 		-Wfatal-errors\
 		-D DEBUG\

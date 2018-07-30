@@ -1,7 +1,10 @@
+#ifndef SYMBOL_H
+#define SYMBOL_H
 /* This file contains the Symbol
  * definition
  */
 
+#include <cassert>
 #include <memory>
 #include "name.h"
 #include "mark.h"
@@ -12,6 +15,7 @@
 
 namespace frumul {
 
+	class Schildren;
 	class Symbol;
 
 	class Alias {
@@ -21,26 +25,34 @@ namespace frumul {
 		 */
 		public:
 			Alias();
+			Alias(const Alias& other);
+			//getters
 			operator bool () const; // true if it has a valid alias
 			const Position& getPosition() const;
 			const Symbol& getVal() const;
+
+			// setters
 			void setPath(const Node& node);
 			void setVal(const Symbol& nalias);
+			void setPosition(const Position& npos);
 		protected:
-			Symbol* val{nullptr};
+			const Symbol* val{nullptr};
 			bst::str path;
-			Position pos;
+			std::unique_ptr<Position> pos;
 	};
 
 	class Symbol {
 		public:
 			Symbol ();
+			Symbol (const Symbol&);
 			//getters
 			Name& getName();
 			Mark& getMark();
 			Alias& getAlias();
 			Schildren& getChildren();
 			Value& getValue();
+			// const getters
+			const Name& getName() const;
 			// booleans
 			bool hasParent() const;
 			bool hasAlias () const;
@@ -58,3 +70,4 @@ namespace frumul {
 
 	};
 }
+#endif

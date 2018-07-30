@@ -14,7 +14,7 @@ namespace frumul {
 		 */
 		if (!val)
 			val = other.val;
-		if (val != nval)
+		else if (val != other.val)
 			throw iexc(exc::InconsistentMark,"Mark does not match with previous mark settings",other.positions,"Previous mark settings here:",positions);
 
 		for (const auto& elt : other.positions)
@@ -26,7 +26,7 @@ namespace frumul {
 		 * if necessary
 		 * and add position
 		 */
-		int nval {static_cast<int<(node.getValue())};
+		int nval {static_cast<int>(node.getValue())};
 
 		if (nval <= 0)
 			throw exc(exc::InvalidMark,"Mark must be equal or above one",node.getPosition());

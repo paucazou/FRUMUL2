@@ -1,8 +1,9 @@
+#include <cassert>
 #include "hinterpreter.h"
 
 namespace frumul {
 
-	Hinterpreter::Hinterpreter (Node& nheader) :
+	Hinterpreter::Hinterpreter (const Node& nheader) :
 		header{nheader}
 	{
 	}
@@ -15,8 +16,8 @@ namespace frumul {
 		if (jobDone)
 			return main_symbol;
 		else {
-			for (auto& child : header.getNumberedChildren())
-				visit(child);
+			for (const auto& child : header.getNumberedChildren())
+				visit(child,main_symbol);
 
 			jobDone = true;
 		}
@@ -24,7 +25,7 @@ namespace frumul {
 		return main_symbol;
 	}
 
-	void Hinterpreter::visit(Node& node,Symbol& parent) {
+	void Hinterpreter::visit(const Node& node,Symbol& parent) {
 		/* This function dispatches
 		 * the nodes following their type
 		 */
@@ -33,12 +34,6 @@ namespace frumul {
 				visit_declaration(node,parent);
 				break;
 
-			case Node::OPTIONS:
-				visit_options(node,parent);
-				break;
-			case Node::BASIC_VALUE:
-				visit_basic_value(node,parent);
-				break;
 			case Node::EMPTY:
 				// does nothing. What did you expect?
 				break;
@@ -48,12 +43,46 @@ namespace frumul {
 		};
 	}
 
-	void Hinterpreter::visit_declaration(Node& node, Symbol& parent) {
+	void Hinterpreter::visit_declaration(const Node& node, Symbol& parent) {
 		/* Manages the declaration node
-		 * TODO only for basic
+		 * TODO il n'y a que la déclaration basique pour le moment
 		 */
-		visit(node.get("options"),symbol);
-		visit(node.get("value"),symbol);
+		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
+		OneValue& oval{visit_options(node.get("options"),symbol)};
+		visit_basic_value(node.get("value"),oval);
+		
 	}
+
+	OneValue& Hinterpreter::visit_options(const Node& node, Symbol& sym) {
+		/* Visit the options node
+		 * If mark/lang options are not defined,
+		 * set the symbol with parent values
+		 */
+		std::vector<Lang> langs;
+		// visit nodes
+		for (auto& elt : node.getNumberedChildren()) {
+			if (elt.type() == Node::MARK)
+				sym.getMark().set(elt);
+			else if (elt.type() == Node::LANG) {
+				langs.emplace_back(elt.getValue(),elt.getPosition());
+			}
+		}
+
+
+		// check if option lacks
+		// TODO
+
+		return sym.getValue().set(langs);
+	}	
+
+
+	void Hinterpreter::visit_basic_value(const Node& node, OneValue& val) {
+		/* Fill val
+		 * with node
+		 * TODO check the node
+		 */
+		val.setNode(node);
+	}
+}
 
 

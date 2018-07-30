@@ -1,24 +1,29 @@
+#ifndef SCHILDREN_H
+#define SCHILDREN_H
 /* Contains the Schildren class
  * which manages the children
  * of a Symbol
  */
 
+#include <utility>
 #include <vector>
 #include "node.h"
-#include "symbol.h"
 
 namespace frumul {
+	// forward declaration. Symbol is included in symbol.h
+	class Symbol;
+
 	class Schildren {
 		/* Table of Symbol children
 		 * of a Symbol
 		 */
 		public:
 			Schildren ();
-			Schildren (const Symbol& np);
+			Schildren (Symbol& np);
 			// getters-setters
 			Symbol& getChild(const Node& node);
 			// getters
-			Symbol& getChild(const bst::str& name) const;
+			Symbol& getChild(const bst::str& name) ;
 			bool hasChildren() const;
 			bool hasChild(const bst::str& name) const;
 			bool hasChild(const Node& node) const;
@@ -32,3 +37,4 @@ namespace frumul {
 			std::vector<Symbol> children;
 	};
 }
+#endif

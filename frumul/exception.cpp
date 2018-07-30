@@ -37,17 +37,33 @@ namespace frumul {
 
 	// Inconsistant class
 	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo, const Position& npos, const bst::str& ninfo2, const std::vector<Position> npositions) :
-		BaseException(ntype,ninfo,npos), info2{ninfo2}
+		BaseException(ntype,ninfo,npos), info2{ninfo2}, positions2{npositions}
 	{
-		for (const auto elt : npositions)
-			positions.push_back(elt);
+		positions1.push_back(npos);
+	}
+
+	/*InconsistantException::InconsistantException (Type ntype, const bst::str ninfo, const Position& npos, const bst::str ninfo2, const std::vector<Position> npositions) :
+		BaseException(ntype,ninfo,npos), info2{ninfo2}, positions2{npositions}
+	{
+		positions1.push_back(npos);
+	}
+	*/
+
+	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo, const std::vector<Position> npos1, const bst::str& ninfo2, const std::vector<Position> npositions2) :
+		BaseException(ntype,ninfo,npos1.at(0)), positions1{npos1}, info2{ninfo2}, positions2{npositions2}
+	{
+		/* This constructor implies that the first vector
+		 * has at least one value inside
+		 */
 	}
 
 	const bst::str InconsistantException::what () const noexcept {
-		const bst::str base_what {BaseException::what()};
-		bst::str returned{base_what};
-		returned += info2;
-		for (const auto& elt : positions)
+		bst::str returned{typeToString(type)};
+		returned += ": " + addinfo + '\n';
+		for (const auto& elt : positions1)
+			returned += elt.toString();
+		returned += info2 + '\n';
+		for (const auto& elt : positions2)
 			returned += elt.toString();
 		return returned;
 	}

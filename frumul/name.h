@@ -1,3 +1,5 @@
+#ifndef NAME_H
+#define NAME_H
 /* This file
  * manages the Name class,
  * which represents the long and
@@ -5,6 +7,7 @@
  */
 #include <vector>
 #include <unordered_map>
+#include "bstrlib/util.inl"
 #include "node.h"
 #include "position.h"
 
@@ -30,6 +33,7 @@ namespace frumul {
 			Name (const Name& other);
 			// setters
 			void add(const Node& node);
+			void add(const bst::str& name);
 			void addShort(const Node& node);
 			void addLong(const Node& node);
 			void addBoth(const Node& node);
@@ -43,7 +47,7 @@ namespace frumul {
 			PosVect getLongNamePositions () const;
 			PosVect getBothPositions () const;
 			PosVect getPositionsOf(const bst::str& type) const;
-			std::unordered_multimap<bst::str,Position>& getPositions() const;
+			const std::unordered_multimap<bst::str,Position>& getPositions() const;
 			//display
 			bst::str toString() const;
 			//overload
@@ -56,6 +60,7 @@ namespace frumul {
 		private:
 			bst::str sname{""};
 			bst::str lname{""};
-			std::unordered_multimap<bst::str,Position> positions{};
+			std::unordered_multimap<bst::str,Position> positions;
 	};
 } // namespace
+#endif

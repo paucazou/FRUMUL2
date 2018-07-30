@@ -1,6 +1,7 @@
 #include <cassert>
 #include <experimental/filesystem>
 #include <system_error>
+#include "hinterpreter.h"
 #include "parser.h"
 #include "util.h"
 
@@ -84,6 +85,8 @@ namespace frumul {
 		 * header and text
 		 */
 		AST.addChild("header",header());
+		Hinterpreter header_interpreter {AST.get("header")};
+		header_interpreter.getSymbolTree();
 		AST.addChild("text",text());
 		return AST;
 	}

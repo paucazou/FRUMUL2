@@ -1,5 +1,7 @@
 #include <array>
+#include <cassert>
 #include "exception.h"
+#include "functions.inl"
 #include "name.h" 
 
 namespace frumul {
@@ -23,6 +25,44 @@ namespace frumul {
 		for (const auto& pair : other.positions)
 			positions.emplace(pair.first,pair.second);
 	}
+
+	void Name::add(const Node& node) {
+		/* Add a new name
+		 */
+		switch(node.type()) {
+			case Node::LINKED_NAMES:
+				addBoth(node);
+				break;
+			case Node::SHORT_NAME:
+				addShort(node);
+				break;
+			case Node::LONG_NAME:
+				addLong(node);
+				break;
+			default:
+				assert(false&&"Node expected: LINKED_NAMES, SHORT_NAME, LONG_NAME");
+		};
+	}
+
+	void Name::add(const bst::str& name) {
+		/* add a name, short or long
+		 * WITHOUT position. Don't use it
+		 * in the regular interpreter
+		 */
+		if (name.uLength() == 1) {
+			if (!sname)
+				sname = name;
+			else
+				assert(sname == name&&"Short name already set");
+		}
+		else
+			if (!lname)
+				lname = name;
+			else
+				assert(lname == name&&"Long name already set");
+	}
+
+
 
 	void Name::addShort(const Node& node) {
 		/* Add a short name
@@ -109,7 +149,7 @@ namespace frumul {
 		return lname;
 	}
 
-	Name::Filling contenance() const {
+	Name::Filling Name::contenance() const {
 		/* Return an enum value
 		 * matching with the names
 		 * set in the object
@@ -129,26 +169,26 @@ namespace frumul {
 		 * This array is static and does not reflect
 		 * the evolution of the object.
 		 */
-		return getPositions("short");
+		return getPositionsOf("short");
 	}
 
 	PosVect Name::getLongNamePositions() const {
 		/* Idem for long names
 		 */
-		return getPositions("long");
+		return getPositionsOf("long");
 	}
 
 	PosVect Name::getBothPositions() const {
 		/* return positions for both names
 		 */
-		return getPositions("both");
+		return getPositionsOf("both");
 	}
 
 	PosVect Name::getPositionsOf(const bst::str& type) const {
 		/* Return the positions where type is found
 		 */
-		assert(!in<bst::str,std::array<bst::str,3>>(type,{"short","long","both"})
-				&& "type must be short, long or both");
+		bool isTypeRegular = !in<bst::str,std::array<bst::str,3>>(type,{"short","long","both"});
+		assert(isTypeRegular&& "type must be short, long or both");
 
 		PosVect vect;
 		for (const auto& pair : positions)
@@ -158,7 +198,7 @@ namespace frumul {
 		return vect;
 	}
 
-	StrPosMap& Name::getPositions() const {
+	const StrPosMap& Name::getPositions() const {
 		/* Return a reference
 		 * to all positions
 		 */
@@ -178,7 +218,7 @@ namespace frumul {
 		return returned;
 	}
 
-	bool Name::operator == (const bst::str& name) {
+	bool Name::operator == (const bst::str& name) const {
 		/* true if name is one of the two names
 		 */
 		return name == sname || name == lname;
@@ -202,4 +242,5 @@ namespace frumul {
 		out << n.toString();
 		return out;
 	}
+}
 

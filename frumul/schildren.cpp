@@ -1,4 +1,6 @@
+#include <cassert>
 #include "schildren.h"
+#include "symbol.h"
 
 namespace frumul {
 
@@ -7,7 +9,7 @@ namespace frumul {
 	{
 	}
 
-	Schildren::Schildren (const Symbol& np) :
+	Schildren::Schildren (Symbol& np) :
 		parent{&np}
 	{
 	}
@@ -16,32 +18,34 @@ namespace frumul {
 		/* getter-setter: if no child is found,
 		 * return a new one with the name
 		 */
+		Symbol* s{nullptr};
 		if (hasChild(node)) {
 			if (node.type() == Node::LINKED_NAMES)
-				for (const auto& child : children) {
+				for (auto& child : children) {
 					if (child.getName() == node.get("short").getValue() || child.getName() == node.get("long").getValue()) {
-						Symbol& s{child};
+						s = &child;
 						break;
 					}
 				}
 			else // node Short or Long
-				for (const auto& child : children) {
+				for (auto& child : children) {
 					if (child.getName() == node.getValue()) {
-						Symbol& s{child};
+						s = &child;
 						break;
 					}
 			}
+		}
 		else  // create new child
-			Symbol& s{appendChild()};
+			s = &appendChild();
 		// update name
-		s.getName().add(node);
-		return s;
+		s->getName().add(node);
+		return *s;
 	}
 
-	Symbol& getChild(const bst::str& name) const {
+	Symbol& Schildren::getChild(const bst::str& name) {
 		/* name can be a long or a short name
 		 */
-		for (const auto& child : children)
+		for (auto& child : children)
 			if (child.getName() == name)
 				return child;
 		assert(false&&"child does not exist");
@@ -94,23 +98,22 @@ namespace frumul {
 		return children.back();
 	}
 
-	Symbol& appendChild() {
+	Symbol& Schildren::appendChild() {
 		/* creates a new empty child
 		 * and return a reference to it
 		 */
-		Symbol s;
-		children.push_back(s);
+		children.emplace_back();
 		return children.back();
 	}
 
-	Symbol& appendChild(const bst::str& name) {
+	Symbol& Schildren::appendChild(const bst::str& name) {
 		/* Creates a new child with name
 		 * This should not be used by the regular
 		 * interpreter engine since it cannot trace
 		 * the position of the name.
 		 */
 		Symbol& s {appendChild()};
-		s.getName().addName(name);
+		s.getName().add(name);
 		return s;
 	}
-
+}

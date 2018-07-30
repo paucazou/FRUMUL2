@@ -42,11 +42,14 @@ namespace frumul {
 	class InconsistantException : public BaseException {
 		public:
 			InconsistantException (Type ntype, const bst::str& ninfo,const Position& npos, const bst::str& ninfo2, const std::vector<Position> npositions);
+			//InconsistantException (Type ntype, const bst::str ninfo,const Position& npos, const bst::str ninfo2, const std::vector<Position> npositions);
+			InconsistantException (Type ntype, const bst::str& ninfo, const std::vector<Position> npos1, const bst::str& ninfo2, const std::vector<Position> npositions2);
 
 			virtual const bst::str what () const noexcept;
 		protected:
+			std::vector<Position> positions1;
 			const bst::str info2; // this info will be print just before 'positions'
-			std::vector<Position> positions;
+			std::vector<Position> positions2;
 	};
 
 	using exc = BaseException;

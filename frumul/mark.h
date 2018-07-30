@@ -1,3 +1,5 @@
+#ifndef MARK_H
+#define MARK_H
 /* This file contains
  * the Mark class
  */
@@ -29,4 +31,4 @@ namespace frumul {
 			// private functions
 	};
 }
-
+#endif
