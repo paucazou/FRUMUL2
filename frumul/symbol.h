@@ -8,6 +8,7 @@
 #include <memory>
 #include "name.h"
 #include "mark.h"
+#include "macros.h"
 #include "node.h"
 #include "position.h"
 #include "schildren.h"
@@ -30,6 +31,7 @@ namespace frumul {
 			operator bool () const; // true if it has a valid alias
 			const Position& getPosition() const;
 			const Symbol& getVal() const;
+			const bst::str& getPath() const;
 
 			// setters
 			void setPath(const Node& node);
@@ -53,12 +55,17 @@ namespace frumul {
 			Value& getValue();
 			// const getters
 			const Name& getName() const;
+			const Alias& getAlias() const;
+			const Schildren& getChildren() const;
 			// booleans
 			bool hasParent() const;
 			bool hasAlias () const;
 			bool hasMark () const;
 			bool hasChildren () const;
 			bool hasValue() const;
+			// display
+			bst::str toString() const;
+			STDOUT(Symbol)
 
 		protected:
 			Name name {};

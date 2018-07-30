@@ -57,6 +57,13 @@ namespace frumul {
 		return !children.empty();
 	}
 
+	Schildren::operator bool () const {
+		/* true if it has children
+		 * overloaded function
+		 */
+		return hasChildren();
+	}
+
 	bool Schildren::hasChild (const bst::str& name) const {
 		/* true if child of name exists
 		 */
@@ -87,6 +94,23 @@ namespace frumul {
 		 * has a parent
 		 */
 		return parent;
+	}
+
+	// const getters
+
+	const Symbol& Schildren::getChild(const bst::str& name) const {
+		/* get Child in constant context
+		 */
+		for (const auto& child : children)
+			if (child.getName() == name)
+				return child;
+		assert(false&&"No child of this name");
+	}
+
+	const std::vector<Symbol>& Schildren::getChildren() const {
+		/* get the children
+		 */
+		return children;
 	}
 	
 

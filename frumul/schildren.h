@@ -25,9 +25,13 @@ namespace frumul {
 			// getters
 			Symbol& getChild(const bst::str& name) ;
 			bool hasChildren() const;
+			operator bool () const;
 			bool hasChild(const bst::str& name) const;
 			bool hasChild(const Node& node) const;
 			bool hasParent() const;
+			// const getters
+			const Symbol& getChild(const bst::str& name) const;
+			const std::vector<Symbol>& getChildren() const;
 			// setters
 			Symbol& addChild(const Symbol& s);
 			Symbol& appendChild();

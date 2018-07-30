@@ -218,6 +218,14 @@ namespace frumul {
 		return returned;
 	}
 
+	bst::str Name::names() const {
+		/* Simple representation of the names
+		 */
+		if (sname&&lname)
+			return sname + " - " + lname;
+		return (sname ? sname : lname);
+	}
+
 	bool Name::operator == (const bst::str& name) const {
 		/* true if name is one of the two names
 		 */

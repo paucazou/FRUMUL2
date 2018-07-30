@@ -1,7 +1,6 @@
 #include <cassert>
 #include <experimental/filesystem>
 #include <system_error>
-#include "hinterpreter.h"
 #include "parser.h"
 #include "util.h"
 
@@ -32,6 +31,15 @@ namespace frumul {
 			alreadyparsed = true;
 		}
 		return AST;
+	}
+
+	const Symbol& Parser::getHeaderSymbol() const {
+		/* return a reference
+		 * to the header symbol
+		 * if it is set
+		 */
+		assert(header_symbol&&"Header symbol has not yet been set");
+		return *header_symbol;
 	}
 	
 
@@ -86,7 +94,7 @@ namespace frumul {
 		 */
 		AST.addChild("header",header());
 		Hinterpreter header_interpreter {AST.get("header")};
-		header_interpreter.getSymbolTree();
+		header_symbol = std::make_unique<Symbol>(header_interpreter.getSymbolTree());
 		AST.addChild("text",text());
 		return AST;
 	}

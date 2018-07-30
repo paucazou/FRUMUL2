@@ -2,6 +2,8 @@
 #define PARSER_H
 
 #include <map>
+#include <memory>
+#include "hinterpreter.h"
 #include "lexer.h"
 #include "node.h"
 #include "token.h"
@@ -16,6 +18,7 @@ namespace frumul {
 			Parser (const bst::str& nsource,const bst::str& nfilepath,const Token::Type next_token=Token::MAX_TYPES_HEADER);
 			~Parser();
 			Node& parse (); 
+			const Symbol& getHeaderSymbol() const;
 		private:
 			//static attributes
 			static std::map<bst::str,bst::str> files; // files already loaded
@@ -23,6 +26,7 @@ namespace frumul {
 			bool alreadyparsed{false};
 			const bst::str& source;
 			const bst::str& filepath;
+			std::unique_ptr<Symbol> header_symbol{nullptr};
 			Lexer lex;
 			Node AST;
 			Token * current_token {nullptr};

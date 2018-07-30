@@ -50,6 +50,7 @@ namespace frumul {
 			const std::unordered_multimap<bst::str,Position>& getPositions() const;
 			//display
 			bst::str toString() const;
+			bst::str names() const;
 			//overload
 			bool operator == (const bst::str& name) const;
 			// operator && returns true if short and long names are equal

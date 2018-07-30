@@ -38,6 +38,30 @@ back: // there is a goto at the end of the function
 	goto back; // yes, it's bad
 }
 
+void symbolBrowser(const frumul::Symbol& s) {
+	/* Takes a symbol and prints
+	 * the major informations
+	 * about it
+	 */
+back:
+	std::cout << s;
+	std::cout << "Enter the name of a child, '--parent','--alias': ";
+	bst::str answer;
+	std::cin >> answer;
+	if (answer == "--parent")
+		return;
+	if (answer == "--alias") {
+		assert(s.hasAlias()&& "Symbol has no alias");
+		symbolBrowser(s.getAlias().getVal());
+	}
+	else
+		symbolBrowser(s.getChildren().getChild(answer));
+
+	goto back;
+
+
+}
+
 std::string slurp (std::ifstream& in) {
 	std::stringstream sstr;
 	sstr << in.rdbuf();
@@ -55,7 +79,11 @@ int main(int argc, char* argv[])
 		std::cout << source << "\n\n";
 		bst::str filepath {argv[1]};
 		frumul::Parser parser {source,filepath};
+		// browse ast
 		browser (parser.parse());
+		// browse symbols
+		symbolBrowser (parser.getHeaderSymbol());
+
 	}
 	else
 		std::cerr << "No file entered.\n";

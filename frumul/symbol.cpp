@@ -35,6 +35,13 @@ namespace frumul {
 		return *val;
 	}
 
+	const bst::str& Alias::getPath() const {
+		/* return path
+		 * value
+		 */
+		return path;
+	}
+
 	void Alias::setPath(const Node& node) {
 		/* save the path which points
 		 * to the symbol.
@@ -106,6 +113,14 @@ namespace frumul {
 	const Name& Symbol::getName() const {
 		return name;
 	}
+
+	const Alias& Symbol::getAlias() const {
+		return alias;
+	}
+
+	const Schildren& Symbol::getChildren() const {
+		return children;
+	}
 	
 	// booleans
 	bool Symbol::hasParent() const {
@@ -137,6 +152,43 @@ namespace frumul {
 		/* true if symbol has a value
 		 */
 		return value;
+	}
+
+	// display
+	bst::str Symbol::toString() const {
+		/* String representation of
+		 * a symbol
+		 */
+		bst::str s{"<Symbol>\n"};
+		// name
+		s += name.names() + '\n';
+
+		// mark
+		s += "Number of tags expected: " + bst::str(mark.get()) + '\n';
+
+		// parent
+		s += "Parent: " + bst::str(parent ? "Yes":"No") + '\n';
+
+		// alias
+		if (alias)
+			s += alias.getPath() + '\n';
+
+		// langs/values available
+		if (value) {
+			s += "Languages available: ";
+			for (const auto& l : value.getLangs())
+				s += l.getName() + ". ";
+			s += '\n';
+		}
+		// children
+		if (children) {
+			s += "Children:\n";
+			for (const auto & child : children.getChildren())
+				s += child.getName().names();
+			s += '\n';
+		}
+
+		return s;
 	}
 }
 
