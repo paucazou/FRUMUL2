@@ -16,6 +16,7 @@ namespace frumul {
 		 */
 		public:
 			Lang(const bst::str& nname, const Position& npos);
+			Lang(const Lang& other);
 			// getters
 			const Position& getPosition() const;
 			const bst::str& getName() const;
@@ -61,6 +62,7 @@ namespace frumul {
 		 */
 		public:
 			Value ();
+			Value (const Value& other);
 			//const bst::str execute(const bst::str& lang, args?) const;// execute the value with the arguments. How to do that ?
 			// getters
 			operator bool () const; // true if value is set

@@ -73,7 +73,8 @@ namespace frumul {
 	}
 
 	Symbol::Symbol(const Symbol& other) :
-		name{other.name}, mark{other.mark}, children{other.children}, parent{other.parent}, alias{alias}, value{value}
+		name{other.name}, mark{other.mark}, children{other.children}, parent{other.parent}, alias{other.alias}, 
+		value{other.value}
 	{
 	}
 
@@ -120,6 +121,16 @@ namespace frumul {
 
 	const Schildren& Symbol::getChildren() const {
 		return children;
+	}
+
+	// setters
+	
+	void Symbol::setParent(Symbol& nparent) {
+		/* Set parent
+		 */
+		if (!parent)
+			parent = &nparent;
+		assert(parent == &nparent&&"Parent doesn't match");
 	}
 	
 	// booleans

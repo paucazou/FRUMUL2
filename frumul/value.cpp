@@ -9,6 +9,12 @@ namespace frumul {
 		name{nname}, pos{npos}
 	{
 	}
+
+	Lang::Lang(const Lang& other) :
+		name{other.name}, pos{other.pos}
+	{
+	}
+
 	const Position& Lang::getPosition() const {
 		return pos;
 	}
@@ -122,8 +128,9 @@ namespace frumul {
 		 */
 		bst::str s{"<OneValue>\nLanguages: "};
 		for (const auto& l : langs)
-			s += l.getName() + '.';
-		s += pos->toString();
+			s += l.getName() + ".\n";
+		if (pos)
+			s += pos->toString();
 		return s;
 	}
 
@@ -136,6 +143,11 @@ namespace frumul {
 
 	// Value
 	Value::Value ()
+	{
+	}
+
+	Value::Value(const Value& other) :
+		values{other.values}
 	{
 	}
 

@@ -14,6 +14,7 @@ compile () {
 		-D DEBUG\
 		-g\
 		tests/astbrowser.cpp\
+		tests/tests.cpp\
 		frumul/exception.cpp\
 		frumul/hinterpreter.cpp\
 		frumul/lexer.cpp\

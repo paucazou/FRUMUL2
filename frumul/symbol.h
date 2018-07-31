@@ -57,6 +57,9 @@ namespace frumul {
 			const Name& getName() const;
 			const Alias& getAlias() const;
 			const Schildren& getChildren() const;
+
+			// setters
+			void setParent(Symbol& nparent);
 			// booleans
 			bool hasParent() const;
 			bool hasAlias () const;

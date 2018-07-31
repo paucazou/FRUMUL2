@@ -1,5 +1,8 @@
 #include <cassert>
 #include "hinterpreter.h"
+#if DEBUG
+#include "../tests/tests.h"
+#endif
 
 namespace frumul {
 
@@ -13,9 +16,7 @@ namespace frumul {
 		 * and return the symbols
 		 * found
 		 */
-		if (jobDone)
-			return main_symbol;
-		else {
+		if (!jobDone) {
 			for (const auto& child : header.getNumberedChildren())
 				visit(child,main_symbol);
 
@@ -50,6 +51,10 @@ namespace frumul {
 		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
 		OneValue& oval{visit_options(node.get("options"),symbol)};
 		visit_basic_value(node.get("value"),oval);
+
+		// set parent if necessary
+		if (!symbol.hasParent())
+			symbol.setParent(parent);
 		
 	}
 
