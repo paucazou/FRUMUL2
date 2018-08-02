@@ -12,6 +12,7 @@
 #define WARNINGS_LIST(W) \
 	W(InconsistentOptions)\
 	W(NamesSetTwice) \
+	W(NameNotUsed) \
 	W(MAX_TYPES)\
 
 namespace frumul {
@@ -39,6 +40,7 @@ namespace frumul {
 			InconsistentWarning(Type ntype,const bst::str& ninfo,const Position& npos, const bst::str& ninfo2, const std::vector<Position>& npositions);
 			InconsistentWarning(Type ntyp, const bst::str& ninfo, const std::vector<Position> npos1, const bst::str& ninfo2, const std::vector<Position> npos2);
 			InconsistentWarning(Type ntype,const bst::str& ninfo,const Position& npos, const bst::str& ninfo2, const Position& npos2);
+			InconsistentWarning(Type ntype, const bst::str& ninfo, const std::vector<Position>& npos);
 			//display
 			virtual bst::str toString() const;
 			STDOUT(InconsistentWarning)

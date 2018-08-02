@@ -194,7 +194,7 @@ namespace frumul {
 		/* Return the positions where type is found
 		 */
 		bool isTypeRegular { !in<bst::str,std::array<bst::str,3>>(type,{{"short","long","both"}}) };
-		assert(isTypeRegular&& "type must be short, long or both");
+		assert(!isTypeRegular&& "type must be short, long or both");
 
 		PosVect vect;
 		for (const auto& pair : positions)

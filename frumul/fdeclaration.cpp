@@ -31,11 +31,27 @@ namespace frumul {
 			used[i] = false;
 	}
 
+	Fdeclaration::operator bool() const {
+		/* true if Fdeclaration is ready
+		 */
+		return isReady();
+	}
+
 	bool Fdeclaration::isReady() const {
 		/* true if Fdeclaration is ready
 		 * to use
 		 */
 		return !used.empty();
+	}
+
+	std::vector<Name> Fdeclaration::notUsed() const {
+		/* Return a vector of Name not used
+		 */
+		std::vector<Name> list;
+		for (size_t i{0}; i<used.size();++i)
+			if (!used[i])
+				list.push_back(names[i]);
+		return list;
 	}
 
 	bool Fdeclaration::match(const Node& candidate) {

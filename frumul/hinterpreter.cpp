@@ -45,10 +45,24 @@ namespace frumul {
 	}
 
 	void Hinterpreter::visit_declaration(const Node& node, Symbol& parent) {
-		/* Manages the declaration node
-		 * TODO il n'y a que la déclaration basique pour le moment
+		/* Simple wrapper
 		 */
+		Fdeclaration f{parent}; //useless thing
+		visit_declaration(node,parent,f);
+	}
+
+	void Hinterpreter::visit_declaration(const Node& node, Symbol& parent,Fdeclaration& forward_declaration) {
+		/* Manages the declaration node
+		 * TODO not yet alias, no inheritance
+		 */
+		if (forward_declaration) {// we must check if the name has been declared before
+			if (!forward_declaration.match(node))
+				throw 1;
+		}
+
+		// name
 		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
+		// options
 		OneValue& oval{visit_options(node.get("options"),symbol)};
 		// using value
 		const Node& value{ node.get("value") };
@@ -59,6 +73,14 @@ namespace frumul {
 			case Node::NAMESPACE_VALUE:
 				{
 				Fdeclaration forward {visit_namespace_value(value,symbol)};
+				for (const auto& child : node.get("statements").getNumberedChildren())
+					visit_declaration(child,symbol,forward);
+				
+				// check if every forward declaration is followed by a definition
+				std::vector<Name> not_used{forward.notUsed()};
+				if (!not_used.empty())
+					for( const auto& l: not_used)
+						IW(W::NameNotUsed,"Forward declaration not followed by a definition.", l.getBothPositions());
 				}
 				break;
 			//case Node::ALIAS_VALUE:

@@ -18,7 +18,9 @@ namespace frumul {
 			Fdeclaration(Symbol& ns);
 			void newName(const Node&);
 			void declareReady();
+			operator bool () const;
 			bool isReady() const;
+			std::vector<Name> notUsed() const;
 			bool match(const Node&);
 		private:
 			std::vector<Name> names;

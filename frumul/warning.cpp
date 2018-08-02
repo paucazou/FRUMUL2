@@ -34,6 +34,11 @@ namespace frumul {
 		std::cout << *this;
 	}
 
+	InconsistentWarning::InconsistentWarning(Type ntype, const bst::str& ninfo, const std::vector<Position>& npos) :
+		Warning::Warning(ntype,ninfo,npos.at(0)), positions1{npos}
+	{
+	}
+
 	bst::str InconsistentWarning::toString() const {
 		/* string representation
 		 */
