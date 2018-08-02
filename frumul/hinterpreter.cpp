@@ -50,7 +50,23 @@ namespace frumul {
 		 */
 		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
 		OneValue& oval{visit_options(node.get("options"),symbol)};
-		visit_basic_value(node.get("value"),oval);
+		// using value
+		const Node& value{ node.get("value") };
+		switch (value.type()) {
+			case Node::BASIC_VALUE:
+				visit_basic_value(value,oval);
+				break;
+			case Node::NAMESPACE_VALUE:
+				{
+				Fdeclaration forward {visit_namespace_value(value,symbol)};
+				}
+				break;
+			//case Node::ALIAS_VALUE:
+			//	break;
+			default:
+				std::cerr<<value.toString() << std::endl;
+				assert(false&&"The node is not a value");
+		};
 
 		// set parent if necessary
 		if (!symbol.hasParent())
@@ -58,7 +74,19 @@ namespace frumul {
 		
 	}
 
+	Fdeclaration Hinterpreter::visit_namespace_value(const Node& val, Symbol& parent) {
+		/* Interprets the namespace value
+		 * and creates a forword declaration object
+		 */
+		Fdeclaration forward{parent};
+		for (const auto& node_name : val.getNumberedChildren())
+			forward.newName(node_name);
+		forward.declareReady();
+		return forward;
+	}
+
 	OneValue& Hinterpreter::visit_options(const Node& node, Symbol& sym) {
+		// TODO pour le moment, ça ne fonctionne pas pour les espaces de noms
 		/* Visit the options node
 		 * If mark/lang options are not defined,
 		 * set the symbol with parent values

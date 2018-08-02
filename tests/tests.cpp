@@ -37,7 +37,7 @@ namespace ftest {
 		 * the major informations
 		 * about it
 		 */
-	back:
+	back: // yes, another goto, because I'm the worst coder ever !!!
 		std::cout << s;
 		std::cout << "Enter the name of a child, '--parent','--alias': ";
 		bst::str answer;

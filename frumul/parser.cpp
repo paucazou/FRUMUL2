@@ -645,6 +645,7 @@ namespace frumul {
 		 * Return a Node NAMESPACE_VALUE
 		 * with at least one child,
 		 * long name, short name or linked name
+		 * Children type: numbered_children
 		 */
 		NodeVector fields;
 		while (current_token->getType() != Token::RAQUOTE) {

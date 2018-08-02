@@ -195,7 +195,7 @@ namespace frumul {
 		if (children) {
 			s += "Children:\n";
 			for (const auto & child : children.getChildren())
-				s += child.getName().names();
+				s += child.getName().names() + ". ";
 			s += '\n';
 		}
 

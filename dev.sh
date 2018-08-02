@@ -16,6 +16,7 @@ compile () {
 		tests/astbrowser.cpp\
 		tests/tests.cpp\
 		frumul/exception.cpp\
+		frumul/fdeclaration.cpp\
 		frumul/hinterpreter.cpp\
 		frumul/lexer.cpp\
 		frumul/mark.cpp\
@@ -27,6 +28,7 @@ compile () {
 		frumul/symbol.cpp\
 		frumul/util.cpp\
 		frumul/value.cpp\
+		frumul/warning.cpp\
 		-o out\
 		$odir/token.o\
 		$bstrlib/bstrlib.o\

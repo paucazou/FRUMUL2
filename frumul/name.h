@@ -31,6 +31,7 @@ namespace frumul {
 			// constructors
 			Name ();
 			Name (const Name& other);
+			Name (const Node& node);
 			// setters
 			void add(const Node& node);
 			void add(const bst::str& name);

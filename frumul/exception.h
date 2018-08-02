@@ -15,6 +15,7 @@
 	E(TagNotFound)\
 	E(FileError)\
 	E(InvalidName)\
+	E(NoForwardDeclaration)\
 	E(NameAlreadyDefined)\
 	E(InvalidMark)\
 	E(InconsistentMark)\
@@ -48,7 +49,7 @@ namespace frumul {
 			virtual const bst::str what () const noexcept;
 		protected:
 			std::vector<Position> positions1;
-			const bst::str info2; // this info will be print just before 'positions'
+			const bst::str info2; // this info will be print just before 'positions2'
 			std::vector<Position> positions2;
 	};
 

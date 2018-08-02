@@ -26,6 +26,12 @@ namespace frumul {
 			positions.emplace(pair.first,pair.second);
 	}
 
+	Name::Name (const Node& node) : Name(){
+		/* Constructs a name with a node
+		 */
+		add(node);
+	}
+
 	void Name::add(const Node& node) {
 		/* Add a new name
 		 */
