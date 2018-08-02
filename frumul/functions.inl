@@ -3,6 +3,7 @@
 /* This file contains only
  * function templates
  */
+#include <stack>
 
 namespace frumul {
 
@@ -28,5 +29,50 @@ namespace frumul {
 				return true;
 		return false;
 	}
+
+	template<typename T>
+		class RandomStack : public std::stack<T> {
+			/* Stack wich give access
+			 * to random elements
+			 */
+			public:
+				T& operator[](unsigned int i) {
+					/* unsafe way to get a T
+					 */
+					return std::stack<T>::c[i];
+				}
+
+				const T& operator[](unsigned int i) const {
+					return std::stack<T>::c[i];
+				}
+
+				T& at(unsigned int i) {
+					/* Raise exception
+					 * if out of range
+					 */
+					return std::stack<T>::at(i);
+				}
+
+				const T& at(unsigned int i) const {
+					return std::stack<T>::at(i);
+				}
+
+				T& topMin(unsigned int i){
+					/* get the element before top
+					 * by i span
+					 * top = 0
+					 */
+					return at(std::stack<T>::size()-i-1);
+				}
+				const T& topMin(unsigned int i) const {
+					/* idem in const context
+					 */
+					return at(std::stack<T>::size()-i-1);
+				}
+		};
+
+	template <typename T>
+		using rstack = RandomStack<T>;
+
 }//namespace
 #endif

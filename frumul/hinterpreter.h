@@ -6,8 +6,8 @@
  * the header part
  */
 #include <cassert>
-#include <stack>
 #include "fdeclaration.h"
+#include "functions.inl"
 #include "node.h"
 #include "symbol.h"
 
@@ -45,7 +45,7 @@ namespace frumul {
 			bool jobDone{false};
 			Symbol main_symbol{};
 			const Node& header;
-			std::stack<InheritedOptions> inherited_stack;
+			rstack<InheritedOptions> inherited_stack;
 
 			// functions
 			void visit(const Node& node, Symbol& parent);
