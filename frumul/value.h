@@ -3,6 +3,7 @@
 /* Contains the value of a symbol
  */
 
+#include <cassert>
 #include <memory>
 #include <ostream>
 #include <vector>

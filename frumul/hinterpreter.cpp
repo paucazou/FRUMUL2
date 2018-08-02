@@ -5,6 +5,39 @@
 #endif
 
 namespace frumul {
+	//InheritedOptions
+	
+	InheritedOptions::InheritedOptions()
+	{
+	}
+
+	void InheritedOptions::setLangs(const std::vector<Lang>& nlangs) {
+		/* Set langs
+		 */
+		assert(langs.empty()&&"Langs is not empty");
+		for (const auto& elt : nlangs)
+			langs.push_back(elt);
+	}
+
+	void InheritedOptions::setMark(const Node& node) {
+		/* set node
+		 */
+		mark.set(node);
+	}
+
+	const std::vector<Lang>& InheritedOptions::getLangs() const {
+		/* Return langs
+		 */
+		return langs;
+	}
+
+	const Mark& InheritedOptions::getMark() const {
+		/* return mark
+		 */
+		return mark;
+	}
+
+	// Hinterpreter
 
 	Hinterpreter::Hinterpreter (const Node& nheader) :
 		header{nheader}
@@ -62,16 +95,20 @@ namespace frumul {
 
 		// name
 		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
-		// options
-		OneValue& oval{visit_options(node.get("options"),symbol)};
 		// using value
 		const Node& value{ node.get("value") };
 		switch (value.type()) {
 			case Node::BASIC_VALUE:
+				{
+				// options
+				OneValue& oval{visit_options_basic(node.get("options"),symbol)};
 				visit_basic_value(value,oval);
+				}
 				break;
 			case Node::NAMESPACE_VALUE:
 				{
+				// options
+				visit_options_namespace(node.get("options"));
 				Fdeclaration forward {visit_namespace_value(value,symbol)};
 				for (const auto& child : node.get("statements").getNumberedChildren())
 					visit_declaration(child,symbol,forward);
@@ -81,6 +118,8 @@ namespace frumul {
 				if (!not_used.empty())
 					for( const auto& l: not_used)
 						IW(W::NameNotUsed,"Forward declaration not followed by a definition.", l.getBothPositions());
+				// remove last elt of the stack
+				inherited_stack.pop();
 				}
 				break;
 			//case Node::ALIAS_VALUE:
@@ -107,13 +146,13 @@ namespace frumul {
 		return forward;
 	}
 
-	OneValue& Hinterpreter::visit_options(const Node& node, Symbol& sym) {
-		// TODO pour le moment, ça ne fonctionne pas pour les espaces de noms
+	OneValue& Hinterpreter::visit_options_basic(const Node& node, Symbol& sym) {
 		/* Visit the options node
+		 * for basic values
 		 * If mark/lang options are not defined,
 		 * set the symbol with parent values
 		 */
-		std::vector<Lang> langs;
+		std::vector<Lang> langs; 
 		// visit nodes
 		for (auto& elt : node.getNumberedChildren()) {
 			if (elt.type() == Node::MARK)
@@ -129,6 +168,28 @@ namespace frumul {
 
 		return sym.getValue().set(langs);
 	}	
+
+	void Hinterpreter::visit_options_namespace(const Node& node) {
+		/* Visit the options node
+		 * for a namespace values.
+		 * These options could be used later
+		 * by children
+		 */
+		
+		InheritedOptions io;
+		std::vector<Lang> langs;
+		// visit nodes
+		for (auto& elt : node.getNumberedChildren()) {
+			if (elt.type() == Node::MARK)
+				io.setMark(elt);
+			else if (elt.type() == Node::LANG) {
+				langs.emplace_back(elt.getValue(),elt.getPosition());
+			}
+		}
+
+		// append a new InheritedOptions to the stack
+		inherited_stack.push(io);
+	}
 
 
 	void Hinterpreter::visit_basic_value(const Node& node, OneValue& val) {

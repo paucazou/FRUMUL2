@@ -69,6 +69,7 @@ namespace frumul {
 	OneValue::OneValue(std::vector<Lang>& nlangs) :
 		langs{nlangs}
 	{
+		assert(!nlangs.empty()&&"Langs is empty");
 	}
 
 	OneValue::OneValue (const Node& node, std::vector<Lang>& nlangs) :
