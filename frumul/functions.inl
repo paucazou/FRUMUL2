@@ -50,11 +50,11 @@ namespace frumul {
 					/* Raise exception
 					 * if out of range
 					 */
-					return std::stack<T>::at(i);
+					return std::stack<T>::c.at(i);
 				}
 
 				const T& at(unsigned int i) const {
-					return std::stack<T>::at(i);
+					return std::stack<T>::c.at(i);
 				}
 
 				T& topMin(unsigned int i){

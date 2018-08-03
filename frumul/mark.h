@@ -4,6 +4,7 @@
  * the Mark class
  */
 
+#include <cassert>
 #include <vector>
 #include "node.h"
 #include "position.h"
@@ -18,6 +19,7 @@ namespace frumul {
 			Mark(const Mark& other);
 			// add a value
 			void set (const Node& node);
+			void set (const Mark& other);
 			void operator ()(const Node& node);
 			// get the value
 			int get () const;

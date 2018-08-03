@@ -16,6 +16,7 @@
 	E(FileError)\
 	E(InvalidName)\
 	E(NoForwardDeclaration)\
+	E(RequiredOptionNotSet)\
 	E(NameAlreadyDefined)\
 	E(InvalidMark)\
 	E(InconsistentMark)\

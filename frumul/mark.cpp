@@ -40,6 +40,16 @@ namespace frumul {
 		positions.push_back(node.getPosition());
 	}
 
+	void Mark::set (const Mark& other) {
+		/* set the value
+		 * if it has not been set before
+		 */
+		assert(val <= 0 && "Mark value has already been set");
+		val = other.val;
+		for (const auto& pos : other.positions)
+			positions.push_back(pos);
+	}
+
 	void Mark::operator() (const Node& node) {
 		/* Same that set
 		 */

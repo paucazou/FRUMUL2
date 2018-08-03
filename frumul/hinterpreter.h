@@ -6,8 +6,10 @@
  * the header part
  */
 #include <cassert>
+#include <stdexcept>
 #include "fdeclaration.h"
 #include "functions.inl"
+#include "macros.h"
 #include "node.h"
 #include "symbol.h"
 
@@ -26,6 +28,13 @@ namespace frumul {
 			// getters
 			const std::vector<Lang>& getLangs() const;
 			const Mark& getMark() const;
+			// booleans
+			bool hasMark() const;
+			bool hasLangs() const;
+			//display
+			bst::str toString()const;
+			STDOUT(InheritedOptions)
+
 		private:
 			std::vector<Lang> langs;
 			Mark mark;
@@ -53,6 +62,7 @@ namespace frumul {
 			void visit_declaration(const Node& node, Symbol& parent,Fdeclaration&);
 			Fdeclaration visit_namespace_value(const Node& val,Symbol& parent);
 			OneValue& visit_options_basic(const Node& node, Symbol& sym);
+			OneValue& inherit(const Node& node,Symbol& sym,std::vector<Lang>& langs);
 			void visit_options_namespace (const Node&);
 			void visit_basic_value(const Node& node, OneValue& oval);
 	};

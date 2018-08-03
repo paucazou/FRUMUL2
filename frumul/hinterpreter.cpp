@@ -37,6 +37,37 @@ namespace frumul {
 		return mark;
 	}
 
+	bool InheritedOptions::hasMark() const {
+		/* true if it contains a
+		 * mark
+		 */
+		return mark.get();
+	}
+
+	bool InheritedOptions::hasLangs() const {
+		/* true if it contains langs
+		 */
+		return !langs.empty();
+	}
+
+	bst::str InheritedOptions::toString() const {
+		/* string representation
+		 */
+		bst::str s{"<InheritedOptions"};
+		if (hasMark())
+			s += "|Mark";
+		if (hasLangs())
+			s+= "|Langs";
+		s+= ">\n";
+
+		if (hasMark())
+			s += mark.toString();
+		if (hasLangs())
+			for (const auto& l : langs)
+				s += l.toString();
+		return s;
+	}
+
 	// Hinterpreter
 
 	Hinterpreter::Hinterpreter (const Node& nheader) :
@@ -163,11 +194,48 @@ namespace frumul {
 		}
 
 
-		// check if option lacks
-		// TODO
-
-		return sym.getValue().set(langs);
+		// check if option lacks and return
+		return inherit(node,sym,langs);
 	}	
+
+	OneValue& Hinterpreter::inherit(const Node& node,Symbol& sym,std::vector<Lang>& langs) {
+		/* Checks if options lacks and inherit
+		 * them from parents
+		 */
+		assert((node.type() == Node::OPTIONS||node.type() == Node::EMPTY)&&"Node is not an option");
+		// mark
+		if (!sym.getMark()()) {
+			try {
+				for (int i{0};; ++i){
+					InheritedOptions& io {inherited_stack.topMin(i)};
+					if (io.hasMark()) {
+						sym.getMark().set(io.getMark());
+						break;
+					}
+				}
+			} catch (std::out_of_range){
+				throw exc(exc::RequiredOptionNotSet,"Mark option not set nor inherited",node.getPosition());
+			}
+		}
+
+		// langs
+		if (langs.empty()) {
+			try {
+				for (int i{0};; ++i){
+					InheritedOptions& io{inherited_stack.topMin(i)};
+					std::cout << io << std::endl;
+					if (io.hasLangs()) {
+						for(const auto& l : io.getLangs())
+							langs.push_back(l);
+						break;
+					}
+				}
+			} catch (std::out_of_range) {
+				throw exc(exc::RequiredOptionNotSet,"Lang option not set nor inherited",node.getPosition());
+			}
+		}
+		return sym.getValue().set(langs);
+	}
 
 	void Hinterpreter::visit_options_namespace(const Node& node) {
 		/* Visit the options node
@@ -186,6 +254,7 @@ namespace frumul {
 				langs.emplace_back(elt.getValue(),elt.getPosition());
 			}
 		}
+		io.setLangs(langs);
 
 		// append a new InheritedOptions to the stack
 		inherited_stack.push(io);
