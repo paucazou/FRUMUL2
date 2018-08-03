@@ -496,6 +496,14 @@ namespace frumul {
 			val = "]";
 			t = Token::RBRACKET;
 		}
+		else if (current_char == ")") {
+			val = ")";
+			t = Token::LPAREN;
+		}
+		else if (current_char == "(") {
+			val = "(";
+			t = Token::RPAREN;
+		}
 		else if (current_char == ",") {
 			val = ",";
 			t = Token::COMMA;
