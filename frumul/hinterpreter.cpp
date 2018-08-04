@@ -117,11 +117,10 @@ namespace frumul {
 
 	void Hinterpreter::visit_declaration(const Node& node, Symbol& parent,Fdeclaration& forward_declaration) {
 		/* Manages the declaration node
-		 * TODO not yet alias, no inheritance
+		 * TODO not yet alias, 
 		 */
 		if (forward_declaration) {// we must check if the name has been declared before
-			if (!forward_declaration.match(node))
-				throw 1;
+			forward_declaration.match(node.get("name"));
 		}
 
 		// name
@@ -153,8 +152,21 @@ namespace frumul {
 				inherited_stack.pop();
 				}
 				break;
-			//case Node::ALIAS_VALUE:
-			//	break;
+			case Node::ALIAS_VALUE:
+				{
+					// check that no option has been declared
+					if (node.get("options").type() != Node::EMPTY)
+						throw exc(exc::SyntaxError,"No option allowed before an alias value",node.get("options").getPosition());
+
+					// set positions and path
+					Alias& alias {symbol.getAlias()};
+					alias.setPath(value);
+
+					// add alias to the stack in order to interpret the path
+					aliases.push(std::ref(alias));
+
+				}
+				break;
 			default:
 				std::cerr<<value.toString() << std::endl;
 				assert(false&&"The node is not a value");
@@ -223,7 +235,6 @@ namespace frumul {
 			try {
 				for (int i{0};; ++i){
 					InheritedOptions& io{inherited_stack.topMin(i)};
-					std::cout << io << std::endl;
 					if (io.hasLangs()) {
 						for(const auto& l : io.getLangs())
 							langs.push_back(l);
@@ -267,6 +278,21 @@ namespace frumul {
 		 * TODO check the node
 		 */
 		val.setNode(node);
+	}
+
+	void Hinterpreter::interpret_aliases() {
+		/* This function interprets the aliases
+		 * found in the AST and set the pointer in them
+		 */
+
+		while (!aliases.empty()) {
+			// get the reference
+			Alias& alias {aliases.top().get()};
+			// remove alias;
+			aliases.pop();
+
+		}
+
 	}
 }
 

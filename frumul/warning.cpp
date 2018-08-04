@@ -19,19 +19,16 @@ namespace frumul {
 	InconsistentWarning::InconsistentWarning(Type ntype, const bst::str& ninfo, const Position& npos, const bst::str& ninfo2, const std::vector<Position>& npositions) :
 		Warning::Warning(ntype,ninfo,npos), positions1{{npos}}, info2{ninfo2}, positions2{npositions}
 	{
-		std::cout << *this;
 	}
 
 	InconsistentWarning::InconsistentWarning(Type ntype, const bst::str& ninfo1, const std::vector<Position> npos1, const bst::str& ninfo2, const std::vector<Position> npos2):
 	Warning::Warning(ntype,ninfo1,npos1.at(0)), positions1{npos1}, info2{ninfo2}, positions2{npos2}
 	{
-		std::cout << *this;
 	}
 
 	InconsistentWarning::InconsistentWarning(Type ntype, const bst::str& ninfo, const Position& npos1, const bst::str& ninfo2, const Position& npos2) :
 		Warning::Warning(ntype,ninfo,npos1), positions1{{npos1}}, info2{ninfo2}, positions2{{npos2}}
 	{
-		std::cout << *this;
 	}
 
 	InconsistentWarning::InconsistentWarning(Type ntype, const bst::str& ninfo, const std::vector<Position>& npos) :

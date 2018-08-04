@@ -6,6 +6,7 @@
  * the header part
  */
 #include <cassert>
+#include <functional>
 #include <stdexcept>
 #include "fdeclaration.h"
 #include "functions.inl"
@@ -55,6 +56,7 @@ namespace frumul {
 			Symbol main_symbol{};
 			const Node& header;
 			rstack<InheritedOptions> inherited_stack;
+			std::stack<RAlias> aliases;
 
 			// functions
 			void visit(const Node& node, Symbol& parent);
@@ -65,6 +67,8 @@ namespace frumul {
 			OneValue& inherit(const Node& node,Symbol& sym,std::vector<Lang>& langs);
 			void visit_options_namespace (const Node&);
 			void visit_basic_value(const Node& node, OneValue& oval);
+
+			void interpret_aliases();
 	};
 }
 #endif

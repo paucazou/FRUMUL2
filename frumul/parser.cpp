@@ -181,7 +181,7 @@ namespace frumul {
 		}
 		fields.insert({"options",options()});
 
-		int end; // should be deleted TODO
+		int end{0}; 
 		if (current_token->getType() == Token::LAQUOTE) { // we can assume it is a basic value
 			int start {getTokenStart()};
 			eat(Token::LAQUOTE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // consume «
@@ -225,8 +225,18 @@ namespace frumul {
 			//fields.at("value").removeChild("options");TODO REMOVE?
 
 
+		} else if (current_token->getValue() == "alias") { // alias
+			eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // eat 'alias'
+			eat(Token::LAQUOTE,Token::ID,Token::MAX_TYPES_HEADER); // eat '«' and get the symbol path
+			Node value {Node::ALIAS_VALUE,current_token->getPosition(),current_token->getValue()};
+			fields.insert({"value",value});
+			eat(Token::ID,Token::RAQUOTE,Token::MAX_TYPES_HEADER); // eat path and get '»'
+			end = current_token->getPosition().getEnd();
+			// RAQUOTE is eat in statement_list
 		} else
 			assert(false&&"No option selected");
+		// check 'end' value to avoid garbage
+		assert(end&&"end has not been set");
 
 
 

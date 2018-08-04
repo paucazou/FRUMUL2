@@ -57,6 +57,11 @@ namespace frumul {
 		 */
 	}
 
+	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo1, const Position& npos1, const bst::str& ninfo2, const Position& npos2) :
+		BaseException(ntype,ninfo1,npos1), positions1{{npos1}}, info2{ninfo2}, positions2{{npos2}}
+	{
+	}
+
 	const bst::str InconsistantException::what () const noexcept {
 		bst::str returned{typeToString(type)};
 		returned += ": " + addinfo + '\n';

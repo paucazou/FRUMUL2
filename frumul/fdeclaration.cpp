@@ -58,6 +58,9 @@ namespace frumul {
 		/* Checks if node (LONG_NAME or SHORT_NAME)
 		 * match with one of the names in the declaration
 		 */
+		
+		// check node type
+		assert((candidate.type() == Node::LONG_NAME || candidate.type() == Node::SHORT_NAME)&&"Node must be a short or a long name");
 		// check if instance is ready to use
 		assert(isReady()&&"Fdeclaration has not yet been declared ready to use");
 		// iterates on names

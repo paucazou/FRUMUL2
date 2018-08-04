@@ -20,6 +20,12 @@ namespace frumul {
 		return val;
 	}
 
+	bool Alias::hasPath() const {
+		/* true if a path has already been set
+		 */
+		return path;
+	}
+
 	const Position& Alias::getPosition() const {
 		/* return the position of the alias
 		 */
@@ -45,10 +51,14 @@ namespace frumul {
 	void Alias::setPath(const Node& node) {
 		/* save the path which points
 		 * to the symbol.
-		 * TODO not finished
+		 * Sets the position with it.
 		 */
-		assert(false&&"Path not yet set in alias");
-		path = node.getValue(); // probably not good
+		assert(node.type() == Node::ALIAS_VALUE&&"node has not required type: ALIAS_VALUE");
+		if (path)
+			throw iexc(exc::AliasAlreadySet,"You can't set two alias to one symbol.",node.getPosition(),"Alias already set here:",*pos);
+
+		path = node.getValue(); 
+		setPosition(node.getPosition());
 	}
 
 	void Alias::setVal(const Symbol& nalias) {
@@ -63,6 +73,7 @@ namespace frumul {
 	void Alias::setPosition(const Position& npos) {
 		/*Set the pointer to position
 		 */
+		assert(!pos&&"Position of the alias has already been set");
 		pos = std::make_unique<Position>(npos);
 	}
 
@@ -181,8 +192,8 @@ namespace frumul {
 		s += "Parent: " + bst::str(parent ? "Yes":"No") + '\n';
 
 		// alias
-		if (alias)
-			s += alias.getPath() + '\n';
+		if (alias.hasPath())
+			s += "Points to: " + alias.getPath() + '\n';
 
 		// langs/values available
 		if (value) {

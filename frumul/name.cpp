@@ -235,19 +235,19 @@ namespace frumul {
 	bool Name::operator == (const bst::str& name) const {
 		/* true if name is one of the two names
 		 */
-		return name == sname || name == lname;
+		return (name == sname || name == lname);
 	}
 
 	bool Name::operator && (const Name& other) const {
 		/* return true if short AND long names both are equal
 		 */
-		return sname == other.sname && lname == other.lname;
+		return (sname == other.sname && lname == other.lname);
 	}
 
 	bool Name::operator || (const Name& other) const {
 		/* return true if short OR long name are equal
 		 */
-		return sname == other.sname || lname == other.lname;
+		return (sname == other.sname || lname == other.lname);
 	}
 
 	std::ostream& operator<< (std::ostream& out, const Name& n) {

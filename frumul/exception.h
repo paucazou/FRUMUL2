@@ -18,6 +18,7 @@
 	E(NoForwardDeclaration)\
 	E(RequiredOptionNotSet)\
 	E(NameAlreadyDefined)\
+	E(AliasAlreadySet)\
 	E(InvalidMark)\
 	E(InconsistentMark)\
 	E(MAX_TYPES)\
@@ -46,6 +47,8 @@ namespace frumul {
 			InconsistantException (Type ntype, const bst::str& ninfo,const Position& npos, const bst::str& ninfo2, const std::vector<Position> npositions);
 			//InconsistantException (Type ntype, const bst::str ninfo,const Position& npos, const bst::str ninfo2, const std::vector<Position> npositions);
 			InconsistantException (Type ntype, const bst::str& ninfo, const std::vector<Position> npos1, const bst::str& ninfo2, const std::vector<Position> npositions2);
+
+			InconsistantException (Type ntype, const bst::str& ninfo1, const Position& npos1, const bst::str& ninfo2, const Position& npos2);
 
 			virtual const bst::str what () const noexcept;
 		protected:
