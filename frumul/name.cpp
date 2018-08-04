@@ -247,7 +247,8 @@ namespace frumul {
 	bool Name::operator || (const Name& other) const {
 		/* return true if short OR long name are equal
 		 */
-		return (sname == other.sname || lname == other.lname);
+		return ((sname ? (sname == other.sname) : false) ||
+			(lname ? (lname == other.lname) : false));
 	}
 
 	std::ostream& operator<< (std::ostream& out, const Name& n) {

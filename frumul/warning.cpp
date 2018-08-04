@@ -7,6 +7,14 @@ namespace frumul {
 		std::cout << *this;
 	}
 
+	Warning::Warning (Type ntype, const bst::str& ninfo) :
+		type{ntype}, info{ninfo}, pos{-1,-1,"No","No"}
+	{
+		/* Protected constructor used for derived classes only
+		 * Does not print the instance and creates a non safe position
+		 */
+	}
+
 	bst::str Warning::toString() const {
 		/* string representation
 		 */
@@ -17,23 +25,27 @@ namespace frumul {
 	}
 
 	InconsistentWarning::InconsistentWarning(Type ntype, const bst::str& ninfo, const Position& npos, const bst::str& ninfo2, const std::vector<Position>& npositions) :
-		Warning::Warning(ntype,ninfo,npos), positions1{{npos}}, info2{ninfo2}, positions2{npositions}
+		Warning::Warning(ntype,ninfo), positions1{{npos}}, info2{ninfo2}, positions2{npositions}
 	{
+		std::cout << *this;
 	}
 
 	InconsistentWarning::InconsistentWarning(Type ntype, const bst::str& ninfo1, const std::vector<Position> npos1, const bst::str& ninfo2, const std::vector<Position> npos2):
-	Warning::Warning(ntype,ninfo1,npos1.at(0)), positions1{npos1}, info2{ninfo2}, positions2{npos2}
+	Warning::Warning(ntype,ninfo1), positions1{npos1}, info2{ninfo2}, positions2{npos2}
 	{
+		std::cout << *this;
 	}
 
 	InconsistentWarning::InconsistentWarning(Type ntype, const bst::str& ninfo, const Position& npos1, const bst::str& ninfo2, const Position& npos2) :
-		Warning::Warning(ntype,ninfo,npos1), positions1{{npos1}}, info2{ninfo2}, positions2{{npos2}}
+		Warning::Warning(ntype,ninfo), positions1{{npos1}}, info2{ninfo2}, positions2{{npos2}}
 	{
+		std::cout << *this;
 	}
 
 	InconsistentWarning::InconsistentWarning(Type ntype, const bst::str& ninfo, const std::vector<Position>& npos) :
-		Warning::Warning(ntype,ninfo,npos.at(0)), positions1{npos}
+		Warning::Warning(ntype,ninfo), positions1{npos}
 	{
+		std::cout << *this;
 	}
 
 	bst::str InconsistentWarning::toString() const {

@@ -26,6 +26,7 @@ namespace frumul {
 			virtual bst::str toString() const;
 			STDOUT(Warning)
 		protected:
+			Warning (Type ntype, const bst::str& ninfo);
 			Type type;
 			const bst::str info;
 			const Position pos;
