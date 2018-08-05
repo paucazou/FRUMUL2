@@ -29,6 +29,15 @@ namespace frumul {
 			bool hasChild(const bst::str& name) const;
 			bool hasChild(const Node& node) const;
 			bool hasParent() const;
+			// finders
+			enum Flag {
+				No = 1 << 0, 		// basic: no option
+				Relative = 1 << 1, 	// allows '§'
+				Privileged = 1 << 2,	// with privileged parameter
+				Parameter = 1 << 3,	// with parameter name
+			};
+
+			const Symbol& find(const bst::str& path, Flag flag=No) const;
 			// const getters
 			const Symbol& getChild(const bst::str& name) const;
 			const std::vector<Symbol>& getChildren() const;
@@ -36,6 +45,7 @@ namespace frumul {
 			Symbol& addChild(const Symbol& s);
 			Symbol& appendChild();
 			Symbol& appendChild(const bst::str& name);
+
 		private:
 			Symbol* const parent{nullptr};
 			std::vector<Symbol> children;

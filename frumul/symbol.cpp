@@ -9,6 +9,7 @@ namespace frumul {
 	Alias::Alias(const Alias& other) :
 		val{other.val}, path{other.path}
 	{
+		assert(false&&"Doesn't work, because the pointer points to garbage...");
 		if (other.pos)
 			pos = std::make_unique<Position>(*other.pos);
 	}
@@ -132,6 +133,11 @@ namespace frumul {
 
 	const Schildren& Symbol::getChildren() const {
 		return children;
+	}
+
+	const Symbol& Symbol::getParent() const {
+		assert(parent&&"No parent has been set");
+		return *parent;
 	}
 
 	// setters

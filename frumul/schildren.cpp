@@ -96,6 +96,74 @@ namespace frumul {
 		return parent;
 	}
 
+	// finders
+	
+	const Symbol& Schildren::find(const bst::str& path, Flag flag) const {
+		/* Looks in children to find a requested symbol.
+		 * Order : long name, short name, separation dots.
+		 * If it has a remain, transmits it to the child
+		 * found. No privileged parameter allowed.
+		 */
+		std::cout << path << std::endl;
+		assert(path&&"path is empty");
+		// relative path allowed ?
+		if (flag & Relative) {
+			if (path.uAt(0) == "§") {
+				if (!(*parent).hasParent()) // error: no parent
+					throw path;
+				bst::str npath {path.uRange(1,path.uLength()-1)};
+				if (npath)
+					return (*parent).getParent().getChildren().find(npath,flag);
+				return (*parent).getParent();
+			}
+
+			// remove \ if necessary
+			if (path.uAt(0) == "\\")
+				// BUG if a symbol named '§' follows another named '\', as in : \\§. Corner case
+				if (path.uLength() >= 2 && (path.uAt(1) == "§" || path.uAt(1) == "\\")) 
+					return find(path.uRange(1,path.uLength()-1),flag);
+		}
+		// try to find a long name
+		for (const auto& child : children) {
+			const bst::str& name {child.getName().getLong()};
+			
+			if (!name || name.uLength() > path.uLength())
+				continue;
+
+			if (path.uRange(0,name.uLength() -1) == name) {
+
+				if (name.uLength() == path.uLength())
+					return child;
+				bst::str npath{path.uRange(name.uLength(),path.uLength() -1)};
+				return child.getChildren().find(npath);
+				
+			}
+		}
+		// try to find a short name. Yes, lot of duplicates
+		for (const auto& child : children) {
+			const bst::str& name {child.getName().getShort()};
+
+			if (!name)
+				continue;
+
+			if (path.uAt(0) == name) {
+				if (path.uLength() == 1)
+					return child;
+
+				bst::str npath{path.uRange(1,path.uLength() - 1) };
+				return child.getChildren().find(npath);
+			}
+		}
+
+		// is there a dot ?
+		if (path.uAt(0) == ".")
+			if (path.uLength() > 1)
+				return find(path.uRange(1,path.uLength() -1));
+
+		throw path; // this must be caught
+	}
+
+
 	// const getters
 
 	const Symbol& Schildren::getChild(const bst::str& name) const {

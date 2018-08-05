@@ -18,6 +18,7 @@
 	E(NoForwardDeclaration)\
 	E(RequiredOptionNotSet)\
 	E(NameAlreadyDefined)\
+	E(SymbolNotFound)\
 	E(AliasAlreadySet)\
 	E(InvalidMark)\
 	E(InconsistentMark)\

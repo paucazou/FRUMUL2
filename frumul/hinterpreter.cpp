@@ -81,9 +81,12 @@ namespace frumul {
 		 * found
 		 */
 		if (!jobDone) {
+			// create the Symbol tree
 			for (const auto& child : header.getNumberedChildren())
 				visit(child,main_symbol);
 
+			// set the aliases
+			interpret_aliases();
 			jobDone = true;
 		}
 
@@ -163,7 +166,7 @@ namespace frumul {
 					alias.setPath(value);
 
 					// add alias to the stack in order to interpret the path
-					aliases.push(std::ref(alias));
+					aliases.push(std::ref(symbol));
 
 				}
 				break;
@@ -287,7 +290,15 @@ namespace frumul {
 
 		while (!aliases.empty()) {
 			// get the reference
-			Alias& alias {aliases.top().get()};
+			Symbol& symbol_alias {aliases.top().get()};
+			Schildren& children {symbol_alias.getChildren()};
+			Alias& alias {symbol_alias.getAlias()};
+			// set the alias
+			try {
+				alias.setVal(children.find(alias.getPath(),Schildren::Relative));
+			} catch (bst::str& e) {
+				throw exc(exc::SymbolNotFound,bst::str("No symbol found for this path: ") + e,alias.getPosition());
+			}
 			// remove alias;
 			aliases.pop();
 

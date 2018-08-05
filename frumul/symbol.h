@@ -60,6 +60,7 @@ namespace frumul {
 			const Name& getName() const;
 			const Alias& getAlias() const;
 			const Schildren& getChildren() const;
+			const Symbol& getParent() const;
 
 			// setters
 			void setParent(Symbol& nparent);
@@ -76,7 +77,7 @@ namespace frumul {
 		protected:
 			Name name {};
 			Mark mark {};
-			Schildren children;
+			Schildren children{*this};
 			Symbol* parent {nullptr};
 			Alias alias;
 			Value value;
@@ -84,5 +85,6 @@ namespace frumul {
 	};
 
 	using RAlias = std::reference_wrapper<Alias>;
+	using RSymbol = std::reference_wrapper<Symbol>;
 }
 #endif

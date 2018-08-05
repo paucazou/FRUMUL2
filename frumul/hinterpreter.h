@@ -56,7 +56,7 @@ namespace frumul {
 			Symbol main_symbol{};
 			const Node& header;
 			rstack<InheritedOptions> inherited_stack;
-			std::stack<RAlias> aliases;
+			std::stack<RSymbol> aliases;
 
 			// functions
 			void visit(const Node& node, Symbol& parent);

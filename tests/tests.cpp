@@ -46,6 +46,7 @@ namespace ftest {
 			return;
 		if (answer == "--alias") {
 			assert(s.hasAlias()&& "Symbol has no alias");
+			assert(s.getAlias()&& "Symbol alias not set");
 			symbolBrowser(s.getAlias().getVal());
 		}
 		else
