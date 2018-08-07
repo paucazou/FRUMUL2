@@ -9,7 +9,7 @@ namespace frumul {
 	Alias::Alias(const Alias& other) :
 		val{other.val}, path{other.path}
 	{
-		assert(false&&"Doesn't work, because the pointer points to garbage...");
+		assert(!val&&"Doesn't work, because the pointer points to garbage...");
 		if (other.pos)
 			pos = std::make_unique<Position>(*other.pos);
 	}

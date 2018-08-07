@@ -75,19 +75,19 @@ namespace frumul {
 	{
 	}
 
-	const Symbol& Hinterpreter::getSymbolTree() {
+	std::shared_ptr<Symbol> Hinterpreter::getSymbolTree() {
 		/* Interprets the header
 		 * and return the symbols
 		 * found
 		 */
-		if (!jobDone) {
+		if (!main_symbol) {
 			// create the Symbol tree
+			main_symbol = std::make_shared<Symbol>();
 			for (const auto& child : header.getNumberedChildren())
-				visit(child,main_symbol);
+				visit(child,*main_symbol);
 
 			// set the aliases
 			interpret_aliases();
-			jobDone = true;
 		}
 
 		return main_symbol;

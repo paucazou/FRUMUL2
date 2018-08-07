@@ -26,7 +26,7 @@ namespace frumul {
 			bool alreadyparsed{false};
 			const bst::str& source;
 			const bst::str& filepath;
-			std::unique_ptr<Symbol> header_symbol{nullptr};
+			std::shared_ptr<Symbol> header_symbol{nullptr};
 			Lexer lex;
 			Node AST;
 			Token * current_token {nullptr};

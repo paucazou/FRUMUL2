@@ -94,7 +94,8 @@ namespace frumul {
 		 */
 		AST.addChild("header",header());
 		Hinterpreter header_interpreter {AST.get("header")};
-		header_symbol = std::make_unique<Symbol>(header_interpreter.getSymbolTree());
+		//header_symbol = std::make_unique<Symbol>(header_interpreter.getSymbolTree());
+		header_symbol = header_interpreter.getSymbolTree();
 		AST.addChild("text",text());
 		return AST;
 	}

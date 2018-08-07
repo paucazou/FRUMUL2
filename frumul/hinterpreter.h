@@ -49,11 +49,10 @@ namespace frumul {
 		 */
 		public:
 			Hinterpreter (const Node& nheader);
-			const Symbol& getSymbolTree();
+			std::shared_ptr<Symbol> getSymbolTree();
 		private:
 			//attributes
-			bool jobDone{false};
-			Symbol main_symbol{};
+			std::shared_ptr<Symbol> main_symbol;
 			const Node& header;
 			rstack<InheritedOptions> inherited_stack;
 			std::stack<RSymbol> aliases;
