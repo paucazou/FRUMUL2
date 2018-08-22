@@ -1,5 +1,6 @@
 #ifndef POSITION_H
 #define POSITION_H
+#include <vector>
 #include "bstrlib/bstrwrap.h"
 namespace frumul {
 class Point {
@@ -67,6 +68,8 @@ class Position {
 		// overload
 		friend std::ostream& operator<<(std::ostream& out, const Position& pos);
 };
+
+using PosVect = std::vector<Position>;
 } // frumul namespace
 
 #endif

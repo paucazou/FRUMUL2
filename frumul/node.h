@@ -2,6 +2,7 @@
 #define NODE_H
 
 #include <map>
+#include <memory>
 #include <iostream>
 #include <vector>
 #include "macros.h"
@@ -116,6 +117,7 @@ namespace frumul {
 	// two alias for widely used templates types
 	using NodeVector = std::vector<Node>;
 	using StrNodeMap = std::map<bst::str,Node>;
+	using uNode = std::unique_ptr<Node>;
 
 }// namespace
 #endif

@@ -22,6 +22,7 @@
 	E(AliasAlreadySet)\
 	E(InvalidMark)\
 	E(InconsistentMark)\
+	E(UnknownType)\
 	E(MAX_TYPES)\
 
 namespace frumul {

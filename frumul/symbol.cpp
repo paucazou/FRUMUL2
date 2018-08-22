@@ -121,6 +121,13 @@ namespace frumul {
 		 */
 		return value;
 	}
+
+	Parameters& Symbol::getParameters() {
+		/* Return parameters
+		 */
+		return parameters;
+	}
+
 	// const getters
 	
 	const Name& Symbol::getName() const {

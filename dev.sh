@@ -22,6 +22,7 @@ compile () {
 		frumul/mark.cpp\
 		frumul/name.cpp\
 		frumul/node.cpp\
+		frumul/parameters.cpp\
 		frumul/parser.cpp\
 		frumul/position.cpp\
 		frumul/schildren.cpp\

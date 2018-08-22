@@ -12,6 +12,7 @@
 #include "mark.h"
 #include "name.h"
 #include "node.h"
+#include "parameters.h"
 #include "position.h"
 #include "schildren.h"
 #include "value.h"
@@ -56,6 +57,7 @@ namespace frumul {
 			Alias& getAlias();
 			Schildren& getChildren();
 			Value& getValue();
+			Parameters& getParameters();
 			// const getters
 			const Name& getName() const;
 			const Alias& getAlias() const;
@@ -81,6 +83,7 @@ namespace frumul {
 			Symbol* parent {nullptr};
 			Alias alias;
 			Value value;
+			Parameters parameters;
 
 	};
 

@@ -206,6 +206,9 @@ namespace frumul {
 			else if (elt.type() == Node::LANG) {
 				langs.emplace_back(elt.getValue(),elt.getPosition());
 			}
+			else if (elt.type() == Node::PARAM) {
+				sym.getParameters().push_back(elt);
+			}
 		}
 
 
