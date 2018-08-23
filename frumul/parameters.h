@@ -111,8 +111,10 @@ namespace frumul {
 		 */
 		public:
 			Parameters ();
+			Parameters& operator=(const Parameters&);
 			bool contains(const bst::str& name)const;
 			bool operator == (const Parameters& others) const;
+			PosVect getPositions() const;
 		private:
 			Parameters& that{*this};
 	};

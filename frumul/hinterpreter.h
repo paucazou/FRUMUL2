@@ -26,12 +26,15 @@ namespace frumul {
 			// setters
 			void setLangs(const std::vector<Lang>&);
 			void setMark(const Node&);
+			void setParameters(const Parameters&);
 			// getters
 			const std::vector<Lang>& getLangs() const;
 			const Mark& getMark() const;
+			const Parameters& getParameters() const;
 			// booleans
 			bool hasMark() const;
 			bool hasLangs() const;
+			bool hasParameters() const;
 			//display
 			bst::str toString()const;
 			STDOUT(InheritedOptions)
@@ -39,7 +42,7 @@ namespace frumul {
 		private:
 			std::vector<Lang> langs;
 			Mark mark;
-			//parameters
+			Parameters parameters;
 	};
 
 	class Hinterpreter {

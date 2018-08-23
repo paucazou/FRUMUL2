@@ -25,6 +25,12 @@ namespace frumul {
 		mark.set(node);
 	}
 
+	void InheritedOptions::setParameters(const Parameters& np) {
+		/* set parameters
+		 */
+		parameters = np;
+	}
+
 	const std::vector<Lang>& InheritedOptions::getLangs() const {
 		/* Return langs
 		 */
@@ -35,6 +41,12 @@ namespace frumul {
 		/* return mark
 		 */
 		return mark;
+	}
+
+	const Parameters& InheritedOptions::getParameters() const {
+		/* return parameters
+		 */
+		return parameters;
 	}
 
 	bool InheritedOptions::hasMark() const {
@@ -49,6 +61,12 @@ namespace frumul {
 		 */
 		return !langs.empty();
 	}
+	
+	bool InheritedOptions::hasParameters() const {
+		/* true if it contains parameters
+		 */
+		return !parameters.empty();
+	}
 
 	bst::str InheritedOptions::toString() const {
 		/* string representation
@@ -58,6 +76,8 @@ namespace frumul {
 			s += "|Mark";
 		if (hasLangs())
 			s+= "|Langs";
+		if (hasParameters())
+			s += "|Params";
 		s+= ">\n";
 
 		if (hasMark())
@@ -65,6 +85,9 @@ namespace frumul {
 		if (hasLangs())
 			for (const auto& l : langs)
 				s += l.toString();
+		if (hasParameters())
+			for (const auto& p : parameters)
+				s += p.toString();
 		return s;
 	}
 
@@ -122,7 +145,7 @@ namespace frumul {
 		/* Manages the declaration node
 		 * TODO not yet alias, 
 		 */
-		if (forward_declaration) {// we must check if the name has been declared before
+		if (forward_declaration) {// we must check if the name has been declared beforeode
 			forward_declaration.match(node.get("name"));
 		}
 
@@ -199,6 +222,24 @@ namespace frumul {
 		 * set the symbol with parent values
 		 */
 		std::vector<Lang> langs; 
+		Parameters parms;
+		// check if parameters have already been set for this symbol
+		if (!sym.getParameters().empty()) {
+			for (const auto& n : node.getNumberedChildren())
+				if (n.type() == Node::PARAM) {
+					PosVect positions;
+					for (const auto& prm : sym.getParameters()) {
+						for (const auto& p : prm.getPositions())
+							positions.push_back(p);
+					}
+					throw iexc(exc::SyntaxError,
+						"Parameters set twice for this symbol",
+						n.getPosition(),
+						"Parameters already set here:",
+						positions);
+				}
+
+		}
 		// visit nodes
 		for (auto& elt : node.getNumberedChildren()) {
 			if (elt.type() == Node::MARK)
@@ -207,10 +248,20 @@ namespace frumul {
 				langs.emplace_back(elt.getValue(),elt.getPosition());
 			}
 			else if (elt.type() == Node::PARAM) {
-				sym.getParameters().push_back(elt);
+				parms.push_back(elt);
 			}
 		}
+		// check if parameters have not yet been set or do not match
 
+		if (!sym.getParameters().empty() && parms != sym.getParameters()) {
+			throw iexc(exc::SyntaxError,
+				"Parameters set twice for this symbol",
+				parms.getPositions(),
+				"Parameters already set here:",
+				sym.getParameters().getPositions());
+		} else {
+			sym.setParameters(parms);
+		}
 
 		// check if option lacks and return
 		return inherit(node,sym,langs);
@@ -251,6 +302,18 @@ namespace frumul {
 				throw exc(exc::RequiredOptionNotSet,"Lang option not set nor inherited",node.getPosition());
 			}
 		}
+
+		// parameters
+		if (!sym.getParameters().empty()) {
+			for (size_t i{0}; i<inherited_stack.size(); ++i) {
+				InheritedOptions& io{inherited_stack.topMin(i)};
+				if (io.hasParameters()) {
+					sym.setParameters(io.getParameters());
+					break;
+				}
+			}
+		}
+
 		return sym.getValue().set(langs);
 	}
 
@@ -263,6 +326,7 @@ namespace frumul {
 		
 		InheritedOptions io;
 		std::vector<Lang> langs;
+		Parameters params;
 		// visit nodes
 		for (auto& elt : node.getNumberedChildren()) {
 			if (elt.type() == Node::MARK)
@@ -270,8 +334,11 @@ namespace frumul {
 			else if (elt.type() == Node::LANG) {
 				langs.emplace_back(elt.getValue(),elt.getPosition());
 			}
+			else if (elt.type() == Node::PARAM)
+				params.emplace_back(elt);
 		}
 		io.setLangs(langs);
+		io.setParameters(params);
 
 		// append a new InheritedOptions to the stack
 		inherited_stack.push(io);

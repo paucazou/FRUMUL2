@@ -306,6 +306,14 @@ namespace frumul {
 	{
 	}
 
+	Parameters& Parameters::operator= (const Parameters& other) {
+		/* Assignment
+		 */
+		for (const auto& elt : other)
+			this->push_back(elt);
+		return *this;
+	}
+
 	bool Parameters::contains(const bst::str& name) const {
 		/* true if name names a parameter
 		 */
@@ -327,6 +335,16 @@ namespace frumul {
 				return false;
 
 		return true;
+	}
+
+	PosVect Parameters::getPositions() const {
+		/* Return all positions of the parameters
+		 */
+		PosVect rv;
+		for (const auto& prm : *this)
+			for (const auto& pos : prm.getPositions())
+				rv.push_back(pos);
+		return rv;
 	}
 
 }

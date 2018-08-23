@@ -156,6 +156,13 @@ namespace frumul {
 			parent = &nparent;
 		assert(parent == &nparent&&"Parent doesn't match");
 	}
+
+	void Symbol::setParameters(const Parameters& parms) {
+		/* Set parameters
+		 */
+		assert(parameters.empty()&&"Parameters are not empty");
+		parameters = parms;
+	}
 	
 	// booleans
 	bool Symbol::hasParent() const {

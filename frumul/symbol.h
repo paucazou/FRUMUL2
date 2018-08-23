@@ -66,6 +66,7 @@ namespace frumul {
 
 			// setters
 			void setParent(Symbol& nparent);
+			void setParameters(const Parameters&);
 			// booleans
 			bool hasParent() const;
 			bool hasAlias () const;
