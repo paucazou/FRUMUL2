@@ -42,8 +42,8 @@ namespace frumul {
 	Parameter::Parameter(const Parameter& other) :
 		type{other.type},
 		name{other.name},
-		def{std::make_unique<Node>(*other.def)},
-		choices{std::make_unique<Node>(*other.choices)},
+		def{uniq_copy<Node>(other.def)},
+		choices{uniq_copy<Node>(other.choices)},
 		pos{other.pos}
 	{
 		/* Copy constructor

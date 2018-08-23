@@ -3,6 +3,7 @@
 /* This file contains only
  * function templates
  */
+#include <memory>
 #include <stack>
 
 namespace frumul {
@@ -28,6 +29,17 @@ namespace frumul {
 			if (elt == item)
 				return true;
 		return false;
+	}
+
+	template <typename T>
+	std::unique_ptr<T> uniq_copy(const std::unique_ptr<T>& elt) {
+		/* Return a copy of elt if elt has a value
+		 * if not, return an empty unique_ptr
+		 */
+		if (elt)
+			return std::make_unique<T>(*elt);
+
+		return std::unique_ptr<T>();
 	}
 
 	template<typename T>

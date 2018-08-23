@@ -16,6 +16,7 @@
 #include <vector>
 #include "bstrlib/bstrwrap.h"
 #include "exception.h"
+#include "functions.inl"
 #include "macros.h"
 #include "node.h"
 #include "position.h"
