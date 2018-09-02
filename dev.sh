@@ -15,6 +15,7 @@ compile () {
 		-g\
 		tests/astbrowser.cpp\
 		tests/tests.cpp\
+		frumul/bytecode.cpp\
 		frumul/exception.cpp\
 		frumul/fdeclaration.cpp\
 		frumul/hinterpreter.cpp\
@@ -29,6 +30,7 @@ compile () {
 		frumul/symbol.cpp\
 		frumul/util.cpp\
 		frumul/value.cpp\
+		frumul/vm.cpp\
 		frumul/warning.cpp\
 		-o out\
 		$odir/token.o\
@@ -42,7 +44,7 @@ compile () {
 
 objectify () {
 	cd $odir
-	g++ -std=c++11\
+	g++ -std=c++14\
 		-Wextra -Wall -pedantic\
 		-D DEBUG\
 		-c ../$1

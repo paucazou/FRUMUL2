@@ -309,15 +309,15 @@ namespace frumul {
 	Parameters& Parameters::operator= (const Parameters& other) {
 		/* Assignment
 		 */
-		for (const auto& elt : other)
-			this->push_back(elt);
+		for (const auto& elt : other.parms)
+			parms.push_back(elt);
 		return *this;
 	}
 
 	bool Parameters::contains(const bst::str& name) const {
 		/* true if name names a parameter
 		 */
-		for (const auto& p : *this)
+		for (const auto& p : parms)
 			if (p == name)
 				return true;
 		return false;
@@ -327,11 +327,11 @@ namespace frumul {
 		/* true if others are exactly equals to *this
 		 */
 
-		if (others.size() != that.size())
+		if (others.parms.size() != parms.size())
 			return false;
 
-		for (size_t i{0}; i<others.size();++i)
-			if (others[i] != that[i])
+		for (size_t i{0}; i<others.parms.size();++i)
+			if (others.parms[i] != parms[i])
 				return false;
 
 		return true;
@@ -341,10 +341,26 @@ namespace frumul {
 		/* Return all positions of the parameters
 		 */
 		PosVect rv;
-		for (const auto& prm : *this)
+		for (const auto& prm : parms)
 			for (const auto& pos : prm.getPositions())
 				rv.push_back(pos);
 		return rv;
+	}
+
+	void Parameters::push_back(const Parameter& np) {
+		parms.push_back(np);
+	}
+
+	bool Parameters::empty() const{
+		return parms.empty();
+	}
+
+	const std::vector<Parameter>& Parameters::getList() const{
+		return parms;
+	}
+
+	std::vector<Parameter>& Parameters::getList(){
+		return parms;
 	}
 
 }

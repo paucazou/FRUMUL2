@@ -722,7 +722,7 @@ namespace frumul {
 		 * names.
 		 */
 		int start {getTokenStart()}; // start position
-		std::array<bst::str,3> optionsnames {"lang","mark","arg"};
+		std::array<bst::str,3> optionsnames {{"lang","mark","arg"}};
 		NodeVector fields;
 		for (int i{0};in<bst::str,std::array<bst::str,3>>(current_token->getValue(),optionsnames);++i) {
 				if (current_token->getValue() == "lang") {

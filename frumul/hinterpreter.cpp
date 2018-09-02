@@ -86,7 +86,7 @@ namespace frumul {
 			for (const auto& l : langs)
 				s += l.toString();
 		if (hasParameters())
-			for (const auto& p : parameters)
+			for (const auto& p : parameters.getList())
 				s += p.toString();
 		return s;
 	}
@@ -228,7 +228,7 @@ namespace frumul {
 			for (const auto& n : node.getNumberedChildren())
 				if (n.type() == Node::PARAM) {
 					PosVect positions;
-					for (const auto& prm : sym.getParameters()) {
+					for (const auto& prm : sym.getParameters().getList()) {
 						for (const auto& p : prm.getPositions())
 							positions.push_back(p);
 					}
@@ -253,7 +253,7 @@ namespace frumul {
 		}
 		// check if parameters have not yet been set or do not match
 
-		if (!sym.getParameters().empty() && parms != sym.getParameters()) {
+		if (!sym.getParameters().empty() && parms.getList() != sym.getParameters().getList()) {
 			throw iexc(exc::SyntaxError,
 				"Parameters set twice for this symbol",
 				parms.getPositions(),
@@ -335,7 +335,7 @@ namespace frumul {
 				langs.emplace_back(elt.getValue(),elt.getPosition());
 			}
 			else if (elt.type() == Node::PARAM)
-				params.emplace_back(elt);
+				params.getList().emplace_back(elt);
 		}
 		io.setLangs(langs);
 		io.setParameters(params);
@@ -365,7 +365,7 @@ namespace frumul {
 			Alias& alias {symbol_alias.getAlias()};
 			// set the alias
 			try {
-				alias.setVal(children.find(alias.getPath(),Schildren::Relative));
+				alias.setVal(children.find(alias.getPath(),PathFlag::Relative));
 			} catch (bst::str& e) {
 				throw exc(exc::SymbolNotFound,bst::str("No symbol found for this path: ") + e,alias.getPosition());
 			}

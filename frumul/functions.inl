@@ -3,6 +3,7 @@
 /* This file contains only
  * function templates
  */
+#include <deque>
 #include <memory>
 #include <stack>
 
@@ -42,8 +43,8 @@ namespace frumul {
 		return std::unique_ptr<T>();
 	}
 
-	template<typename T>
-		class RandomStack : public std::stack<T> {
+	template <typename T, typename Container=std::deque<T>>
+		class RandomStack : public std::stack<T,Container> {
 			/* Stack wich give access
 			 * to random elements
 			 */
@@ -76,11 +77,28 @@ namespace frumul {
 					 */
 					return at(std::stack<T>::size()-i-1);
 				}
+
+				T pop() {
+					/* return last element and delete
+					 * it
+					 */
+					T last{std::stack<T,Container>::top()};
+					std::stack<T,Container>::pop();
+					return last;
+				}
+
 				const T& topMin(unsigned int i) const {
 					/* idem in const context
 					 */
 					return at(std::stack<T>::size()-i-1);
 				}
+
+				Container& exposeContainer () {
+					/* expose the container
+					 */
+					return std::stack<T>::c;
+				}
+
 		};
 
 	template <typename T>

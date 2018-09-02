@@ -7,6 +7,7 @@
 #include <cassert>
 #include <functional>
 #include <memory>
+#include "bytecode.h"
 #include "exception.h"
 #include "macros.h"
 #include "mark.h"
@@ -59,6 +60,7 @@ namespace frumul {
 			Value& getValue();
 			Parameters& getParameters();
 			// const getters
+			BT::ExprType getReturnType() const;
 			const Name& getName() const;
 			const Alias& getAlias() const;
 			const Schildren& getChildren() const;
@@ -73,11 +75,20 @@ namespace frumul {
 			bool hasMark () const;
 			bool hasChildren () const;
 			bool hasValue() const;
+			// use
+			template <typename T>
+				T call(const std::vector<E::any>& args) const {
+#pragma message "call not ready"
+					return T();
+				}
+
+			E::any any_call(const std::vector<E::any>& args) const;
 			// display
 			bst::str toString() const;
 			STDOUT(Symbol)
 
 		protected:
+			BT::ExprType return_type{BT::TEXT};
 			Name name {};
 			Mark mark {};
 			Schildren children{*this};
@@ -90,5 +101,6 @@ namespace frumul {
 
 	using RAlias = std::reference_wrapper<Alias>;
 	using RSymbol = std::reference_wrapper<Symbol>;
+	using CRSymbol = std::reference_wrapper<const Symbol>;
 }
 #endif

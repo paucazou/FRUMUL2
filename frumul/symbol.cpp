@@ -129,6 +129,12 @@ namespace frumul {
 	}
 
 	// const getters
+
+	BT::ExprType Symbol::getReturnType() const {
+		/* Get the return type of the value
+		 */
+		return return_type;
+	}
 	
 	const Name& Symbol::getName() const {
 		return name;
@@ -195,6 +201,14 @@ namespace frumul {
 		 */
 		return value;
 	}
+
+	// use
+	
+	E::any Symbol::any_call(const std::vector<E::any>& args) const {
+#pragma message("Function any_call not ready")
+		return E::any();
+	}
+
 
 	// display
 	bst::str Symbol::toString() const {

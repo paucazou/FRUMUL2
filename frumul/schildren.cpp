@@ -1,4 +1,5 @@
 #include <cassert>
+#include "parameters.h"
 #include "schildren.h"
 #include "symbol.h"
 
@@ -98,7 +99,7 @@ namespace frumul {
 
 	// finders
 	
-	const Symbol& Schildren::find(const bst::str& path, Flag flag) const {
+	const Symbol& Schildren::find(const bst::str& path, PathFlag flag) const {
 		/* Looks in children to find a requested symbol.
 		 * Order : long name, short name, separation dots.
 		 * If it has a remain, transmits it to the child
@@ -107,7 +108,7 @@ namespace frumul {
 		std::cout << path << std::endl;
 		assert(path&&"path is empty");
 		// relative path allowed ?
-		if (flag & Relative) {
+		if (flag & PathFlag::Relative) {
 			if (path.uAt(0) == "§") {
 				if (!(*parent).hasParent()) // error: no parent
 					throw path;

@@ -1,13 +1,9 @@
-#ifndef PARAMATER_H
-#define PARAMATER_H
+#ifndef FPARAMETER_H
+#define FPARAMETER_H
 /* This file contains the Parameter
  * class, representing each parameter defined
  * for the values of the symbols
  * Related classes in this file:
- * 	- TextParameter,
- * 	- IntParameter,
- * 	- BoolParameter,
- * 	- SymParameter,
  * 	- Parameters
  */
 
@@ -21,7 +17,7 @@
 #include "node.h"
 #include "position.h"
 
-#define FPARAMATER(F)\
+#define FPARAMETER(F)\
 	F(Text)\
 	F(Int)\
 	F(Bool)\
@@ -33,7 +29,7 @@ namespace frumul {
 		/* One parameter of the values
 		 */
 		public:
-			ENUM(Type,FPARAMATER)
+			ENUM(Type,FPARAMETER)
 			Parameter(const Node& node);
 			Parameter(const Parameter&);
 			~Parameter();
@@ -106,7 +102,7 @@ namespace frumul {
 
 	};
 
-	class Parameters : public std::vector<Parameter> {
+	class Parameters {
 		/* Container of the parameters
 		 */
 		public:
@@ -115,8 +111,12 @@ namespace frumul {
 			bool contains(const bst::str& name)const;
 			bool operator == (const Parameters& others) const;
 			PosVect getPositions() const;
+			void push_back(const Parameter& np);
+			bool empty()const;
+			const std::vector<Parameter>& getList()const;
+			std::vector<Parameter>& getList();
 		private:
-			Parameters& that{*this};
+			std::vector<Parameter> parms;
 	};
 
 }

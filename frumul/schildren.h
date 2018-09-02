@@ -12,6 +12,14 @@
 namespace frumul {
 	// forward declaration. Symbol is included in symbol.h
 	class Symbol;
+	enum PathFlag {
+		/* Used when looking for a path
+		 */
+		No = 1 << 0, 		// basic: no option
+		Relative = 1 << 1, 	// allows '§'
+		Privileged = 1 << 2,	// with privileged parameter
+		Parameter = 1 << 3,	// with parameter name
+	};
 
 	class Schildren {
 		/* Table of Symbol children
@@ -30,14 +38,8 @@ namespace frumul {
 			bool hasChild(const Node& node) const;
 			bool hasParent() const;
 			// finders
-			enum Flag {
-				No = 1 << 0, 		// basic: no option
-				Relative = 1 << 1, 	// allows '§'
-				Privileged = 1 << 2,	// with privileged parameter
-				Parameter = 1 << 3,	// with parameter name
-			};
 
-			const Symbol& find(const bst::str& path, Flag flag=No) const;
+			const Symbol& find(const bst::str& path, PathFlag flag=PathFlag::No) const;
 			// const getters
 			const Symbol& getChild(const bst::str& name) const;
 			const std::vector<Symbol>& getChildren() const;

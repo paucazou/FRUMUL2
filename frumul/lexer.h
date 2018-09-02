@@ -22,10 +22,11 @@ namespace frumul {
 					return getNextToken({expected...});
 				}
 
-			template <typename ...T> // TODO problem with clang
-				Token peekToken(unsigned int rank=0, T ...expected) {
+			template <typename ...T> 
+				Token peekToken(unsigned int rank, T ...expected) {
 					return peekToken({expected...}, rank);
 				}
+
 			void test();
 		private:
 			//attributes
