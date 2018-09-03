@@ -276,7 +276,7 @@ namespace frumul {
 			    );
 
 		// get element
-		stack.push(E::any_cast<bst::str>(s)[*++it]);
+		stack.push(E::any_cast<bst::str>(s).uAt(*++it));
 	}
 
 	void VM::list_get_elt() {

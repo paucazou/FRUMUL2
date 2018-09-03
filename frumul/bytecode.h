@@ -77,7 +77,7 @@ namespace frumul {
 
 				MAX_INSTRUCTIONS,
 			};
-			ByteCode(const Symbol&);
+			explicit ByteCode(const Symbol& s);
 			std::vector<byte>::iterator getBegin();
 			std::vector<byte>::iterator getEnd();
 			int getVariableNumber() const;
@@ -92,7 +92,7 @@ namespace frumul {
 			// constants
 			std::vector<E::any> constants;
 			// number of variables
-			int v_nb;
+			int v_nb{0};
 	};
 	using BT = ByteCode;
 }

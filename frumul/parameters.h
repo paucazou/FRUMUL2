@@ -88,6 +88,7 @@ namespace frumul {
 				// TODO
 				// default ?????
 				// choices ????
+#pragma message("Default and choices are not yet set in Temp struct")
 			};
 
 			Comparison comparisonValue(const bst::str&)const;
