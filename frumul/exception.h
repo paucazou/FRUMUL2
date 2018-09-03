@@ -23,6 +23,8 @@
 	E(InvalidMark)\
 	E(InconsistentMark)\
 	E(UnknownType)\
+	E(UnknownOption)\
+	E(ReturnTypeAlreadySet)\
 	E(MAX_TYPES)\
 
 namespace frumul {

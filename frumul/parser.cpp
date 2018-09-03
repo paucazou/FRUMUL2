@@ -769,7 +769,7 @@ namespace frumul {
 		eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // consume "mark"/"return"
 		eat(Token::LAQUOTE,tok_type,Token::MAX_TYPES_VALUES); // consume «
 		bst::str value { current_token->getValue()};
-		eat(Token::NUMBER,Token::RAQUOTE,Token::MAX_TYPES_HEADER); // consume number/return type name
+		eat(tok_type,Token::RAQUOTE,Token::MAX_TYPES_HEADER); // consume number/return type name
 		int end {current_token->getPosition().getEnd()};
 		return Node(node_type,Position(start,end,filepath,source),value);
 	}

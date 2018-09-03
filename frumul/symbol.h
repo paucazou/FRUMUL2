@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <functional>
+#include <map>
 #include <memory>
 #include "bytecode.h"
 #include "exception.h"
@@ -69,6 +70,7 @@ namespace frumul {
 			// setters
 			void setParent(Symbol& nparent);
 			void setParameters(const Parameters&);
+			void setReturnType(const Node&);
 			// booleans
 			bool hasParent() const;
 			bool hasAlias () const;
@@ -88,7 +90,10 @@ namespace frumul {
 			STDOUT(Symbol)
 
 		protected:
-			BT::ExprType return_type{BT::TEXT};
+			struct {
+				BT::ExprType type{BT::TEXT};
+				std::unique_ptr<Position> pos;
+			} return_type;
 			Name name {};
 			Mark mark {};
 			Schildren children{*this};

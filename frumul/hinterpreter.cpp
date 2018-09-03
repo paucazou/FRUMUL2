@@ -250,6 +250,11 @@ namespace frumul {
 			else if (elt.type() == Node::PARAM) {
 				parms.push_back(elt);
 			}
+			else if (elt.type() == Node::RETURN_TYPE) {
+				sym.setReturnType(elt);
+			}
+			else
+				throw exc(exc::UnknownOption,"Options must be: mark, arg, lang and return",elt.getPosition());
 		}
 		// check if parameters have not yet been set or do not match
 
@@ -336,6 +341,8 @@ namespace frumul {
 			}
 			else if (elt.type() == Node::PARAM)
 				params.getList().emplace_back(elt);
+			else
+				throw exc(exc::UnknownOption,"Invalid option. It should be mark, lang or arg", elt.getPosition());
 		}
 		io.setLangs(langs);
 		io.setParameters(params);
@@ -350,6 +357,7 @@ namespace frumul {
 		 * with node
 		 * TODO check the node
 		 */
+#pragma message("Check the node")
 		val.setNode(node);
 	}
 
