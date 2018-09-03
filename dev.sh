@@ -51,5 +51,7 @@ objectify () {
 	popd
 }
 
+alias check_frumul="cppcheck ./frumul/ --enable=all --inconclusive --force --std=c++11 -i $bstrlib"
+alias valgrind="valgrind --leak-check=yes"
 	
 
