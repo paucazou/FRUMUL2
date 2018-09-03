@@ -37,6 +37,7 @@
 	\
 	NOD(OPTIONS) \
 	NOD(MARK) \
+	NOD(RETURN_TYPE) \
 	NOD(LANG) \
 	NOD(PARAM)\
 	\

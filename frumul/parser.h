@@ -65,7 +65,7 @@ namespace frumul {
 			Node long_name ();
 
 			Node options ();
-			Node mark_option ();
+			Node simple_option(Token::Type, Node::Type);
 			std::map<bst::str,Node> lang_option ();
 			std::vector<Node> param_option ();
 			Node param_value ();

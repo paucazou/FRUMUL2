@@ -722,9 +722,9 @@ namespace frumul {
 		 * names.
 		 */
 		int start {getTokenStart()}; // start position
-		std::array<bst::str,3> optionsnames {{"lang","mark","arg"}};
+		std::array<bst::str,4> optionsnames {{"lang","mark","arg","return"}};
 		NodeVector fields;
-		for (int i{0};in<bst::str,std::array<bst::str,3>>(current_token->getValue(),optionsnames);++i) {
+		for (int i{0};in<bst::str,std::array<bst::str,4>>(current_token->getValue(),optionsnames);++i) {
 				if (current_token->getValue() == "lang") {
 					for (const auto& child : lang_option())
 						fields.push_back(child.second);
@@ -732,7 +732,7 @@ namespace frumul {
 				}
 
 				else if (current_token->getValue() == "mark") {
-					fields.push_back(mark_option());
+					fields.push_back(simple_option(Token::NUMBER,Node::MARK));
 					optionsnames[1] = "";
 				}
 
@@ -740,6 +740,11 @@ namespace frumul {
 					for (const auto& child : param_option())
 						fields.push_back(child);
 					optionsnames[2] = "";
+				}
+				
+				else if (current_token->getValue() == "return") {
+					fields.push_back(simple_option(Token::VARIABLE,Node::RETURN_TYPE));
+					optionsnames[3] = "";
 				}
 
 				eat(Token::RAQUOTE,Token::LAQUOTE,Token::ID,Token::MAX_TYPES_HEADER); // consume the end of each option: », and expects either « or and id
@@ -752,18 +757,21 @@ namespace frumul {
 		return Node(Node::OPTIONS,Position(start,end,filepath,source),fields);
 	}
 
-	Node Parser::mark_option () {
-		/* Manages the mark option.
+	Node Parser::simple_option (Token::Type tok_type, Node::Type node_type) {
+		/* Manages a simple option with only one
+		 * element inside
+		 * tok_type is the type expected,
+		 * node_type the type of the node returned
 		 * Return a node with a value
 		 * but no children
 		 */
 		int start {getTokenStart()};
-		eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // consume "mark"
-		eat(Token::LAQUOTE,Token::NUMBER,Token::MAX_TYPES_VALUES); // consume «
+		eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // consume "mark"/"return"
+		eat(Token::LAQUOTE,tok_type,Token::MAX_TYPES_VALUES); // consume «
 		bst::str value { current_token->getValue()};
-		eat(Token::NUMBER,Token::RAQUOTE,Token::MAX_TYPES_HEADER); // consume number
+		eat(Token::NUMBER,Token::RAQUOTE,Token::MAX_TYPES_HEADER); // consume number/return type name
 		int end {current_token->getPosition().getEnd()};
-		return Node(Node::MARK,Position(start,end,filepath,source),value);
+		return Node(node_type,Position(start,end,filepath,source),value);
 	}
 
 	std::map<bst::str,Node> Parser::lang_option () {
