@@ -441,7 +441,7 @@ namespace frumul {
 					break;
 			};
 
-			auto binop = new Node(Node::BIN_OP,current_token->getPosition(),StrNodeMap(),val);
+			auto binop = new Node(Node::BIN_OP,current_token->getPosition(),StrNodeMap(),val); // binop is given to temp_node, wich is deleted at the end of the function
 			eat(current_token->getType(),Token::MAX_TYPES_VALUES);
 			Node term2 {term()};
 			
@@ -449,7 +449,7 @@ namespace frumul {
 			binop->addChild("right",term2);
 
 			delete temp_node;
-			temp_node = new Node{*binop};
+			temp_node = binop;
 		}
 
 		Node returned_node {*temp_node};
