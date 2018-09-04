@@ -16,6 +16,7 @@ compile () {
 		tests/astbrowser.cpp\
 		tests/tests.cpp\
 		frumul/bytecode.cpp\
+		frumul/compiler.cpp\
 		frumul/exception.cpp\
 		frumul/fdeclaration.cpp\
 		frumul/hinterpreter.cpp\
