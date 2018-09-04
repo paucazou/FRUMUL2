@@ -28,12 +28,8 @@ namespace frumul {
 	ByteCode __compiler::compile() {
 		/* Compile the node into a bytecode
 		 */
-		if (!bytecode) {
-			if (return_type != visit(node)) {
-				throw 1;
-#pragma message("error not set")
-			}
-		}
+		if (!bytecode)
+			visit(node);
 		return bytecode;
 	}
 
@@ -85,6 +81,7 @@ namespace frumul {
 
 		}
 		code.push_back(BT::RETURN);
+		return return_type;
 	}
 
 	BT::ExprType __compiler::visit_bin_op(const Node& n) {

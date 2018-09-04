@@ -58,7 +58,7 @@ namespace frumul {
 			bool is_byte_code_compiled {false};
 			union {
 				const Node * value{nullptr};
-				const ByteCode * bt{nullptr};
+				const ByteCode * bt;
 			};
 	};
 

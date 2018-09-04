@@ -11,6 +11,7 @@
 #include <functional>
 #include <map>
 #include <vector>
+#include "bstrlib/bstrwrap.h"
 
 namespace E = std::experimental;
 
@@ -88,7 +89,7 @@ namespace frumul {
 			const E::any& getConstant(size_t) const;
 			std::vector<E::any>& getConstants();
 			std::vector<byte>& getCode();
-			static bst::str typeToString(BT::ExprType);
+			static bst::str typeToString(ExprType);
 		private:
 			ExprType return_type{TEXT};
 			const Symbol& parent;
