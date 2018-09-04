@@ -36,6 +36,7 @@ namespace frumul {
 				BOOL 		= 1 << 3,
 
 				CONSTANT 	= 1 << 4,
+				VARIABLE	= 1 << 5,
 				MAX_EXPR_TYPE,
 			};
 
@@ -85,6 +86,9 @@ namespace frumul {
 			const Symbol& getParent() const;
 			
 			const E::any& getConstant(size_t) const;
+			std::vector<E::any>& getConstants();
+			std::vector<byte>& getCode();
+			static bst::str typeToString(BT::ExprType);
 		private:
 			ExprType return_type{TEXT};
 			const Symbol& parent;

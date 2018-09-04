@@ -86,6 +86,8 @@ namespace frumul {
 				case BT::ASSIGN:	assign();break;
 				case BT::PUSH: 		push(); break;
 
+				case BT::RETURN:	it = bt.getEnd();break;
+
 				default:
 					assert(false&&"Instruction not recognized");
 			};

@@ -48,4 +48,27 @@ namespace frumul {
 		return constants[i];
 	}
 
+	std::vector<E::any>& ByteCode::getConstants() {
+		return constants;
+	}
+
+	std::vector<byte>& ByteCode::getCode() {
+		return code;
+	}
+
+	bst::str ByteCode::typeToString(BT::ExprType e) {
+		/* Return a string representation of type
+		 */
+		switch (e) {
+			case INT:	return "INT";
+			case TEXT:	return "TEXT";
+			case BOOL:	return "BOOL";
+			case SYMBOL:	return "SYMBOL";
+			case VOID:	return "VOID";
+			default:
+					assert(false&&"Type unknown");
+		};
+		return "nothing"; // to silent clang
+	}
+
 }

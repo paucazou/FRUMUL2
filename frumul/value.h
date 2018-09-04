@@ -7,6 +7,7 @@
 #include <memory>
 #include <ostream>
 #include <vector>
+#include "bytecode.h"
 #include "node.h"
 #include "position.h"
 
@@ -54,7 +55,11 @@ namespace frumul {
 		private:
 			std::vector<Lang> langs;
 			std::unique_ptr<Position> pos;
-			const Node * value{nullptr};
+			bool is_byte_code_compiled {false};
+			union {
+				const Node * value{nullptr};
+				const ByteCode * bt{nullptr};
+			};
 	};
 
 	class Value {
@@ -68,6 +73,7 @@ namespace frumul {
 			// getters
 			operator bool () const; // true if value is set
 			const std::vector<Lang> getLangs() const;
+			const OneValue& getValue(const bst::str& lang) const;
 			bool hasLang(const bst::str& lang) const;
 			bool hasEvery() const;
 			//setters
