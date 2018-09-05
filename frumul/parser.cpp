@@ -282,7 +282,7 @@ namespace frumul {
 			return Node{Node::EMPTY,current_token->getPosition()};
 
 		if (current_token->getType() != Token::VARIABLE) // we know it is not a statement
-			return expr(); 
+			return comparison(); 
 
 		if (current_token->getValue() == "if")
 			return condition();

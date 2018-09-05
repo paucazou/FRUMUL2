@@ -27,6 +27,7 @@
 	E(ReturnTypeAlreadySet)\
 	E(LangNotSet)\
 	E(InconsistantType)\
+	E(InvalidOperator)\
 	E(MAX_TYPES)\
 
 namespace frumul {

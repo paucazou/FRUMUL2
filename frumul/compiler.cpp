@@ -1,4 +1,5 @@
 #include "compiler.h"
+// Note: do not forget that what is at right should be push in the stack first
 
 namespace frumul {
 
@@ -88,11 +89,11 @@ namespace frumul {
 		/* Compile an expression x op x
 		 * and return the type
 		 */
-		BT::ExprType left{visit(n.get("left"))};
+		BT::ExprType left{visit(n.get("right"))};
 		switch (left) {
 			case BT::INT:
 				{
-					BT::ExprType t2{visit(n.get("right"))};
+					BT::ExprType t2{visit(n.get("left"))};
 					if (t2 != BT::INT)
 						throwInconsistentType(BT::INT,t2,n.get("left"),n.get("right"));
 
@@ -101,9 +102,24 @@ namespace frumul {
 					return BT::INT;
 				}
 			case BT::TEXT:
-#pragma message("text bin op not made")
+				{
+					BT::ExprType t2{visit(n.get("left"))};
+					if (n.getValue() == "+") {
+						if (t2 != BT::TEXT)
+							throwInconsistentType(BT::TEXT,t2,n.get("left"),n.get("right"));
+						code.push_back(BT::TEXT_ADD);
+					}
+					else if (n.getValue() == "*") {
+						if (t2 != BT::INT)
+							throwInconsistentType(BT::TEXT,t2,n.get("left"),n.get("right"));
+						code.push_back(BT::TEXT_MUL);
+					}
+					else
+						throw exc(exc::InvalidOperator,n.getValue() + " can not be used with type TEXT", n.getPosition());
+					return BT::TEXT;
+				}
 			default:
-				assert(false&&"Type unknown");
+				throw exc(exc::InvalidType,n.getValue() + " can not be used with type " + BT::typeToString(left));
 
 		};
 		return BT::VOID;
