@@ -8,6 +8,7 @@
 #include <iostream>
 #include "macros.h"
 #include "position.h"
+//#include "header.h"
 
 #define EXCEPTIONS_LIST(E) \
 	E(SyntaxError)\
@@ -28,6 +29,8 @@
 	E(LangNotSet)\
 	E(InconsistantType)\
 	E(InvalidOperator)\
+	E(TypeError)\
+	E(LangError)\
 	E(MAX_TYPES)\
 
 namespace frumul {
@@ -62,6 +65,18 @@ namespace frumul {
 			std::vector<Position> positions1;
 			const bst::str info2; // this info will be print just before 'positions2'
 			std::vector<Position> positions2;
+	};
+
+	struct BackException {
+		/* This class is just a signal that the error
+		 * should be handled by the previous function
+		 * in the stack, not the current one
+		 */
+		BackException(BaseException::Type ntype) :
+			type{ntype}
+		{
+		}
+		BaseException::Type type;
 	};
 
 	using exc = BaseException;

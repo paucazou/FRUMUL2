@@ -8,8 +8,11 @@
 #include <ostream>
 #include <vector>
 #include "bytecode.h"
+//#include "compiler.h"
 #include "node.h"
 #include "position.h"
+#include "vm.h"
+//#include "header.h"
 
 namespace frumul {
 
@@ -37,7 +40,8 @@ namespace frumul {
 		/* Represents only one value
 		 */
 		public:
-			OneValue();
+			OneValue(Symbol& nparent);
+			~OneValue();
 			OneValue(const OneValue& other);
 			OneValue(std::vector<Lang>& nlangs);
 			OneValue(const Node& node, std::vector<Lang>& nlangs);
@@ -46,6 +50,7 @@ namespace frumul {
 			const std::vector<Lang>& getLangs() const;
 			const Position& getPosition() const;
 			const Node& getValue() const;
+			Symbol& getParent();
 			// setters
 			void setNode(const Node& node);
 			void setLangs(std::vector<Lang>& nlangs);
@@ -60,6 +65,7 @@ namespace frumul {
 				const Node * value{nullptr};
 				const ByteCode * bt;
 			};
+			Symbol& parent;
 	};
 
 	class Value {
@@ -67,15 +73,18 @@ namespace frumul {
 		 * of a symbol
 		 */
 		public:
-			Value ();
+			Value (Symbol& nparent);
 			Value (const Value& other);
 			//const bst::str execute(const bst::str& lang, args?) const;// execute the value with the arguments. How to do that ?
+			E::any execute(const bst::str& lang);
 			// getters
 			operator bool () const; // true if value is set
 			const std::vector<Lang> getLangs() const;
 			const OneValue& getValue(const bst::str& lang) const;
+			OneValue& getValue(const bst::str& lang,bool every=true);
 			bool hasLang(const bst::str& lang) const;
 			bool hasEvery() const;
+			bool canExecuteWith(const bst::str& lang) const;
 			//setters
 			OneValue& set (std::vector<Lang>& nlangs);
 			OneValue& set (const Node& val, std::vector<Lang>& nlangs);
@@ -85,6 +94,7 @@ namespace frumul {
 			friend std::ostream& operator<<(std::ostream& out, const Value& val);
 		private:
 			std::vector<OneValue> values;
+			Symbol& parent;
 	};
 	
 }

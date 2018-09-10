@@ -1,7 +1,5 @@
 #include <array>
 #include <cassert>
-#include "exception.h"
-#include "functions.inl"
 #include "name.h" 
 
 namespace frumul {

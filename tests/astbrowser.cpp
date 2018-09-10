@@ -25,11 +25,14 @@ int main(int argc, char* argv[])
 		std::cout << "Source:\n";
 		std::cout << source << "\n\n";
 		bst::str filepath {argv[1]};
-		frumul::Parser parser {source,filepath};
+		frumul::Transpiler transpiler{source,filepath,"every"};
+		frumul::Parser& parser{transpiler.getParser()};
 		// browse ast
 		ftest::astBrowser(parser.parse());
 		// browse symbols
 		ftest::symbolBrowser (parser.getHeaderSymbol());
+		// print result
+		std::cout << transpiler.getOutput();
 
 	}
 	else

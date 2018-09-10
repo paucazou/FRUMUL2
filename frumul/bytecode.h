@@ -2,7 +2,7 @@
 #define BYTECODE_H
 
 /* This file contains the bytecode
- * produced by the checker
+ * produced by the compiler
  */
 
 #include <cassert>
@@ -12,6 +12,7 @@
 #include <map>
 #include <vector>
 #include "bstrlib/bstrwrap.h"
+//#include "header.h"
 
 namespace E = std::experimental;
 
@@ -65,6 +66,8 @@ namespace frumul {
 				BOOL_EQUAL,
 				BOOL_INFERIOR,
 				BOOL_SUPERIOR,
+				BOOL_INF_EQUAL,
+				BOOL_SUP_EQUAL,
 
 				LIST_APPEND,
 				LIST_GET_ELT,
@@ -90,6 +93,8 @@ namespace frumul {
 			std::vector<E::any>& getConstants();
 			std::vector<byte>& getCode();
 			static bst::str typeToString(ExprType);
+
+			operator bool () const;
 		private:
 			ExprType return_type{TEXT};
 			const Symbol& parent;

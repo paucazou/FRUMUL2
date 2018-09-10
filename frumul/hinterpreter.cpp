@@ -1,5 +1,4 @@
 #include <cassert>
-#include "hinterpreter.h"
 #if DEBUG
 #include "../tests/tests.h"
 #endif

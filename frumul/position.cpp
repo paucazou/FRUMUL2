@@ -1,4 +1,5 @@
 #include "position.h"
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <sys/ioctl.h>
@@ -149,4 +150,23 @@ namespace frumul {
 		out << pos.toString();
 		return out;
 	}
+
+	Position Position::operator + (const Position& other) const {
+		/* Add a position to another. Works only if *this and other
+		 * share the same filepath and content
+		 * The object returned get the most remote limits
+		 */
+		assert (
+				&filepath == &other.filepath &&
+				&filecontent == &other.filecontent &&
+				"Filepath or content don't match"
+		       );
+		const int start { (this->start < other.start ? this->start : other.start) };
+		const int end { (this->end > other.end ? this->end : other.end) };
+		return Position{
+			start,end,
+			filepath,filecontent
+		};
+	}
+
 }//namespace

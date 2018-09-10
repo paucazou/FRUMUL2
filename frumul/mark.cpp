@@ -1,4 +1,3 @@
-#include "exception.h"
 #include "mark.h"
 
 namespace frumul {

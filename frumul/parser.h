@@ -6,19 +6,31 @@
 #include "hinterpreter.h"
 #include "lexer.h"
 #include "node.h"
-#include "token.h"
+//#include "token.h"
+#include "symbol.h"
+#include "transpiler.h"
+#include "util.h"
+
+//#include "header.h"
 
 namespace frumul {
+	class Hinterpreter;
+	class Transpiler;
 	class Parser {
 		/* Parser of the document.
 		 * It creates
 		 * the AST
 		 */
 		public:
-			Parser (const bst::str& nsource,const bst::str& nfilepath,const Token::Type next_token=Token::MAX_TYPES_HEADER);
+			Parser (const bst::str& nsource,const bst::str& nfilepath,const Token::Type next_token=Token::MAX_TYPES_HEADER,Transpiler* ntranspiler=nullptr);
+			Parser (const bst::str& nsource,const bst::str& nfilepath,Transpiler& ntranspiler);
 			~Parser();
 			Node& parse (); 
 			const Symbol& getHeaderSymbol() const;
+			const Token& getCurrentToken() const;
+			template <typename ...T>
+				bool eat(Token::Type t, T ...expected);
+			const Transpiler& getTranspiler() const;
 		private:
 			//static attributes
 			static std::map<bst::str,bst::str> files; // files already loaded
@@ -28,13 +40,12 @@ namespace frumul {
 			const bst::str& filepath;
 			std::shared_ptr<Symbol> header_symbol{nullptr};
 			Lexer lex;
+			Transpiler* transpiler{nullptr};
 			Node AST;
 			Token * current_token {nullptr};
 			//member functions
 			int getTokenStart () const;
 
-			template <typename ...T>
-				bool eat(Token::Type t, T ...expected);
 			bool _eat(Token::Type t, std::initializer_list<Token::Type> expected);
 
 			Node document ();
@@ -75,6 +86,7 @@ namespace frumul {
 			Node list ();
 
 			Node text ();
+			void tag();
 	};
 }// namespace
 

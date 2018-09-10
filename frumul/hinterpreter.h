@@ -12,9 +12,20 @@
 #include "functions.inl"
 #include "macros.h"
 #include "node.h"
+//#include "transpiler.h"
 #include "symbol.h"
+//#include "value.h"
+
+//#include "header.h"
 
 namespace frumul {
+
+	using RSymbol = std::reference_wrapper<Symbol>;
+	class Fdeclaration;
+	class Lang;
+	class OneValue;
+	class Value;
+
 	class InheritedOptions {
 		/* This simple class
 		 * handles the options set

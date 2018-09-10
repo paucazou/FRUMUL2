@@ -128,12 +128,31 @@ namespace frumul {
 		return parameters;
 	}
 
+	std::vector<bst::str> Symbol::getChildrenNames() {
+		/* Return a vector of names used by the immediate
+		 * children of *this
+		 */
+		std::vector<bst::str> names;
+		for (const auto& child : children.getChildren()) {
+			const Name& child_n{child.getName()};
+			if (child_n.hasLong())
+				names.push_back(child_n.getLong());
+			if (child_n.hasShort())
+				names.push_back(child_n.getShort());
+		}
+		return names;
+	}
+
 	// const getters
 
 	BT::ExprType Symbol::getReturnType() const {
 		/* Get the return type of the value
 		 */
 		return return_type.type;
+	}
+
+	const Position& Symbol::getReturnTypePos() const {
+		return *return_type.pos;
 	}
 	
 	const Name& Symbol::getName() const {
@@ -232,8 +251,22 @@ namespace frumul {
 	}
 
 	// use
+	bst::str Symbol::call(Parser& p) {
+		/* Call the symbol
+		 */
+		// checks
+		if (return_type.type != BT::TEXT)
+			throw BackException(exc::TypeError);
+		if (!value.canExecuteWith(p.getTranspiler().getLang()))
+			throw BackException(exc::LangError);
+
+		// get the args and eat tokens
+		// execution
+		E::any r{value.execute(p.getTranspiler().getLang())};
+		return E::any_cast<bst::str>(r);
+	}
 	
-	E::any Symbol::any_call(const std::vector<E::any>& args) const {
+	E::any Symbol::any_call(const std::vector<E::any>& args) {
 #pragma message("Function any_call not ready")
 		return E::any();
 	}

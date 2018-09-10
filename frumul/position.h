@@ -67,6 +67,7 @@ class Position {
 		static int getPosFromPoint (const int c, const int l, const bst::str& string);
 		// overload
 		friend std::ostream& operator<<(std::ostream& out, const Position& pos);
+		Position operator+(const Position& other) const;
 };
 
 using PosVect = std::vector<Position>;

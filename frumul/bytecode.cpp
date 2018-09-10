@@ -71,4 +71,11 @@ namespace frumul {
 		return "nothing"; // to silent clang
 	}
 
+	ByteCode::operator bool () const {
+		/* false if bytecode has
+		 * not been yet set
+		 */
+		return !code.empty();
+	}
+
 }

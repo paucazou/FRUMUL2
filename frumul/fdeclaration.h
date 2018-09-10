@@ -9,6 +9,8 @@
 #include "symbol.h"
 #include "warning.h"
 
+//#include "header.h"
+
 namespace frumul {
 	class Fdeclaration {
 		/* Contains the forward declaration

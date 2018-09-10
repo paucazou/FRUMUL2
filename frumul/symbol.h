@@ -15,12 +15,15 @@
 #include "name.h"
 #include "node.h"
 #include "parameters.h"
+#include "parser.h"
 #include "position.h"
 #include "schildren.h"
 #include "value.h"
+//#include "header.h"
 
 namespace frumul {
 
+	class Parser;
 	class Schildren;
 	class Symbol;
 
@@ -60,8 +63,10 @@ namespace frumul {
 			Schildren& getChildren();
 			Value& getValue();
 			Parameters& getParameters();
+			std::vector<bst::str> getChildrenNames();
 			// const getters
 			BT::ExprType getReturnType() const;
+			const Position& getReturnTypePos() const;
 			const Name& getName() const;
 			const Alias& getAlias() const;
 			const Schildren& getChildren() const;
@@ -78,13 +83,15 @@ namespace frumul {
 			bool hasChildren () const;
 			bool hasValue() const;
 			// use
+			bst::str call(Parser& p);
 			template <typename T>
-				T call(const std::vector<E::any>& args) const {
+				T call(const std::vector<E::any>& args) {
 #pragma message "call not ready"
+#pragma message "check return type is equal to T"
 					return T();
 				}
 
-			E::any any_call(const std::vector<E::any>& args) const;
+			E::any any_call(const std::vector<E::any>& args);
 			// display
 			bst::str toString() const;
 			STDOUT(Symbol)
@@ -99,7 +106,7 @@ namespace frumul {
 			Schildren children{*this};
 			Symbol* parent {nullptr};
 			Alias alias;
-			Value value;
+			Value value{*this};
 			Parameters parameters;
 
 	};

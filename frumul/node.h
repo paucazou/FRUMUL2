@@ -7,6 +7,7 @@
 #include <vector>
 #include "macros.h"
 #include "position.h"
+//#include "header.h"
 
 #define LIST_NODES(NOD) \
 	NOD(DOCUMENT) \
@@ -115,7 +116,7 @@ namespace frumul {
 
 	};
 
-	// two alias for widely used templates types
+	// aliases for widely used templates types
 	using NodeVector = std::vector<Node>;
 	using StrNodeMap = std::map<bst::str,Node>;
 	using uNode = std::unique_ptr<Node>;

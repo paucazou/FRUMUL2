@@ -8,6 +8,7 @@
 #include <vector>
 #include "macros.h"
 #include "position.h"
+//#include "header.h"
 
 #define WARNINGS_LIST(W) \
 	W(InconsistentOptions)\

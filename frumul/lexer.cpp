@@ -1,5 +1,4 @@
 #include "lexer.h"
-#include "exception.h"
 #include <iostream>
 #include <locale>
 
@@ -29,7 +28,8 @@ namespace frumul {
 	void Lexer::setOpeningTags(const std::vector<bst::str>& new_opening_tags) {
 		/* Set the opening tags
 		 */
-		opening_tags = new_opening_tags;
+		if (!new_opening_tags.empty())
+			opening_tags = new_opening_tags;
 	}
 
 
@@ -577,9 +577,10 @@ namespace frumul {
 		int remaining_length { source.uLength() - pos};
 		for (const auto & tag : opening_tags) {
 			int taglen {tag.uLength()};
-			if (remaining_length >= taglen)
-				if (source.uRange(pos,taglen-1) == tag)
+			if (remaining_length >= taglen) {
+				if (source.uRange(pos,pos + taglen-1) == tag)
 					return true;
+			}
 		}
 		return false;
 	}
@@ -593,7 +594,7 @@ namespace frumul {
 		for (const auto& tag : opening_tags) {
 			int taglen {tag.uLength()};
 			if (remaining_length >= taglen)
-				if (source.uRange(pos,taglen - 1) == tag && taglen > chosen.uLength())
+				if (source.uRange(pos,pos + taglen - 1) == tag && taglen > chosen.uLength())
 					chosen = tag;
 		}
 		if (!chosen) {

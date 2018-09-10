@@ -2,18 +2,23 @@
 #include <experimental/filesystem>
 #include <system_error>
 #include "parser.h"
-#include "util.h"
 
 namespace fs = std::experimental::filesystem;
 
 namespace frumul {
  	// constructors
-	Parser::Parser (const bst::str& nsource, const bst::str& nfilepath, const Token::Type next_token) :
+	Parser::Parser (const bst::str& nsource, const bst::str& nfilepath, const Token::Type next_token,Transpiler* ntranspiler) :
 		source{nsource}, filepath{nfilepath},
 		lex{nsource,nfilepath},
+		transpiler{ntranspiler},
 		AST{Node::DOCUMENT,Position{0,nsource.uLength()-1,nfilepath,source},StrNodeMap()}
 	{
 		current_token = new Token{lex.getNextToken(next_token,Token::MAX_TYPES_HEADER)};
+	}
+
+	Parser::Parser (const bst::str& nsource, const bst::str& nfilepath,Transpiler& ntranspiler) :
+		Parser{nsource,nfilepath,Token::MAX_TYPES_HEADER,&ntranspiler}
+	{
 	}
 
 	Parser::~Parser() {
@@ -41,7 +46,13 @@ namespace frumul {
 		assert(header_symbol&&"Header symbol has not yet been set");
 		return *header_symbol;
 	}
-	
+
+	const Transpiler& Parser::getTranspiler() const {
+		/* Return transpiler if it is set
+		 */
+		assert(transpiler&&"Transpiler not set");
+		return *transpiler;
+	}
 
 	// private functions
 	
@@ -96,6 +107,7 @@ namespace frumul {
 		Hinterpreter header_interpreter {AST.get("header")};
 		//header_symbol = std::make_unique<Symbol>(header_interpreter.getSymbolTree());
 		header_symbol = header_interpreter.getSymbolTree();
+		lex.setOpeningTags(header_symbol->getChildrenNames());
 		AST.addChild("text",text());
 		return AST;
 	}
@@ -921,6 +933,7 @@ namespace frumul {
 		return Node{Node::LIST,Position(start,end,filepath,source),elements};
 	}
 
+
 	Node Parser::text() {
 		/* parses the text
 		 * Node returned has no value
@@ -938,12 +951,15 @@ namespace frumul {
 		while (current_token->getType() != Token::EOFILE) {
 			switch (current_token->getType()) {
 				case Token::SIMPLE_TEXT:
-					children.insert(
+					/*children.insert(
 							{i,Node{Node::SIMPLE_TEXT,current_token->getPosition(),current_token->getValue()}}
 						       );
+						       */
+					transpiler->append(current_token->getValue());
 					eat(Token::SIMPLE_TEXT,Token::MAX_TYPES_TEXT);
 					break;
 				case Token::TAG:
+					tag();
 					break;
 				default:
 					throw BaseException(BaseException::UnexpectedToken,"Token expected:\n" + Token::typeToString(Token::SIMPLE_TEXT) + "\n" + Token::typeToString(Token::TAG) + "\n",Position(current_token->getPosition()));
@@ -960,6 +976,31 @@ namespace frumul {
 			text.addChild(0,Node{Node::EMPTY,Position(start,end,filepath,source)});
 
 		return text;
+	}
+
+	void Parser::tag() {
+		/* Manages the Tag token
+		 */
+		// keep the tag
+		std::unique_ptr<Position> pos{std::make_unique<Position>(current_token->getPosition())};
+		bst::str tag{current_token->getValue()};
+		eat(Token::TAG,Token::TAIL,Token::MAX_TYPES_TEXT);
+		// append tail if necessary
+		if (current_token->getType() == Token::TAIL) {
+			tag += current_token->getValue();
+			pos = std::make_unique<Position>(*pos + current_token->getPosition());
+			eat(Token::TAIL,Token::MAX_TYPES_TEXT);
+		}
+		// get the symbol
+		Symbol& s{header_symbol->getChildren().find(tag)};
+		// call
+		try {
+		transpiler->append(s.call(*this));
+		} catch (const BackException& e) {
+			// return type error
+			throw iexc(e.type,"Symbol called does not return text: ", s.getReturnTypePos(),"Symbol called here: ",pos);
+#pragma message "Do not forget to catch lang error"
+		}
 	}
 
 	std::map<bst::str,bst::str>Parser::files {};

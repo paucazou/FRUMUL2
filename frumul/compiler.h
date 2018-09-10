@@ -5,23 +5,20 @@
  * of the symbol values
  */
 
+#include <experimental/any>
 #include <initializer_list>
 #include "bytecode.h"
 #include "node.h"
 #include "symbol.h"
+#include "value.h"
+//#include "header.h"
+
+namespace E = std::experimental;
 
 namespace frumul {
-	class Compiler {
-		/* Checks that the value
-		 * of the symbol is correct
-		 */
-		public:
-			Compilation (Symbol& s, const bst::str& lang);
-		private:
-			Symbol& symbol;
-			OneValue& val;
 
-	};
+	class OneValue;
+	class Value;
 
 	class __compiler {
 		/* Class that compiles effectively
@@ -33,8 +30,8 @@ namespace frumul {
 			// attributes
 			const Node& node;
 			BT::ExprType return_type;
-			ByteCode byte_code;
-			std::vector<std::any>& constants{bytecode.getConstants()};
+			ByteCode bytecode;
+			std::vector<E::any>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
 
 			// functions
@@ -42,19 +39,32 @@ namespace frumul {
 				void appendInstructions(T... instructions) {
 					appendInstructions({static_cast<byte>(instructions)...});
 				}
-			void appendInstructions(std::initializer_list<byte>& instructions);
+			void appendInstructions(std::initializer_list<byte> instructions);
 			BT::ExprType visit(const Node& n);
 			BT::ExprType visit_basic_value(const Node& n);
 			BT::ExprType visit_bin_op(const Node& n);
+			void visit_compare_op(const Node& n);
+			BT::ExprType visit_comparison(const Node& n);
 			BT::ExprType visit_litint(const Node& n);
 
 			void throwInconsistentType(BT::ExprType t1, BT::ExprType t2,const Node& n1, const Node& n2);
 
-	}
-#error "verify type"
-#error "verify type cast if constant"
-#error "verify call to functions that exist"
-#error "verify that variables have been declared"
-#error "verify that variables have been assigned before used"
+	};
+
+	class ValueCompiler : public __compiler {
+		/* Compiles one value
+		 */
+		public:
+			ValueCompiler(OneValue& v):
+				__compiler(v.getValue(),v.getParent().getReturnType(),v.getParent())
+		{
+			assert(v.getValue().type() == Node::BASIC_VALUE&&"Node should be a basic value");
+		}
+	};
+#pragma message "verify type"
+#pragma message "verify type cast if constant"
+#pragma message "verify call to functions that exist"
+#pragma message "verify that variables have been declared"
+#pragma message "verify that variables have been assigned before used"
 }
 #endif

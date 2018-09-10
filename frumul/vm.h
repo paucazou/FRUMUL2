@@ -11,10 +11,12 @@
 #include "bytecode.h"
 #include "functions.inl"
 #include "symbol.h"
+//#include "header.h"
 // TODO 8to16.cpp -> transform an int in char and reverse
 //
 
 namespace frumul {
+	class Symbol;
 	class VM {
 		/* Virtual machine
 		 * which executes
@@ -33,6 +35,7 @@ namespace frumul {
 					main_loop();
 					return E::any_cast<T>(variables[0]);
 				}
+			E::any run();
 		private:
 			// functions
 			void main_loop();

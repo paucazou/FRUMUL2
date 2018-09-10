@@ -55,25 +55,31 @@ namespace frumul {
 	
 	// OneValue
 
-	OneValue::OneValue()
+	OneValue::OneValue(Symbol& nparent) :
+		parent{nparent}
 	{
 	}
 
+	OneValue::~OneValue() {
+		if (is_byte_code_compiled)
+			delete bt;
+	}
+
 	OneValue::OneValue(const OneValue& other) :
-		langs{other.langs}, value{other.value}
+		langs{other.langs}, value{other.value}, parent{other.parent}
 	{
 		if (other.pos)
 			pos = std::make_unique<Position>(*other.pos);
 	}
 
-	OneValue::OneValue(std::vector<Lang>& nlangs) :
-		langs{nlangs}
+	OneValue::OneValue(std::vector<Lang>& nlangs,Symbol& nparent) :
+		langs{nlangs}, parent{nparent}
 	{
 		assert(!nlangs.empty()&&"Langs is empty");
 	}
 
-	OneValue::OneValue (const Node& node, std::vector<Lang>& nlangs) :
-		langs{nlangs}, pos{std::make_unique<Position>(node.getPosition())}, value{&node}
+	OneValue::OneValue (const Node& node, std::vector<Lang>& nlangs,Symbol& nparent) :
+		langs{nlangs}, pos{std::make_unique<Position>(node.getPosition())}, value{&node}, parent{nparent}
 	{
 	}
 
@@ -122,6 +128,23 @@ namespace frumul {
 			langs.push_back(elt);
 	}
 
+	// use
+
+	E::any OneValue::execute(const bst::str& lang) {
+		/* Execute value
+		 */
+		// compile if necessary
+		if (!is_byte_code_compiled) {
+			ValueCompiler compiler{*this};
+			const ByteCode* _bt { new ByteCode(compiler.compile()) };
+			delete value;
+			bt = _bt;
+			is_byte_code_compiled = true;
+		}
+		VM vm{*bt};
+		return vm.run();
+	}
+
 	// display
 
 	bst::str OneValue::toString() const {
@@ -143,13 +166,22 @@ namespace frumul {
 	}
 
 	// Value
-	Value::Value ()
+	Value::Value (Symbol& nparent):
+		parent{nparent}
 	{
 	}
 
 	Value::Value(const Value& other) :
-		values{other.values}
+		values{other.values}, parent{other.parent}
 	{
+	}
+
+	E::any Value::execute(const bst::str& lang) {
+		/* Execute requested value
+		 * and return its return value
+		 */
+		OneValue& val{getValue(lang)};
+		return val.execute(lang);
 	}
 
 	Value::operator bool() const {
@@ -169,6 +201,21 @@ namespace frumul {
 		return langs;
 	}
 
+	OneValue& getValue(const bst::str& lang,bool every) {
+		/* Return requested value or every
+		 */
+		assert((hasLang(lang) || hasEvery()) && "Lang not found");
+		// look for requested lang
+		for (auto val : values)
+			if (val.hasLang(lang))
+				return val;
+		// look for every
+		for (auto val : values)
+			if (val.hasLang("every"))
+				return val;
+	}
+
+
 	bool Value::hasLang(const bst::str& lang) const {
 		/* true if lang can be found
 		 */
@@ -182,6 +229,13 @@ namespace frumul {
 		/* true if every can be found
 		 */
 		return hasLang("every");
+	}
+
+	bool Value::canExecuteWith(const bst::str& lang) const {
+		/* true if lang requested can match a lang
+		 * or value has every
+		 */
+		return hasLang(lang) || hasEvery();
 	}
 
 	OneValue& Value::set(std::vector<Lang>& nlangs) {

@@ -1,7 +1,5 @@
 #include <cassert>
-#include "parameters.h"
 #include "schildren.h"
-#include "symbol.h"
 
 namespace frumul {
 

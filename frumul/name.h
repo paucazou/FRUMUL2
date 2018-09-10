@@ -8,8 +8,12 @@
 #include <vector>
 #include <unordered_map>
 #include "bstrlib/util.inl"
+#include "exception.h"
+#include "functions.inl"
+#include "macros.h"
 #include "node.h"
 #include "position.h"
+//#include "header.h"
 
 namespace frumul {
 	using StrPosMap = std::unordered_multimap<bst::str,Position>;

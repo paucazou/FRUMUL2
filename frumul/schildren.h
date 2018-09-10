@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 #include "node.h"
+#include "symbol.h"
+//#include "header.h"
 
 namespace frumul {
 	// forward declaration. Symbol is included in symbol.h

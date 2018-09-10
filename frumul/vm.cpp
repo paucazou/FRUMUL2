@@ -50,6 +50,13 @@ namespace frumul {
 
 	}
 
+	E::any VM::run() {
+		/* run vm and return value
+		 */
+		main_loop();
+		return variables[0];
+	}
+
 	void VM::main_loop() {
 		/* Main loop.
 		 * Follow the instructions until the end.
@@ -75,6 +82,8 @@ namespace frumul {
 				case BT::BOOL_EQUAL:	COMPARE(==);break;
 				case BT::BOOL_INFERIOR:	COMPARE(<);break;
 				case BT::BOOL_SUPERIOR:	COMPARE(>);break;
+				case BT::BOOL_INF_EQUAL:COMPARE(<=);break;
+				case BT::BOOL_SUP_EQUAL:COMPARE(>=);break;
 				case BT::TEXT_GET_CHAR:	
 				case BT::LIST_APPEND:	list_append();break;
 				case BT::LIST_GET_ELT: 	list_get_elt();break;
@@ -159,11 +168,11 @@ namespace frumul {
 			args.push_back(stack.pop());
 
 		// get the symbol to call
-		CRSymbol s{pop<CRSymbol>()};
+		Symbol s{pop<Symbol>()};
 		
 		// call and push if not void
-		if (s.get().getReturnType() != BT::VOID)
-			stack.push(s.get().any_call(args));
+		if (s.getReturnType() != BT::VOID)
+			stack.push(s.any_call(args));
 	}
 	
 	void VM::cast() {
@@ -197,7 +206,7 @@ namespace frumul {
 						{
 							bst::str s{pop<bst::str>()};
 							const Symbol& parent{bt.getParent()};
-							stack.push(CRSymbol(parent.getChildren().find(s,PathFlag::Relative)));
+							stack.push(Symbol(parent.getChildren().find(s,PathFlag::Relative)));
 						}
 						break;
 					default:
@@ -253,7 +262,7 @@ namespace frumul {
 		switch (t) {
 			case BT::INT:	LIST_PUSH(int);break;
 			case BT::TEXT:	LIST_PUSH(bst::str);break;
-			case BT::SYMBOL:LIST_PUSH(CRSymbol);break;
+			case BT::SYMBOL:LIST_PUSH(Symbol);break;
 			case BT::BOOL:	LIST_PUSH(bool);break;
 			default:
 				assert(false&&"Type unknown");
@@ -305,7 +314,7 @@ namespace frumul {
 		else if (t & BT::TEXT)
 			stack.push(E::any_cast<std::vector<bst::str>>(list)[i]);
 		else if (t & BT::SYMBOL)
-			stack.push(E::any_cast<std::vector<CRSymbol>>(list)[i]);
+			stack.push(E::any_cast<std::vector<Symbol>>(list)[i]);
 		else if (t & BT::BOOL)
 			stack.push(E::any_cast<std::vector<bool>>(list)[i]);
 	}
