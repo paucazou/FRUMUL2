@@ -2,7 +2,7 @@
 
 namespace frumul {
 
-	ByteCode::ByteCode(const Symbol& p) :
+	ByteCode::ByteCode(Symbol& p) :
 		parent{p}
 	{
 	}
@@ -34,7 +34,7 @@ namespace frumul {
 		return return_type;
 	}
 
-	const Symbol& ByteCode::getParent() const {
+	Symbol& ByteCode::getParent() {
 		/* Get the parent of the value
 		 */
 		return parent;

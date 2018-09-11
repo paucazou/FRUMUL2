@@ -116,6 +116,12 @@ namespace frumul {
 		return children;
 	}
 
+	Symbol& Symbol::getParent() {
+		/* return parent
+		 */
+		return *parent;
+	}
+
 	Value& Symbol::getValue() {
 		/* Return value
 		 */

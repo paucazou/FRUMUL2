@@ -39,8 +39,8 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 	} while (false) // to allow the semi colon
 	
 namespace frumul {
-	VM::VM(ByteCode& nbt) :
-		bt{nbt}, it{nbt.getBegin()}
+	VM::VM(ByteCode& nbt,const bst::str& nlang) :
+		bt{nbt}, it{nbt.getBegin()}, lang{nlang}
 	{
 		// resize variables vector
 		variables.resize(bt.getVariableNumber());
@@ -168,7 +168,7 @@ namespace frumul {
 			args.push_back(stack.pop());
 
 		// get the symbol to call
-		Symbol s{pop<Symbol>()};
+		Symbol& s{pop<RSymbol>().get()};
 		
 		// call and push if not void
 		if (s.getReturnType() != BT::VOID)
@@ -205,8 +205,8 @@ namespace frumul {
 					case BT::SYMBOL:
 						{
 							bst::str s{pop<bst::str>()};
-							const Symbol& parent{bt.getParent()};
-							stack.push(Symbol(parent.getChildren().find(s,PathFlag::Relative)));
+							Symbol& parent{bt.getParent()};
+							stack.push(parent.getChildren().find(s,PathFlag::Relative));
 						}
 						break;
 					default:
@@ -262,7 +262,7 @@ namespace frumul {
 		switch (t) {
 			case BT::INT:	LIST_PUSH(int);break;
 			case BT::TEXT:	LIST_PUSH(bst::str);break;
-			case BT::SYMBOL:LIST_PUSH(Symbol);break;
+			case BT::SYMBOL:LIST_PUSH(RSymbol);break;
 			case BT::BOOL:	LIST_PUSH(bool);break;
 			default:
 				assert(false&&"Type unknown");
@@ -314,7 +314,7 @@ namespace frumul {
 		else if (t & BT::TEXT)
 			stack.push(E::any_cast<std::vector<bst::str>>(list)[i]);
 		else if (t & BT::SYMBOL)
-			stack.push(E::any_cast<std::vector<Symbol>>(list)[i]);
+			stack.push(E::any_cast<std::vector<RSymbol>>(list)[i]);
 		else if (t & BT::BOOL)
 			stack.push(E::any_cast<std::vector<bool>>(list)[i]);
 	}

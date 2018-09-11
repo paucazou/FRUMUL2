@@ -27,7 +27,7 @@ namespace frumul {
 		 * and checked before
 		 */
 		public:
-			VM(ByteCode&);
+			VM(ByteCode&,const bst::str& nlang);
 			template <typename T>
 				T run() {
 					/* Run the VM and return T
@@ -61,6 +61,7 @@ namespace frumul {
 			// stacks. The first element of the stack matching with the return type is the return value
 			rstack<E::any> stack;
 			std::vector<E::any> variables; // index 0 represents the return value
+			const bst::str& lang;
 	};
 }
 #endif

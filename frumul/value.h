@@ -15,6 +15,7 @@
 //#include "header.h"
 
 namespace frumul {
+	class ValueCompiler;
 
 	class Lang {
 		/* Represents one language
@@ -43,8 +44,8 @@ namespace frumul {
 			OneValue(Symbol& nparent);
 			~OneValue();
 			OneValue(const OneValue& other);
-			OneValue(std::vector<Lang>& nlangs);
-			OneValue(const Node& node, std::vector<Lang>& nlangs);
+			OneValue(std::vector<Lang>& nlangs,Symbol& nparent);
+			OneValue(const Node& node, std::vector<Lang>& nlangs,Symbol& nparent);
 			//getters
 			bool hasLang(const bst::str& lang) const;
 			const std::vector<Lang>& getLangs() const;
@@ -54,6 +55,8 @@ namespace frumul {
 			// setters
 			void setNode(const Node& node);
 			void setLangs(std::vector<Lang>& nlangs);
+			// use
+			E::any execute(const bst::str& lang);
 			// display
 			bst::str toString() const;
 			friend std::ostream& operator<< (std::ostream& out, const OneValue val);
@@ -63,7 +66,7 @@ namespace frumul {
 			bool is_byte_code_compiled {false};
 			union {
 				const Node * value{nullptr};
-				const ByteCode * bt;
+				ByteCode * bt;
 			};
 			Symbol& parent;
 	};

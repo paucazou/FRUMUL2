@@ -97,7 +97,7 @@ namespace frumul {
 
 	// finders
 	
-	const Symbol& Schildren::find(const bst::str& path, PathFlag flag) const {
+	Symbol& Schildren::find(const bst::str& path, PathFlag flag) {
 		/* Looks in children to find a requested symbol.
 		 * Order : long name, short name, separation dots.
 		 * If it has a remain, transmits it to the child
@@ -123,7 +123,7 @@ namespace frumul {
 					return find(path.uRange(1,path.uLength()-1),flag);
 		}
 		// try to find a long name
-		for (const auto& child : children) {
+		for (auto& child : children) {
 			const bst::str& name {child.getName().getLong()};
 			
 			if (!name || name.uLength() > path.uLength())
@@ -139,7 +139,7 @@ namespace frumul {
 			}
 		}
 		// try to find a short name. Yes, lot of duplicates
-		for (const auto& child : children) {
+		for (auto& child : children) {
 			const bst::str& name {child.getName().getShort()};
 
 			if (!name)

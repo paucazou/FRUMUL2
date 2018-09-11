@@ -136,12 +136,12 @@ namespace frumul {
 		// compile if necessary
 		if (!is_byte_code_compiled) {
 			ValueCompiler compiler{*this};
-			const ByteCode* _bt { new ByteCode(compiler.compile()) };
+			ByteCode* _bt { new ByteCode(compiler.compile()) };
 			delete value;
 			bt = _bt;
 			is_byte_code_compiled = true;
 		}
-		VM vm{*bt};
+		VM vm{*bt,lang};
 		return vm.run();
 	}
 
@@ -201,18 +201,20 @@ namespace frumul {
 		return langs;
 	}
 
-	OneValue& getValue(const bst::str& lang,bool every) {
+	OneValue& Value::getValue(const bst::str& lang,bool every) {
 		/* Return requested value or every
 		 */
-		assert((hasLang(lang) || hasEvery()) && "Lang not found");
+		assert((hasLang(lang) && !every) && "Lang not found");
 		// look for requested lang
-		for (auto val : values)
+		for (auto& val : values)
 			if (val.hasLang(lang))
 				return val;
+		assert(hasEvery()&&"Every not set");
 		// look for every
-		for (auto val : values)
+		for (auto& val : values)
 			if (val.hasLang("every"))
 				return val;
+		return values[0];// -Wreturn-type !!!, and dangerous
 	}
 
 
@@ -243,9 +245,10 @@ namespace frumul {
 		 */
 		if (interLangs(nlangs,getLangs())) {
 			assert(false&&"exception not set");
+#pragma message "Exception not set"
 			throw 1;
 		}
-		values.emplace_back(nlangs);
+		values.emplace_back(nlangs,parent);
 		return values.back();
 	}
 		

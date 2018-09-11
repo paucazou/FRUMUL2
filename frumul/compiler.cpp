@@ -22,7 +22,7 @@ namespace frumul {
 
 	// __compiler
 
-	__compiler::__compiler (const Node& n, BT::ExprType rt, const Symbol& s) :
+	__compiler::__compiler (const Node& n, BT::ExprType rt, Symbol& s) :
 		node{n}, return_type{rt}, bytecode{s}
 	{
 	}

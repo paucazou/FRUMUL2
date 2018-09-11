@@ -82,12 +82,12 @@ namespace frumul {
 
 				MAX_INSTRUCTIONS,
 			};
-			explicit ByteCode(const Symbol& s);
+			explicit ByteCode(Symbol& s);
 			std::vector<byte>::iterator getBegin();
 			std::vector<byte>::iterator getEnd();
 			int getVariableNumber() const;
 			ExprType getReturnType() const;
-			const Symbol& getParent() const;
+			Symbol& getParent() ;
 			
 			const E::any& getConstant(size_t) const;
 			std::vector<E::any>& getConstants();
@@ -97,7 +97,7 @@ namespace frumul {
 			operator bool () const;
 		private:
 			ExprType return_type{TEXT};
-			const Symbol& parent;
+			Symbol& parent;
 			std::vector<byte> code;
 			// constants
 			std::vector<E::any> constants;

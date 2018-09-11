@@ -26,6 +26,7 @@ namespace frumul {
 	class Parser;
 	class Schildren;
 	class Symbol;
+	class Value;
 
 	class Alias {
 		/* Simple class which handles
@@ -61,6 +62,7 @@ namespace frumul {
 			Mark& getMark();
 			Alias& getAlias();
 			Schildren& getChildren();
+			Symbol& getParent();
 			Value& getValue();
 			Parameters& getParameters();
 			std::vector<bst::str> getChildrenNames();

@@ -998,7 +998,7 @@ namespace frumul {
 		transpiler->append(s.call(*this));
 		} catch (const BackException& e) {
 			// return type error
-			throw iexc(e.type,"Symbol called does not return text: ", s.getReturnTypePos(),"Symbol called here: ",pos);
+			throw iexc(e.type,"Symbol called does not return text: ", s.getReturnTypePos(),"Symbol called here: ",*pos);
 #pragma message "Do not forget to catch lang error"
 		}
 	}

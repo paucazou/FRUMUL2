@@ -41,7 +41,7 @@ namespace frumul {
 			bool hasParent() const;
 			// finders
 
-			const Symbol& find(const bst::str& path, PathFlag flag=PathFlag::No) const;
+			Symbol& find(const bst::str& path, PathFlag flag=PathFlag::No) ;
 			// const getters
 			const Symbol& getChild(const bst::str& name) const;
 			const std::vector<Symbol>& getChildren() const;
@@ -51,7 +51,7 @@ namespace frumul {
 			Symbol& appendChild(const bst::str& name);
 
 		private:
-			Symbol* const parent{nullptr};
+			Symbol* parent{nullptr};
 			std::vector<Symbol> children;
 	};
 }

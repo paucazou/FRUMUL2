@@ -24,7 +24,7 @@ namespace frumul {
 		/* Class that compiles effectively
 		 */
 		public:
-			__compiler (const Node& n,BT::ExprType rt, const Symbol& s);
+			__compiler (const Node& n,BT::ExprType rt, Symbol& s);
 			ByteCode compile();
 		private:
 			// attributes

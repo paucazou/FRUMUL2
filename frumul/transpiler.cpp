@@ -10,9 +10,9 @@ namespace frumul {
 		/* Transpiles if necessary and return the output
 		 */
 		if (output)
-			return output;
-		// transpile
-		parser->parse();
+			// transpile
+			parser->parse();
+		return output;
 
 	}
 	
