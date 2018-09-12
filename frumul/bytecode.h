@@ -78,7 +78,7 @@ namespace frumul {
 				CAST, // cast one value of a type to another, if possible
 				ASSIGN,
 				PUSH,
-				RETURN, // ??? is it useful (maybe with not text return values)
+				RETURN, 
 
 				MAX_INSTRUCTIONS,
 			};
@@ -93,6 +93,8 @@ namespace frumul {
 			std::vector<E::any>& getConstants();
 			std::vector<byte>& getCode();
 			static bst::str typeToString(ExprType);
+
+			void addVariable(int i=1);
 
 			operator bool () const;
 		private:

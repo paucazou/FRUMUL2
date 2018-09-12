@@ -40,6 +40,8 @@ namespace frumul {
 					appendInstructions({static_cast<byte>(instructions)...});
 				}
 			void appendInstructions(std::initializer_list<byte> instructions);
+
+			void setReturnValue();
 			BT::ExprType visit(const Node& n);
 			BT::ExprType visit_basic_value(const Node& n);
 			BT::ExprType visit_bin_op(const Node& n);

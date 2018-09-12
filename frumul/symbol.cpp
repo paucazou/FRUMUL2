@@ -85,8 +85,8 @@ namespace frumul {
 	}
 
 	Symbol::Symbol(const Symbol& other) :
-		name{other.name}, mark{other.mark}, children{other.children}, parent{other.parent}, alias{other.alias}, 
-		value{other.value}
+		name{other.name}, mark{other.mark}, children{std::make_unique<Schildren>(*other.children)}, parent{other.parent}, alias{other.alias}, 
+		value{std::make_unique<Value>(*other.value)}
 	{
 	}
 
@@ -113,7 +113,7 @@ namespace frumul {
 	Schildren& Symbol::getChildren() {
 		/* return children
 		 */
-		return children;
+		return *children;
 	}
 
 	Symbol& Symbol::getParent() {
@@ -125,7 +125,7 @@ namespace frumul {
 	Value& Symbol::getValue() {
 		/* Return value
 		 */
-		return value;
+		return *value;
 	}
 
 	Parameters& Symbol::getParameters() {
@@ -139,7 +139,7 @@ namespace frumul {
 		 * children of *this
 		 */
 		std::vector<bst::str> names;
-		for (const auto& child : children.getChildren()) {
+		for (const auto& child : children->getChildren()) {
 			const Name& child_n{child.getName()};
 			if (child_n.hasLong())
 				names.push_back(child_n.getLong());
@@ -170,7 +170,7 @@ namespace frumul {
 	}
 
 	const Schildren& Symbol::getChildren() const {
-		return children;
+		return *children;
 	}
 
 	const Symbol& Symbol::getParent() const {
@@ -247,13 +247,13 @@ namespace frumul {
 	bool Symbol::hasChildren() const {
 		/* true if it has children
 		 */
-		return children.hasChildren();
+		return children->hasChildren();
 	}
 
 	bool Symbol::hasValue() const {
 		/* true if symbol has a value
 		 */
-		return value;
+		return *value;
 	}
 
 	// use
@@ -263,12 +263,12 @@ namespace frumul {
 		// checks
 		if (return_type.type != BT::TEXT)
 			throw BackException(exc::TypeError);
-		if (!value.canExecuteWith(p.getTranspiler().getLang()))
+		if (!value->canExecuteWith(p.getTranspiler().getLang()))
 			throw BackException(exc::LangError);
 
 		// get the args and eat tokens
 		// execution
-		E::any r{value.execute(p.getTranspiler().getLang())};
+		E::any r{value->execute(p.getTranspiler().getLang())};
 		return E::any_cast<bst::str>(r);
 	}
 	
@@ -314,14 +314,14 @@ namespace frumul {
 		// langs/values available
 		if (value) {
 			s += "Languages available: ";
-			for (const auto& l : value.getLangs())
+			for (const auto& l : value->getLangs())
 				s += l.getName() + ". ";
 			s += '\n';
 		}
 		// children
 		if (children) {
 			s += "Children:\n";
-			for (const auto & child : children.getChildren())
+			for (const auto & child : children->getChildren())
 				s += child.getName().names() + ". ";
 			s += '\n';
 		}

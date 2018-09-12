@@ -30,8 +30,10 @@ namespace frumul {
 	ByteCode __compiler::compile() {
 		/* Compile the node into a bytecode
 		 */
-		if (!bytecode)
+		if (!bytecode) {
+			bytecode.addVariable();
 			visit(node);
+		}
 		return bytecode;
 	}
 
@@ -41,6 +43,8 @@ namespace frumul {
 		for (auto& i : instructions)
 			code.push_back(i);
 	}
+
+
 
 	BT::ExprType __compiler::visit(const Node& n) {
 		/* Dispatch the node following
@@ -76,7 +80,7 @@ namespace frumul {
 					appendInstructions(BT::CAST,rt,return_type);
 			}
 			// set returned value or append it
-			if (rt != BT::TEXT)
+			if (return_type != BT::TEXT)
 				appendInstructions(BT::ASSIGN,0,BT::RETURN); // assign last elt of stack to return value and return
 			else
 				appendInstructions(BT::TEXT_ADD, // add returned to return value
@@ -144,7 +148,7 @@ namespace frumul {
 	BT::ExprType __compiler::visit_comparison(const Node& n) {
 		/* Compile a comparison
 		 */
-		for (size_t i{0}; i < n.getNumberedChildren().size(); i+=2) {
+		for (size_t i{0}; i < n.getNumberedChildren().size(); i+=3) {
 			// get right operand
 			BT::ExprType right_rt{visit(n.get(i + 2))};
 			// get left operand
@@ -160,6 +164,8 @@ namespace frumul {
 
 			// set operator
 			visit_compare_op(op);
+			// set type of values compared
+			code.push_back(left_rt); // we know left_rt match with right_rt
 
 			// if multiple comparison
 			if (i) 
@@ -177,7 +183,7 @@ namespace frumul {
 		return BT::INT;
 	}
 
-	void throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Node& n1, const Node& n2) {
+	void __compiler::throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Node& n1, const Node& n2) {
 		/* Throw an inconsistent error
 		 */
 		bst::str msg1 {BT::typeToString(t1) + " can not be used with " + BT::typeToString(t2)};

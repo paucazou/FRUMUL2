@@ -1,4 +1,5 @@
 #include <cassert>
+#include "compiler.h"
 #include "value.h"
 
 namespace frumul {
@@ -63,6 +64,8 @@ namespace frumul {
 	OneValue::~OneValue() {
 		if (is_byte_code_compiled)
 			delete bt;
+		else
+			delete value;
 	}
 
 	OneValue::OneValue(const OneValue& other) :
@@ -109,7 +112,12 @@ namespace frumul {
 	const Node& OneValue::getValue() const {
 		/* Get the value itself
 		 */
+		assert(value&&"Value not set");
 		return *value;
+	}
+
+	Symbol& OneValue::getParent() {
+		return parent;
 	}
 
 	// setters
@@ -117,7 +125,7 @@ namespace frumul {
 	void OneValue::setNode(const Node& node) {
 		/* Set node and position
 		 */
-		value = &node;
+		value = new Node(node);
 		pos = std::make_unique<Position>(node.getPosition());
 	}
 
@@ -135,12 +143,15 @@ namespace frumul {
 		 */
 		// compile if necessary
 		if (!is_byte_code_compiled) {
-			ValueCompiler compiler{*this};
-			ByteCode* _bt { new ByteCode(compiler.compile()) };
+			//ValueCompiler compiler{*this};
+			std::unique_ptr<ValueCompiler> compiler {std::make_unique<ValueCompiler>(*this)};
+			ByteCode* _bt { new ByteCode(compiler->compile()) };
 			delete value;
 			bt = _bt;
 			is_byte_code_compiled = true;
 		}
+		for (const auto& byte : bt->getCode())
+			printl(static_cast<int>(byte));
 		VM vm{*bt,lang};
 		return vm.run();
 	}
@@ -204,7 +215,8 @@ namespace frumul {
 	OneValue& Value::getValue(const bst::str& lang,bool every) {
 		/* Return requested value or every
 		 */
-		assert((hasLang(lang) && !every) && "Lang not found");
+		assert((hasLang(lang) || every) && "Lang not found");
+#pragma message "Transform assert in exception ?"
 		// look for requested lang
 		for (auto& val : values)
 			if (val.hasLang(lang))

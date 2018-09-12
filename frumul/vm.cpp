@@ -20,6 +20,10 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 
 #define LIST_PUSH(T) E::any_cast<std::vector<T>>(list).push_back(pop<T>())
 
+/* COMPARE syntax
+ * 	COMPARISON_TYPE (BOOL_EQUAL,BOOL_INFERIOR,etc.)
+ * 	TYPE (TEXT,INT, BOOL, etc.)
+ */
 #define COMPARE(op) \
 	do { \
 	BT::ExprType t{static_cast<BT::ExprType>(*++it)}; \
@@ -44,6 +48,9 @@ namespace frumul {
 	{
 		// resize variables vector
 		variables.resize(bt.getVariableNumber());
+		// set the return value to an empty string if it is a TEXT
+		if (bt.getReturnType() == BT::TEXT)
+			variables[0] = bst::str{""};
 		// set an arbitrary number of elements for the stack 
 		// but it can be set above without problem
 		stack.exposeContainer().resize(255);
@@ -95,7 +102,7 @@ namespace frumul {
 				case BT::ASSIGN:	assign();break;
 				case BT::PUSH: 		push(); break;
 
-				case BT::RETURN:	it = bt.getEnd();break;
+				case BT::RETURN:	return;break;
 
 				default:
 					assert(false&&"Instruction not recognized");
@@ -225,15 +232,17 @@ namespace frumul {
 					default:
 						assert(false&&"Type unknown");
 					};
+				break;
 			case BT::BOOL:
 				switch(target_t) {
 					case BT::TEXT:
 						{
 						bool b{pop<bool>()};
+						const bst::str True{"true"}, False{"false"};
 						if (b)
-							stack.push("true");
+							stack.push(True);
 						else
-							stack.push("false");
+							stack.push(False);
 						}
 						break;
 					case BT::INT:
@@ -242,6 +251,7 @@ namespace frumul {
 					default:
 						assert(false&&"Type unkwnown");
 				};
+				break;
 			default:
 				assert(false&&"Type canno't be cast");
 		};

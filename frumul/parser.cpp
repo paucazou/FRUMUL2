@@ -77,7 +77,7 @@ namespace frumul {
 		 * return false if type does not match.
 		 */
 #if DEBUG
-		if (current_token->getType() != Token::EOFILE)
+		if (false&&current_token->getType() != Token::EOFILE)
 			std::cout << *current_token << std::endl;
 #endif
 		if (current_token->getType() == t) {

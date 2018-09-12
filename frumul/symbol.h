@@ -105,10 +105,10 @@ namespace frumul {
 			} return_type;
 			Name name {};
 			Mark mark {};
-			Schildren children{*this};
+			std::unique_ptr<Schildren> children = std::make_unique<Schildren>(*this);
 			Symbol* parent {nullptr};
 			Alias alias;
-			Value value{*this};
+			std::unique_ptr<Value> value = std::make_unique<Value>(*this);
 			Parameters parameters;
 
 	};

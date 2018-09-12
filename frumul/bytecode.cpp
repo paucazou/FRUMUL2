@@ -71,6 +71,12 @@ namespace frumul {
 		return "nothing"; // to silent clang
 	}
 
+	void ByteCode::addVariable(int i) {
+		/* Increment the number of variables to allow
+		 */
+		v_nb += i;
+	}
+
 	ByteCode::operator bool () const {
 		/* false if bytecode has
 		 * not been yet set

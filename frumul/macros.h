@@ -1,6 +1,7 @@
 /* This file contains many
  * macro utilities
  */
+#include <iostream>
 
 /*****************
 *  enum to strings
@@ -50,3 +51,9 @@
 		out << elt.toString();\
 		return out;\
 	}
+
+#ifdef DEBUG
+#define printl(elt) std::cout << elt << std::endl
+#else
+#define printl(elt) 
+#endif
