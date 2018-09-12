@@ -31,6 +31,7 @@
 	E(InvalidOperator)\
 	E(TypeError)\
 	E(LangError)\
+	E(VarSymbolUnknown)\
 	E(MAX_TYPES)\
 
 namespace frumul {
