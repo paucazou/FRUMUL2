@@ -17,10 +17,15 @@ namespace frumul {
 			const bst::str& getName() const;
 			BT::ExprType getType() const;
 			int getIndex() const;
+			bool isDefined() const;
+			// setters
+			void markDefined();
 		private:
+
 			bst::str name;
 			BT::ExprType type;
 			int nb;
+			bool is_defined{false};
 	};
 
 	class SymbolTab {
@@ -30,12 +35,16 @@ namespace frumul {
 			SymbolTab();
 			// getters
 			const VarSymbol& getVarSymbol(const bst::str& name) const;
+			VarSymbol& getVarSymbol(const bst::str& name);
 			int getIndex(const bst::str& name) const;
 			BT::ExprType getType(const bst::str& name) const;
 			bool contains(const bst::str& name) const;
+			bool isDefined(const bst::str& name) const;
 			// setters
 			void append(const VarSymbol& nsymbol);
 			void append(const bst::str& name, BT::ExprType type, int nb);
+			void markDefined(const bst::str& name);
+
 		private:
 			std::vector<VarSymbol> content;
 	};

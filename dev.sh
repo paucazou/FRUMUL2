@@ -29,6 +29,7 @@ compile () {
 		frumul/position.cpp\
 		frumul/schildren.cpp\
 		frumul/symbol.cpp\
+		frumul/symboltab.cpp\
 		frumul/transpiler.cpp\
 		frumul/util.cpp\
 		frumul/value.cpp\

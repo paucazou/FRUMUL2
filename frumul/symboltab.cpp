@@ -25,15 +25,34 @@ namespace frumul {
 		return nb;
 	}
 
+	bool VarSymbol::isDefined() const {
+		/* true if symbol has been defined at least once
+		 */
+		return is_defined;
+	}
+
+	void VarSymbol::markDefined() {
+		/* mark the symbol as defined at least once
+		 */
+		is_defined = true;
+	}
+
 	//SymbolTab
 	
 	SymbolTab::SymbolTab() {
 	}
 
-	const VarSymbol& SymbolTab::getVarSymbol(const bst::str& name) const {
+	VarSymbol& SymbolTab::getVarSymbol(const bst::str& name) {
 		/* return symbol requested
 		 */
-		for (const auto& s : content)
+		for (auto& s : content)
+			if (s.getName() == name)
+				return s;
+		throw BackException(exc::VarSymbolUnknown);
+	}
+
+	const VarSymbol& SymbolTab::getVarSymbol(const bst::str& name) const{
+		for (const auto& s: content)
 			if (s.getName() == name)
 				return s;
 		throw BackException(exc::VarSymbolUnknown);
@@ -62,6 +81,12 @@ namespace frumul {
 		}
 	}
 
+	bool SymbolTab::isDefined(const bst::str& name) const {
+		/* true if symbol required is defined
+		 */
+		return getVarSymbol(name).isDefined();
+	}
+
 	void SymbolTab::append(const VarSymbol& nsymbol) {
 		/* Append a new symbol
 		 */
@@ -72,6 +97,12 @@ namespace frumul {
 		/* Create a new symbol and install it
 		 */
 		content.emplace_back(name,type,nb);
+	}
+
+	void SymbolTab::markDefined(const bst::str& name) {
+		/* Mark defined requested name
+		 */
+		getVarSymbol(name).markDefined();
 	}
 
 
