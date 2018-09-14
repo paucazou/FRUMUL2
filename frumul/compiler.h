@@ -37,14 +37,19 @@ namespace frumul {
 			ByteCode bytecode;
 			std::vector<E::any>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
-			std::unique_ptr<SymbolTab> symbol_table;
+			std::unique_ptr<SymbolTab> symbol_table{std::make_unique<SymbolTab>()};
 
 			// functions
 			template <typename ...T>
 				void appendInstructions(T... instructions) {
 					appendInstructions({static_cast<byte>(instructions)...});
 				}
+			template <typename ...T>
+				void insertInstructions(int i, T... instructions) {
+					insertInstructions({static_cast<byte>(instructions)});
+				}
 			void appendInstructions(std::initializer_list<byte> instructions);
+			void insertInstructions(int i, std::initializer_list<byte> instructions);
 
 			void setReturnValue();
 			BT::ExprType visit(const Node& n);
@@ -53,7 +58,8 @@ namespace frumul {
 			void visit_compare_op(const Node& n);
 			BT::ExprType visit_comparison(const Node& n);
 			BT::ExprType visit_litint(const Node& n);
-			void visit_variable_declaration(const Node& n);
+			BT::ExprType visit_val_text(const Node& n);
+			BT::ExprType visit_variable_declaration(const Node& n);
 			BT::ExprType visit_variable_name(const Node& n);
 
 			void throwInconsistentType(BT::ExprType t1, BT::ExprType t2,const Node& n1, const Node& n2);

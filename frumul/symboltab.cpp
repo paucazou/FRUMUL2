@@ -44,6 +44,7 @@ namespace frumul {
 	//SymbolTab
 	
 	SymbolTab::SymbolTab() {
+		printl("called");
 	}
 
 	VarSymbol& SymbolTab::getVarSymbol(const bst::str& name) {
@@ -95,6 +96,12 @@ namespace frumul {
 		/* return position of required value
 		 */
 		return getVarSymbol(name).getPosition();
+	}
+
+	int SymbolTab::variableNumber() const {
+		/* Return the number of variables declared
+		 */
+		return content.size();
 	}
 
 	void SymbolTab::append(const VarSymbol& nsymbol) {

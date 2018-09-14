@@ -46,6 +46,7 @@ namespace frumul {
 			bool contains(const bst::str& name) const;
 			bool isDefined(const bst::str& name) const;
 			const Position& getPosition(const bst::str& name) const;
+			int variableNumber() const;
 			// setters
 			void append(const VarSymbol& nsymbol);
 			void append(const bst::str& name, BT::ExprType type, const Position& pos);

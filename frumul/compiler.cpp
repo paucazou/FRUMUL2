@@ -31,8 +31,10 @@ namespace frumul {
 		/* Compile the node into a bytecode
 		 */
 		if (!bytecode) {
-			bytecode.addVariable();
+			if (return_type != BT::VOID)
+				symbol_table->append("",return_type,node.getPosition()); //an empty name is the only one that can't be set by the user
 			visit(node);
+			bytecode.addVariable(symbol_table->variableNumber());
 		}
 		return bytecode;
 	}
@@ -42,6 +44,14 @@ namespace frumul {
 		 */
 		for (auto& i : instructions)
 			code.push_back(i);
+	}
+
+	void __compiler::insertInstructions(int i, std::initializer_list<byte> instructions) {
+		/* insert instructions after i position
+		 * of bytecode 
+		 */
+		std::vector<byte>::iterator begin{bytecode.getBegin()};
+		code.insert(begin+i,instructions);
 	}
 
 
@@ -56,13 +66,11 @@ namespace frumul {
 			case Node::BIN_OP:		return visit_bin_op(n);
 			case Node::COMPARISON:		return visit_comparison(n);
 			case Node::LITINT:		return visit_litint(n);
-			case Node::VARIABLE_DECLARATION:
-							visit_variable_declaration(n);
-							return return_type;
-							break;
+			case Node::VAL_TEXT:		return visit_val_text(n);
+			case Node::VARIABLE_DECLARATION:return visit_variable_declaration(n);
 			case Node::VARIABLE_NAME:	return visit_variable_name(n);
 			default:
-				printl(n.typeToString(n.type()));
+				printl(n);
 				assert(false&&"Node not recognized");
 		};
 		return BT::VOID; // because clang complains
@@ -71,10 +79,12 @@ namespace frumul {
 	BT::ExprType __compiler::visit_basic_value(const Node& n) {
 		/* Visit basic value
 		 */
+		constexpr int r_index{0}; // return index
 		for (const auto& child : n.getNumberedChildren()) {
+// TODO case of void type...
 			if (return_type == BT::TEXT)
 				// prepare the stack
-				appendInstructions(BT::PUSH,BT::VARIABLE,0);
+				appendInstructions(BT::PUSH,BT::VARIABLE,r_index);
 
 			BT::ExprType rt{visit(child)};
 
@@ -88,10 +98,10 @@ namespace frumul {
 			}
 			// set returned value or append it
 			if (return_type != BT::TEXT)
-				appendInstructions(BT::ASSIGN,0,BT::RETURN); // assign last elt of stack to return value and return
+				appendInstructions(BT::ASSIGN,r_index,BT::RETURN); // assign last elt of stack to return value and return
 			else
 				appendInstructions(BT::TEXT_ADD, // add returned to return value
-						BT::ASSIGN,0); // assign back to returned value
+						BT::ASSIGN,r_index); // assign back to returned value
 
 		}
 		code.push_back(BT::RETURN);
@@ -204,8 +214,15 @@ namespace frumul {
 		throwInconsistentType(t1,t2,n1.getPosition(),n2.getPosition());
 	}
 
+	BT::ExprType __compiler::visit_val_text(const Node& n) {
+		/* Append text to the return value
+		 */
+		constants.push_back(n.getValue());
+		appendInstructions(BT::PUSH,BT::CONSTANT,constants.size()-1);
+		return BT::TEXT;
+	}
 
-	void __compiler::visit_variable_declaration(const Node& n) {
+	BT::ExprType __compiler::visit_variable_declaration(const Node& n) {
 		/* Declare a variable
 		 * and (optionnaly) set it
 		 */
@@ -243,6 +260,7 @@ namespace frumul {
 			symbol_table->markDefined(name);
 
 		}
+		return BT::VOID;
 	}
 
 	BT::ExprType __compiler::visit_variable_name(const Node& n) {
