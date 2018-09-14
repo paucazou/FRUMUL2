@@ -49,12 +49,17 @@ namespace frumul {
 	BT::ExprType __compiler::visit(const Node& n) {
 		/* Dispatch the node following
 		 * its type
+		 * If the function called return void, this one returned the return type expected
 		 */
 		switch(n.type()) {
 			case Node::BASIC_VALUE:		return visit_basic_value(n);
 			case Node::BIN_OP:		return visit_bin_op(n);
 			case Node::COMPARISON:		return visit_comparison(n);
 			case Node::LITINT:		return visit_litint(n);
+			case Node::VARIABLE_DECLARATION:
+							visit_variable_declaration(n);
+							return return_type;
+							break;
 			default:
 				assert(false&&"Node not recognized");
 		};
@@ -183,11 +188,57 @@ namespace frumul {
 		return BT::INT;
 	}
 
-	void __compiler::throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Node& n1, const Node& n2) {
+	void __compiler::throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Position& n1, const Position& n2) {
 		/* Throw an inconsistent error
 		 */
 		bst::str msg1 {BT::typeToString(t1) + " can not be used with " + BT::typeToString(t2)};
 		bst::str msg2 {BT::typeToString(t2) + " defined here: "};
-		throw iexc(exc::InconsistantType,msg1,n1.getPosition(), msg2, n2.getPosition());
+		throw iexc(exc::InconsistantType,msg1,n1, msg2, n2);
+	}
+
+	void __compiler::throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Node& n1, const Node& n2) {
+		/* overloaded function
+		 */
+		throwInconsistentType(t1,t2,n1.getPosition(),n2.getPosition());
+	}
+
+
+	void __compiler::visit_variable_declaration(const Node& n) {
+		/* Declare a variable
+		 * and (optionnaly) set it
+		 */
+		const bst::str& name{n.get("name").getValue()};
+		bst::str type{n.get("type").getValue()};
+		// check: already defined ?
+		if (symbol_table->contains(name))
+			throw iexc(exc::NameAlreadyDefined,"This name has already been defined here:",symbol_table->getPosition(name),"Name defined another time here: ",n.getPosition());
+
+		// find type
+		static const std::map<bst::str,BT::ExprType> types{
+			{"text",BT::TEXT},
+			{"int",BT::INT},
+			{"bool",BT::BOOL},
+			{"symbol",BT::SYMBOL},
+		};
+		type.tolower();
+		BT::ExprType type_{BT::VOID};
+		try {
+			type_ = types.at(type);
+		} catch (const std::out_of_range& oor){
+			throw exc(exc::UnknownType,"Invalid type declared",n.get("type").getPosition());
+		}
+
+		// set symbol
+		symbol_table->append(name,type_,n.getPosition());
+		// optional: set value
+		if (n.getNamedChildren().count("value")) {
+			BT::ExprType value_rt {visit(n.get("value"))};
+			if (value_rt != type_)
+				throwInconsistentType(type_,value_rt,n.get("type").getPosition(),n.get("value").getPosition());
+
+			appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
+			symbol_table->markDefined(name);
+
+		}
 	}
 }

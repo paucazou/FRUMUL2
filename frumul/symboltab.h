@@ -6,18 +6,22 @@
  */
 
 #include <cassert>
+#include <map>
+#include <stdexcept>
 #include <vector>
 #include "bytecode.h"
 #include "exception.h"
+#include "position.h"
 namespace frumul {
 	class VarSymbol{
 		public:
-			VarSymbol(const bst::str& nname,BT::ExprType ntype,int nnb);
+			VarSymbol(const bst::str& nname,BT::ExprType ntype,int nnb,const Position& npos);
 			// getters
 			const bst::str& getName() const;
 			BT::ExprType getType() const;
 			int getIndex() const;
 			bool isDefined() const;
+			const Position& getPosition() const;
 			// setters
 			void markDefined();
 		private:
@@ -26,6 +30,7 @@ namespace frumul {
 			BT::ExprType type;
 			int nb;
 			bool is_defined{false};
+			Position pos;
 	};
 
 	class SymbolTab {
@@ -40,9 +45,10 @@ namespace frumul {
 			BT::ExprType getType(const bst::str& name) const;
 			bool contains(const bst::str& name) const;
 			bool isDefined(const bst::str& name) const;
+			const Position& getPosition(const bst::str& name) const;
 			// setters
 			void append(const VarSymbol& nsymbol);
-			void append(const bst::str& name, BT::ExprType type, int nb);
+			void append(const bst::str& name, BT::ExprType type, const Position& pos);
 			void markDefined(const bst::str& name);
 
 		private:

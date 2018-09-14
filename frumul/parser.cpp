@@ -350,7 +350,7 @@ namespace frumul {
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat name
 		if (current_token->getType() == Token::ASSIGN) {
 			eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
-			fields.insert({"value" , expr()});
+			fields.insert({"value" , comparison()});
 		}
 		eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
 		fields.insert({"type" , Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue())});

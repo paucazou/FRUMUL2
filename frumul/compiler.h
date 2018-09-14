@@ -53,8 +53,10 @@ namespace frumul {
 			void visit_compare_op(const Node& n);
 			BT::ExprType visit_comparison(const Node& n);
 			BT::ExprType visit_litint(const Node& n);
+			void visit_variable_declaration(const Node& n);
 
 			void throwInconsistentType(BT::ExprType t1, BT::ExprType t2,const Node& n1, const Node& n2);
+			void throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Position& n1, const Position& n2);
 
 	};
 

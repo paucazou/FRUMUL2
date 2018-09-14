@@ -8,8 +8,8 @@
 
 namespace frumul {
 	// VarSymbol
-	VarSymbol::VarSymbol(const bst::str& nname, BT::ExprType ntype, int nnb) :
-		name{nname}, type{ntype}, nb{nnb}
+	VarSymbol::VarSymbol(const bst::str& nname, BT::ExprType ntype, int nnb, const Position& npos) :
+		name{nname}, type{ntype}, nb{nnb}, pos{npos}
 	{
 	}
 
@@ -29,6 +29,10 @@ namespace frumul {
 		/* true if symbol has been defined at least once
 		 */
 		return is_defined;
+	}
+
+	const Position& VarSymbol::getPosition() const {
+		return pos;
 	}
 
 	void VarSymbol::markDefined() {
@@ -87,16 +91,23 @@ namespace frumul {
 		return getVarSymbol(name).isDefined();
 	}
 
+	const Position& SymbolTab::getPosition(const bst::str& name) const {
+		/* return position of required value
+		 */
+		return getVarSymbol(name).getPosition();
+	}
+
 	void SymbolTab::append(const VarSymbol& nsymbol) {
 		/* Append a new symbol
 		 */
 		content.push_back(nsymbol);
 	}
 
-	void SymbolTab::append(const bst::str& name, BT::ExprType type, int nb) {
+	void SymbolTab::append(const bst::str& name, BT::ExprType type, const Position& pos) {
 		/* Create a new symbol and install it
 		 */
-		content.emplace_back(name,type,nb);
+		int nb {static_cast<int>(content.size())}; // new element has the same index as the size of the vector before inserting it
+		content.emplace_back(name,type,nb,pos);
 	}
 
 	void SymbolTab::markDefined(const bst::str& name) {
