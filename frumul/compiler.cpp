@@ -60,7 +60,9 @@ namespace frumul {
 							visit_variable_declaration(n);
 							return return_type;
 							break;
+			case Node::VARIABLE_NAME:	return visit_variable_name(n);
 			default:
+				printl(n.typeToString(n.type()));
 				assert(false&&"Node not recognized");
 		};
 		return BT::VOID; // because clang complains
@@ -208,6 +210,7 @@ namespace frumul {
 		 * and (optionnaly) set it
 		 */
 		const bst::str& name{n.get("name").getValue()};
+		printl(n);
 		bst::str type{n.get("type").getValue()};
 		// check: already defined ?
 		if (symbol_table->contains(name))
@@ -240,5 +243,18 @@ namespace frumul {
 			symbol_table->markDefined(name);
 
 		}
+	}
+
+	BT::ExprType __compiler::visit_variable_name(const Node& n) {
+		/* compile a call to a variable
+		 */
+#pragma message "List not yet set"
+		const bst::str& name {n.getValue()};
+		if (!symbol_table->contains(name))
+			throw exc(exc::NameError,"Name not defined",n.getPosition());
+		if (!symbol_table->isDefined(name))
+			throw exc(exc::ValueError,"Variable contains no value",n.getPosition());
+		appendInstructions(BT::PUSH,BT::VARIABLE,symbol_table->getIndex(name));
+		return symbol_table->getType(name);
 	}
 }

@@ -324,7 +324,7 @@ namespace frumul {
 		if (current_token->getType() == Token::COMMA) {
 			// we need to get the type
 			eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
-			assign_node.addChild("value",Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue()));
+			assign_node.addChild("type",Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue()));
 			eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat type
 
 			int start{assign_node.getPosition().getStart()};
