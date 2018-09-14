@@ -2,7 +2,7 @@
 
 #define ASSERT_NO_NAME \
 		assert(false&&"No symbol matching with name"); \
-		// this line will never be used, but... -Wreturn-type... \
+		/* this line will never be used, but... -Wreturn-type... */\
 		return content[0]
 
 

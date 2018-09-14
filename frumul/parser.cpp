@@ -498,7 +498,7 @@ namespace frumul {
 		 * Recursive function.
 		 */
 		// manages unary op: -,+,!
-		if (intokl(current_token->getType(),{Token::MINUS,Token::MUL,Token::NOT})) {
+		if (intokl(current_token->getType(),{Token::MINUS,Token::PLUS,Token::NOT})) {
 			Node unop{Node::UNARY_OP,current_token->getPosition(),{{"expr",factor()}},current_token->getValue()};
 
 			eat(current_token->getType(),Token::MAX_TYPES_VALUES);

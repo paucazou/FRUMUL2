@@ -79,6 +79,7 @@ namespace frumul {
 				case BT::INT_DIV:	BINARY_OP_INT(/); break;
 				case BT::INT_SUB:	BINARY_OP_INT(-); break;
 				case BT::INT_NEG:	UNARY_OP(-,int); break;
+				case BT::INT_POS:	UNARY_OP(+,int); break;
 				case BT::TEXT_ADD:	BINARY_OP_SAME_TYPE(+,bst::str);break;
 				case BT::TEXT_MUL:	BINARY_OP(*,bst::str,int);break;
 				case BT::BOOL_AND:	BINARY_OP_BOOL(&&);break;

@@ -7,9 +7,11 @@
 
 #include <experimental/any>
 #include <initializer_list>
+#include <memory>
 #include "bytecode.h"
 #include "node.h"
 #include "symbol.h"
+#include "symboltab.h"
 #include "value.h"
 //#include "header.h"
 
@@ -18,7 +20,9 @@ namespace E = std::experimental;
 namespace frumul {
 
 	class OneValue;
+	class SymbolTab;
 	class Value;
+	class VarSymbol;
 
 	class __compiler {
 		/* Class that compiles effectively
@@ -33,6 +37,7 @@ namespace frumul {
 			ByteCode bytecode;
 			std::vector<E::any>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
+			std::unique_ptr<SymbolTab> symbol_table;
 
 			// functions
 			template <typename ...T>
