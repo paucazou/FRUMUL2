@@ -1,5 +1,5 @@
 ___header___
-s : mark «1» lang «every» «{an_int : 5, int}2 + 3 = {an_int}»
+s : mark «1» lang «every» «{an_int : 5, int}2 + 3 = {an_int}. 2-1 = {2-1}»
 ___text___
 s
 

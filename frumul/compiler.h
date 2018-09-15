@@ -46,7 +46,7 @@ namespace frumul {
 				}
 			template <typename ...T>
 				void insertInstructions(int i, T... instructions) {
-					insertInstructions({static_cast<byte>(instructions)});
+					insertInstructions(i,{static_cast<byte>(instructions)...});
 				}
 			void appendInstructions(std::initializer_list<byte> instructions);
 			void insertInstructions(int i, std::initializer_list<byte> instructions);

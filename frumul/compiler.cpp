@@ -35,6 +35,9 @@ namespace frumul {
 				symbol_table->append("",return_type,node.getPosition()); //an empty name is the only one that can't be set by the user
 			visit(node);
 			bytecode.addVariable(symbol_table->variableNumber());
+			printl("Bytecode:");
+			for (const auto& elt : bytecode.getCode())
+				printl(static_cast<int>(elt));
 		}
 		return bytecode;
 	}
@@ -49,6 +52,8 @@ namespace frumul {
 	void __compiler::insertInstructions(int i, std::initializer_list<byte> instructions) {
 		/* insert instructions after i position
 		 * of bytecode 
+		 * if i is the last element, it can be found with the size of the vector only:
+		 * int last_index {code.size()}; // last element of code index
 		 */
 		std::vector<byte>::iterator begin{bytecode.getBegin()};
 		code.insert(begin+i,instructions);
@@ -81,27 +86,32 @@ namespace frumul {
 		 */
 		constexpr int r_index{0}; // return index
 		for (const auto& child : n.getNumberedChildren()) {
-// TODO case of void type...
-			if (return_type == BT::TEXT)
-				// prepare the stack
-				appendInstructions(BT::PUSH,BT::VARIABLE,r_index);
 
+			//int last_index {static_cast<int>(code.size())}; // last element of code index
 			BT::ExprType rt{visit(child)};
 
-			// cast if necessary
-			if (rt != return_type) {
-				if (return_type != BT::TEXT)
-					throwInconsistentType(return_type,rt,n,child);
-				else
-					// cast
+			if (return_type == BT::TEXT) {
+				if (rt == BT::VOID)
+					continue;
+				// prepare the stack to append to return value
+				//insertInstructions(last_index,BT::PUSH,BT::VARIABLE,r_index);
+
+				// cast
+				if (rt != return_type)
 					appendInstructions(BT::CAST,rt,return_type);
-			}
-			// set returned value or append it
-			if (return_type != BT::TEXT)
-				appendInstructions(BT::ASSIGN,r_index,BT::RETURN); // assign last elt of stack to return value and return
-			else
-				appendInstructions(BT::TEXT_ADD, // add returned to return value
+
+				appendInstructions(
+						BT::PUSH,BT::VARIABLE,r_index, // push returned value on the stack
+						BT::TEXT_ADD, // add returned to return value
 						BT::ASSIGN,r_index); // assign back to returned value
+			} else {
+
+			if (rt != return_type)
+				throwInconsistentType(return_type,rt,n,child);
+
+			// set returned value
+			appendInstructions(BT::ASSIGN,r_index,BT::RETURN); // assign last elt of stack to return value and return
+			}
 
 		}
 		code.push_back(BT::RETURN);

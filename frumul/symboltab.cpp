@@ -44,7 +44,6 @@ namespace frumul {
 	//SymbolTab
 	
 	SymbolTab::SymbolTab() {
-		printl("called");
 	}
 
 	VarSymbol& SymbolTab::getVarSymbol(const bst::str& name) {
