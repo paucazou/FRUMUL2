@@ -97,7 +97,9 @@ namespace frumul {
 				//insertInstructions(last_index,BT::PUSH,BT::VARIABLE,r_index);
 
 				// cast
-				if (rt != return_type)
+				if (rt == BT::SYMBOL) // cast impossible
+					throwInconsistentType(return_type,rt,n,child);
+				else if (rt != return_type)
 					appendInstructions(BT::CAST,rt,return_type);
 
 				appendInstructions(
@@ -230,6 +232,28 @@ namespace frumul {
 		constants.push_back(n.getValue());
 		appendInstructions(BT::PUSH,BT::CONSTANT,constants.size()-1);
 		return BT::TEXT;
+	}
+
+	BT::ExprType __compiler::visit_variable_assignment(const Node& n) {
+		/* Assign a value to a variable
+		 */
+		const bst::str& name {n.get("name").getValue()};
+		if (!symbol_table->contains(name))
+			throw exc(exc::NameError,"Name not defined",n.get("name").getPosition());
+
+		BT::ExprType rt{visit(n.get("value"))};
+		const BT::ExprType s_type {symbol_table->getType(name)};
+		if (rt != s_type) {
+			// cast if possible
+			if (rt == BT::SYMBOL ||
+				(s_type == BT::SYMBOL && rt != BT::TEXT)
+			   )
+				throwInconsistentType(rt,s_type,n.get("value"),n.get("name"));
+			else
+				appendInstructions(BT::CAST,rt,s_type);
+		}
+		appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
+		return BT::VOID;
 	}
 
 	BT::ExprType __compiler::visit_variable_declaration(const Node& n) {

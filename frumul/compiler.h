@@ -59,6 +59,7 @@ namespace frumul {
 			BT::ExprType visit_comparison(const Node& n);
 			BT::ExprType visit_litint(const Node& n);
 			BT::ExprType visit_val_text(const Node& n);
+			BT::ExprType visit_variable_assignment(const Node& n);
 			BT::ExprType visit_variable_declaration(const Node& n);
 			BT::ExprType visit_variable_name(const Node& n);
 
@@ -77,10 +78,7 @@ namespace frumul {
 			assert(v.getValue().type() == Node::BASIC_VALUE&&"Node should be a basic value");
 		}
 	};
-#pragma message "verify type"
 #pragma message "verify type cast if constant"
 #pragma message "verify call to functions that exist"
-#pragma message "verify that variables have been declared"
-#pragma message "verify that variables have been assigned before used"
 }
 #endif

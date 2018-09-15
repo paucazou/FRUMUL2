@@ -373,7 +373,7 @@ namespace frumul {
 		// get assign
 		eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
 		// get value
-		fields.insert({"value",expr()});
+		fields.insert({"value",comparison()});
 
 		int end{fields.at("value").getPosition().getEnd()};
 		return Node{Node::VARIABLE_ASSIGNMENT,Position(start,end,filepath,source),fields};
