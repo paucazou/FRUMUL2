@@ -524,8 +524,8 @@ namespace frumul {
 			case Token::LPAREN:
 				{
 				eat(Token::LPAREN,Token::MAX_TYPES_VALUES);
-				Node expression {expr()};
-				eat(Token::RPAREN,Token::MAX_TYPES_LANG_VALUES);
+				Node expression {comparison()};
+				eat(Token::RPAREN,Token::MAX_TYPES_VALUES);
 				return expression;
 				}
 			default: // -Wswitch again
