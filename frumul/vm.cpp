@@ -8,8 +8,6 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 		do { \
 			auto a {pop<T>()};\
 			auto b {pop<U>()};\
-			printl("a = " << a);\
-			printl("b = " << b);\
 			stack.push(a op b);\
 		} while(false) // to allow the semi colon
 

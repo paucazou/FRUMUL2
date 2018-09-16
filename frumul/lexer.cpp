@@ -421,7 +421,7 @@ namespace frumul {
 		 */
 
 
-		// Right quote, end of the value
+		// Right quote, end of the value or of a litteral text
 		if (current_char == "»") {
 			advanceBy();
 			return Token(Token::RAQUOTE,"»",Position(pos-1,pos-1,filepath,source));
@@ -456,7 +456,8 @@ namespace frumul {
 				val += current_char;
 				advanceBy();
 			}
-		return Token {Token::VAL_TEXT,val,Position(start,pos-1,filepath,source)};
+		// type is the first one expected, either VAL_TEXT or LITTEXT
+		return Token {*expected.begin(),val,Position(start,pos-1,filepath,source)};
 		}
 
 		skipNoToken(); // whitespaces and comments must be deleted inside programmatic parts
@@ -563,6 +564,10 @@ namespace frumul {
 		else if (current_char == "!") {
 			val = "!";
 			t = Token::NOT;
+		}
+		else if (current_char == "«") {
+			val = "«";
+			t = Token::LAQUOTE;
 		}
 		else
 			throw createUnexpectedToken(expected);

@@ -155,6 +155,7 @@ namespace frumul {
 			printl(static_cast<int>(byte));
 		printl("Bytecode - end");
 		VM vm{*bt,lang};
+// TODO vm seems to be called twice. why ?
 		return vm.run();
 	}
 

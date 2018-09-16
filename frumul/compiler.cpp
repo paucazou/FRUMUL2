@@ -77,6 +77,7 @@ namespace frumul {
 			case Node::COMPARISON:		return visit_comparison(n);
 			case Node::LITBOOL:		return visit_litbool(n);
 			case Node::LITINT:		return visit_litint(n);
+			case Node::LITTEXT:		return visit_littext(n);
 			case Node::UNARY_OP:		return visit_unary_op(n);
 			case Node::VAL_TEXT:		return visit_val_text(n);
 			case Node::VARIABLE_ASSIGNMENT:	return visit_variable_assignment(n);
@@ -234,6 +235,14 @@ namespace frumul {
 		constants.push_back(static_cast<int>(n.getValue()));
 		appendInstructions(BT::PUSH,BT::CONSTANT,constants.size()-1);
 		return BT::INT;
+	}
+
+	BT::ExprType __compiler::visit_littext(const Node& n) {
+		/* Compile a litteral text
+		 */
+		constants.push_back(n.getValue());
+		appendPushLastConstant();
+		return BT::TEXT;
 	}
 
 	void __compiler::throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Position& n1, const Position& n2) {

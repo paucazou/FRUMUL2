@@ -61,6 +61,7 @@ namespace frumul {
 			BT::ExprType visit_comparison(const Node& n);
 			BT::ExprType visit_litbool(const Node& n);
 			BT::ExprType visit_litint(const Node& n);
+			BT::ExprType visit_littext(const Node& n);
 			BT::ExprType visit_unary_op(const Node& n);
 			BT::ExprType visit_val_text(const Node& n);
 			BT::ExprType visit_variable_assignment(const Node& n);
