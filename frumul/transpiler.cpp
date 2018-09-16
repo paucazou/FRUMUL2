@@ -9,7 +9,7 @@ namespace frumul {
 	const bst::str& Transpiler::getOutput() {
 		/* Transpiles if necessary and return the output
 		 */
-		if (output)
+		if (!output)
 			// transpile
 			parser->parse();
 		return output;

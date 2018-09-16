@@ -53,6 +53,7 @@ namespace frumul {
 				INT_DIV,
 				INT_SUB,
 				INT_NEG,
+				INT_MOD,
 				INT_POS,
 				INT_MUL,
 				// // bools

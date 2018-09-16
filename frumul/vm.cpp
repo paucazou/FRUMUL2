@@ -8,6 +8,8 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 		do { \
 			auto a {pop<T>()};\
 			auto b {pop<U>()};\
+			printl("a = " << a);\
+			printl("b = " << b);\
 			stack.push(a op b);\
 		} while(false) // to allow the semi colon
 
@@ -78,6 +80,7 @@ namespace frumul {
 				case BT::INT_MUL:	BINARY_OP_INT(*); break;
 				case BT::INT_DIV:	BINARY_OP_INT(/); break;
 				case BT::INT_SUB:	BINARY_OP_INT(-); break;
+				case BT::INT_MOD:	BINARY_OP_INT(%); break;
 				case BT::INT_NEG:	UNARY_OP(-,int); break;
 				case BT::INT_POS:	UNARY_OP(+,int); break;
 				case BT::TEXT_ADD:	BINARY_OP_SAME_TYPE(+,bst::str);break;

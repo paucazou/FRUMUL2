@@ -33,7 +33,7 @@ namespace frumul {
 		private:
 			// attributes
 			const Node& node;
-			BT::ExprType return_type;
+			BT::ExprType return_type{BT::TEXT};
 			ByteCode bytecode;
 			std::vector<E::any>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
@@ -51,13 +51,17 @@ namespace frumul {
 			void appendInstructions(std::initializer_list<byte> instructions);
 			void insertInstructions(int i, std::initializer_list<byte> instructions);
 
+			void appendPushLastConstant();
+
 			void setReturnValue();
 			BT::ExprType visit(const Node& n);
 			BT::ExprType visit_basic_value(const Node& n);
 			BT::ExprType visit_bin_op(const Node& n);
 			void visit_compare_op(const Node& n);
 			BT::ExprType visit_comparison(const Node& n);
+			BT::ExprType visit_litbool(const Node& n);
 			BT::ExprType visit_litint(const Node& n);
+			BT::ExprType visit_unary_op(const Node& n);
 			BT::ExprType visit_val_text(const Node& n);
 			BT::ExprType visit_variable_assignment(const Node& n);
 			BT::ExprType visit_variable_declaration(const Node& n);

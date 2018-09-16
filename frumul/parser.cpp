@@ -486,8 +486,8 @@ namespace frumul {
 		Node binop {Node::BIN_OP,current_token->getPosition(),StrNodeMap(),val};
 		eat(current_token->getType(),Token::MAX_TYPES_VALUES);
 
-		binop.addChild("right",factor1);
-		binop.addChild("left",term());
+		binop.addChild("left",factor1);
+		binop.addChild("right",term());
 
 		return binop;
 	}
@@ -499,9 +499,13 @@ namespace frumul {
 		 */
 		// manages unary op: -,+,!
 		if (intokl(current_token->getType(),{Token::MINUS,Token::PLUS,Token::NOT})) {
-			Node unop{Node::UNARY_OP,current_token->getPosition(),{{"expr",factor()}},current_token->getValue()};
 
+			Position cur_pos{current_token->getPosition()};
+			bst::str cur_val{current_token->getValue()};
 			eat(current_token->getType(),Token::MAX_TYPES_VALUES);
+
+			Node unop{Node::UNARY_OP,cur_pos,{{"expr",factor()}},cur_val};
+
 			return unop;
 		}
 

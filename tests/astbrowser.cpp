@@ -28,10 +28,11 @@ int main(int argc, char* argv[])
 		frumul::Transpiler transpiler{source,filepath,"every"};
 		frumul::Parser& parser{transpiler.getParser()};
 		// browse ast
-		ftest::astBrowser(parser.parse());
+		//ftest::astBrowser(parser.parse());
 		// browse symbols
-		ftest::symbolBrowser (parser.getHeaderSymbol());
+		//ftest::symbolBrowser (parser.getHeaderSymbol());
 		// print result
+		printl("Output:\n=======");
 		std::cout << transpiler.getOutput();
 
 	}

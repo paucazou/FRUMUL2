@@ -59,7 +59,12 @@ namespace frumul {
 		code.insert(begin+i,instructions);
 	}
 
-
+	void __compiler::appendPushLastConstant() {
+		/* Append instructions to push constant on stack
+		 * This utility should be called just after added a new constant
+		 */
+		appendInstructions(BT::PUSH,BT::CONSTANT,constants.size()-1);
+	}
 
 	BT::ExprType __compiler::visit(const Node& n) {
 		/* Dispatch the node following
@@ -70,8 +75,11 @@ namespace frumul {
 			case Node::BASIC_VALUE:		return visit_basic_value(n);
 			case Node::BIN_OP:		return visit_bin_op(n);
 			case Node::COMPARISON:		return visit_comparison(n);
+			case Node::LITBOOL:		return visit_litbool(n);
 			case Node::LITINT:		return visit_litint(n);
+			case Node::UNARY_OP:		return visit_unary_op(n);
 			case Node::VAL_TEXT:		return visit_val_text(n);
+			case Node::VARIABLE_ASSIGNMENT:	return visit_variable_assignment(n);
 			case Node::VARIABLE_DECLARATION:return visit_variable_declaration(n);
 			case Node::VARIABLE_NAME:	return visit_variable_name(n);
 			default:
@@ -84,6 +92,10 @@ namespace frumul {
 	BT::ExprType __compiler::visit_basic_value(const Node& n) {
 		/* Visit basic value
 		 */
+		printl("Visit basic");
+		//printl(node);
+		printl(return_type);
+		printl("Visit basic");
 		constexpr int r_index{0}; // return index
 		for (const auto& child : n.getNumberedChildren()) {
 
@@ -124,15 +136,15 @@ namespace frumul {
 		/* Compile an expression x op x
 		 * and return the type
 		 */
-		BT::ExprType left{visit(n.get("right"))};
-		switch (left) {
+		BT::ExprType right{visit(n.get("right"))};
+		switch (right) {
 			case BT::INT:
 				{
 					BT::ExprType t2{visit(n.get("left"))};
 					if (t2 != BT::INT)
 						throwInconsistentType(BT::INT,t2,n.get("left"),n.get("right"));
 
-					static std::map<bst::str,BT::Instruction> types{ {"+",BT::INT_ADD},{"-",BT::INT_SUB}, {"*",BT::INT_MUL},{"/",BT::INT_DIV}};
+					static std::map<bst::str,BT::Instruction> types{ {"+",BT::INT_ADD},{"-",BT::INT_SUB}, {"*",BT::INT_MUL},{"/",BT::INT_DIV},{"%",BT::INT_MOD}};
 					code.push_back(types[n.getValue()]);
 					return BT::INT;
 				}
@@ -154,7 +166,7 @@ namespace frumul {
 					return BT::TEXT;
 				}
 			default:
-				throw exc(exc::TypeError,n.getValue() + " can not be used with type " + BT::typeToString(left),n.getPosition());
+				throw exc(exc::TypeError,n.getValue() + " can not be used with type " + BT::typeToString(right),n.getPosition());
 
 		};
 		return BT::VOID;
@@ -204,6 +216,18 @@ namespace frumul {
 		return BT::BOOL;
 	}
 
+	BT::ExprType __compiler::visit_litbool(const Node& n) {
+		/* Return true or false
+		 */
+		static const std::map<bst::str,bool> bools{
+			{"false",false},
+			{"true",true}};
+		constants.push_back(bools.at(n.getValue()));
+		appendPushLastConstant();
+		return BT::BOOL;
+	}
+			
+
 	BT::ExprType __compiler::visit_litint(const Node& n) {
 		/* Compile a litteral integer
 		 */
@@ -224,6 +248,26 @@ namespace frumul {
 		/* overloaded function
 		 */
 		throwInconsistentType(t1,t2,n1.getPosition(),n2.getPosition());
+	}
+
+	BT::ExprType __compiler::visit_unary_op(const Node& n) {
+		/* Compile a unary expression: -,+,!
+		 */
+		BT::ExprType rt{visit(n.get("expr"))};
+		static const std::map<bst::str,BT::Instruction> instructions {
+			{"+",BT::INT_POS},
+			{"-",BT::INT_NEG},
+			{"!",BT::BOOL_NOT},
+		};
+		BT::Instruction ins{instructions.at(n.getValue())};
+		// check compatibility
+		if ((ins == BT::INT_POS || ins == BT::INT_NEG) && rt != BT::INT)
+			throw exc(exc::InconsistantType,"Unary operator +/- must be used with integers only",n.getPosition());
+		else if (ins == BT::BOOL_NOT && rt != BT::BOOL)
+			throw exc(exc::InconsistantType,"Unary operator ! must be used with booleans only",n.getPosition());
+
+		code.push_back(ins);
+		return rt;
 	}
 
 	BT::ExprType __compiler::visit_val_text(const Node& n) {
@@ -253,6 +297,7 @@ namespace frumul {
 				appendInstructions(BT::CAST,rt,s_type);
 		}
 		appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
+		symbol_table->markDefined(name);
 		return BT::VOID;
 	}
 
@@ -261,7 +306,6 @@ namespace frumul {
 		 * and (optionnaly) set it
 		 */
 		const bst::str& name{n.get("name").getValue()};
-		printl(n);
 		bst::str type{n.get("type").getValue()};
 		// check: already defined ?
 		if (symbol_table->contains(name))

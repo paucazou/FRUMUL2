@@ -150,8 +150,10 @@ namespace frumul {
 			bt = _bt;
 			is_byte_code_compiled = true;
 		}
+		printl("Bytecode:");
 		for (const auto& byte : bt->getCode())
 			printl(static_cast<int>(byte));
+		printl("Bytecode - end");
 		VM vm{*bt,lang};
 		return vm.run();
 	}
@@ -183,8 +185,9 @@ namespace frumul {
 	}
 
 	Value::Value(const Value& other) :
-		values{other.values}, parent{other.parent}
+		values{other.values}, parent{other.parent} //parent points to garbage
 	{
+#pragma message "Parent points to garbage"
 	}
 
 	E::any Value::execute(const bst::str& lang) {

@@ -1,4 +1,5 @@
 #include "bytecode.h"
+#include "macros.h"
 
 namespace frumul {
 
@@ -66,6 +67,7 @@ namespace frumul {
 			case SYMBOL:	return "SYMBOL";
 			case VOID:	return "VOID";
 			default:
+					printl(e);
 					assert(false&&"Type unknown");
 		};
 		return "nothing"; // to silent clang
