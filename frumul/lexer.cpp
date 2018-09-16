@@ -498,11 +498,11 @@ namespace frumul {
 		}
 		else if (current_char == ")") {
 			val = ")";
-			t = Token::LPAREN;
+			t = Token::RPAREN;
 		}
 		else if (current_char == "(") {
 			val = "(";
-			t = Token::RPAREN;
+			t = Token::LPAREN;
 		}
 		else if (current_char == ",") {
 			val = ",";
