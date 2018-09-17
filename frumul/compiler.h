@@ -55,7 +55,7 @@ namespace frumul {
 
 			void setReturnValue();
 			BT::ExprType visit(const Node& n);
-			BT::ExprType visit_basic_value(const Node& n);
+			BT::ExprType visit_basic_value(const Node& n,bool add_return=true);
 			BT::ExprType visit_bin_op(const Node& n);
 			void visit_compare_op(const Node& n);
 			BT::ExprType visit_comparison(const Node& n);

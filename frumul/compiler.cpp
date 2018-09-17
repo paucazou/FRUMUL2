@@ -91,13 +91,12 @@ namespace frumul {
 		return BT::VOID; // because clang complains
 	}
 
-	BT::ExprType __compiler::visit_basic_value(const Node& n) {
+	BT::ExprType __compiler::visit_basic_value(const Node& n,bool add_return) {
 		/* Visit basic value
+		 * if add_return is true, the function add return at the end
+		 * of the call (only for text returning values: that does not affect
+		 * the other types of values, which MUST add RETURN)
 		 */
-		printl("Visit basic");
-		//printl(node);
-		printl(return_type);
-		printl("Visit basic");
 		constexpr int r_index{0}; // return index
 		for (const auto& child : n.getNumberedChildren()) {
 
@@ -130,7 +129,8 @@ namespace frumul {
 			}
 
 		}
-		code.push_back(BT::RETURN);
+		if (add_return)
+			code.push_back(BT::RETURN);
 		return return_type;
 	}
 
