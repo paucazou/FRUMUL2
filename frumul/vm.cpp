@@ -93,7 +93,7 @@ namespace frumul {
 				case BT::BOOL_SUPERIOR:	COMPARE(>);break;
 				case BT::BOOL_INF_EQUAL:COMPARE(<=);break;
 				case BT::BOOL_SUP_EQUAL:COMPARE(>=);break;
-				case BT::TEXT_GET_CHAR:	
+				case BT::TEXT_GET_CHAR:	text_get_char();break;
 				case BT::LIST_APPEND:	list_append();break;
 				case BT::LIST_GET_ELT: 	list_get_elt();break;
 				case BT::JUMP_TRUE: 	jump_true();break;
