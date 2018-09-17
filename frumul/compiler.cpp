@@ -74,6 +74,7 @@ namespace frumul {
 		switch(n.type()) {
 			case Node::BASIC_VALUE:		return visit_basic_value(n);
 			case Node::BIN_OP:		return visit_bin_op(n);
+			case Node::CONDITION:		return visit_condition(n);
 			case Node::COMPARISON:		return visit_comparison(n);
 			case Node::LITBOOL:		return visit_litbool(n);
 			case Node::LITINT:		return visit_litint(n);
@@ -215,6 +216,52 @@ namespace frumul {
 
 		}
 		return BT::BOOL;
+	}
+
+	BT::ExprType __compiler::visit_condition(const Node& n) {
+		/* Compile a conditional statement
+		 * No insertInstructions should be used with that
+		 * function
+		 * Maybe the jump instructions should be set after the whole code
+		 * has been created
+		 */
+#pragma message "else not set"
+		BT::ExprType rt_compar{visit(n.get("comparison"))};
+		if (rt_compar != BT::BOOL)
+			throw exc(exc::TypeError,"If statement must be followed by an expression returning a bool",n.get("comparison").getPosition());
+
+		appendInstructions(BT::JUMP_FALSE,0,0); // the two zeros will be filled with the adress to go
+		// we now keep the size of the code, first to find how many instructions
+		// will be jumped if code is false,
+		// second to replace the 0 by the 'adress'
+		// we don't -1, because it's easier (see above)
+		auto ad_index{code.size()};
+		// compile the body of the statement
+		visit_basic_value(n.get("text"),false);
+		// get the size of the code for the second time.
+		auto last_instruction_index{code.size()};
+		// this is the number of instructions to jump.
+		// the VM will land on the last instruction of the body
+		// of the statement, but this instruction will be skip
+		// by the main loop
+		// it's important that the variable is not unsigned,
+		// since the VM will cast it to a signed one
+		int_fast16_t steps{
+			static_cast<int_fast16_t>(last_instruction_index - ad_index)
+		};
+
+		assert(static_cast<unsigned long>(steps) == last_instruction_index - ad_index && "short is too short (funny, no?)");
+
+		// split the steps in two bytes
+		byte i { static_cast<byte>(steps) }; 		// least important bits
+		byte j { static_cast<byte>(steps >> 8) }; 	// most important bits
+
+		// set the bytes in code
+		code[ad_index-2] = j;
+		code[ad_index-1] = i;
+
+
+		return BT::VOID;
 	}
 
 	BT::ExprType __compiler::visit_litbool(const Node& n) {

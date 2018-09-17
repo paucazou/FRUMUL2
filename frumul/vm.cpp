@@ -152,11 +152,11 @@ namespace frumul {
 		 * 	ADDRESS_1
 		 * 	ADDRESS_2
 		 */
-		// NOTE: the number of elements distant from the jump in the code is limited to sizeof(short)*256
+		// NOTE: the number of elements distant from the jump in the code is limited to sizeof(short)*256/2
 		// Two bytes are required to make an adress: the first byte represents the end and the second the start. Although each byte is an unsigned one, the short that they form may be negative or positive since they must be created by the split of a short.
 
 		ASSERT_ADDRESS_SIZE;
-		uint_fast16_t address{*++it};
+		int_fast16_t address{*++it};
 		address = address << 8; // push the first byte to its place: the greater importance
 		address += *++it; // set the 8 first bits with the second byte
 		// set the iterator. It should be on an instruction
