@@ -246,7 +246,6 @@ namespace frumul {
 		 * Maybe the jump instructions should be set after the whole code
 		 * has been created
 		 */
-#pragma message "else not set"
 		BT::ExprType rt_compar{visit(n.get("comparison"))};
 		if (rt_compar != BT::BOOL)
 			throw exc(exc::TypeError,"If statement must be followed by an expression returning a bool",n.get("comparison").getPosition());
@@ -255,13 +254,18 @@ namespace frumul {
 		// we now keep the size of the code, first to find how many instructions
 		// will be jumped if code is false,
 		// second to replace the 0 by the 'adress'
-		// we don't -1, because it's easier (see above)
+		// we don't -1, because it's easier (see beyond)
 		auto ad_index{code.size()};
 		// compile the body of the statement
 		visit_basic_value(n.get("text"),false);
 		// else part
 		if (n.getNamedChildren().count("else_text") > 0) {
 			appendInstructions(BT::JUMP,0,0);
+			auto last_instruction_index{code.size()};
+			setJump(ad_index,last_instruction_index);
+			// we prepare the last jump
+			ad_index = last_instruction_index;
+			visit(n.get("else_text"));
 		}
 		// get the size of the code for the second/third time.
 		auto last_instruction_index{code.size()};
