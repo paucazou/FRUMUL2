@@ -100,6 +100,7 @@ namespace frumul {
 			case Node::LITBOOL:		return visit_litbool(n);
 			case Node::LITINT:		return visit_litint(n);
 			case Node::LITTEXT:		return visit_littext(n);
+			case Node::LOOP:		return visit_loop(n);
 			case Node::UNARY_OP:		return visit_unary_op(n);
 			case Node::VAL_TEXT:		return visit_val_text(n);
 			case Node::VARIABLE_ASSIGNMENT:	return visit_variable_assignment(n);
@@ -265,7 +266,7 @@ namespace frumul {
 			setJump(ad_index,last_instruction_index);
 			// we prepare the last jump
 			ad_index = last_instruction_index;
-			visit(n.get("else_text"));
+			visit_basic_value(n.get("else_text"),false);
 		}
 		// get the size of the code for the second/third time.
 		auto last_instruction_index{code.size()};
@@ -294,6 +295,36 @@ namespace frumul {
 		constants.push_back(static_cast<int>(n.getValue()));
 		appendInstructions(BT::PUSH,BT::CONSTANT,constants.size()-1);
 		return BT::INT;
+	}
+
+	BT::ExprType __compiler::visit_loop(const Node& n) {
+		/* Compile a loop
+		 */
+#pragma message "Loops not yet set: integer, text, list"
+		auto start_of_loop{code.size()};
+
+		// Which kind of expression follows 'loop' keyword ?
+		if (n.getNamedChildren().count("condition") > 0) {
+			switch (visit(n.get("condition"))) {
+				case BT::BOOL:
+					// nothing to do, since it's the basic case
+					break;
+				default:
+					throw exc(exc::TypeError,"This type can not be used to loop",n.get("condition").getPosition());
+			};
+		}
+		// add the first jump
+		appendInstructions(BT::JUMP_FALSE,0,0); // 0,0 will be filled later
+		auto condition_pos{code.size()};
+		// fill the body
+		visit_basic_value(n.get("inside_loop"),false);
+		// add the second jump
+		appendInstructions(BT::JUMP,0,0); // 0,0 will be filled later
+		auto second_jump_pos{code.size()};
+		// set the jumps target
+		setJump(condition_pos,second_jump_pos);
+		setJump(second_jump_pos,start_of_loop);
+		return BT::VOID;
 	}
 
 	BT::ExprType __compiler::visit_littext(const Node& n) {
