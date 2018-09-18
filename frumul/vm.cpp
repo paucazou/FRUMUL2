@@ -156,7 +156,12 @@ namespace frumul {
 		// Two bytes are required to make an adress: the first byte represents the end and the second the start. Although each byte is an unsigned one, the short that they form may be negative or positive since they must be created by the split of a short.
 
 		ASSERT_ADDRESS_SIZE;
-		int_fast16_t address{*++it};
+		int_least16_t address{*++it};
+		// NOTE: it is really important to use a type which is exactly two bytes sized,
+		// since the VM will often receive a signed integer splitted in two bytes
+		// With another type (say 'short' or 'int_fast16_t'), the conversion can
+		// fail (tests have proved that).
+
 		address = address << 8; // push the first byte to its place: the greater importance
 		address += *++it; // set the 8 first bits with the second byte
 		// set the iterator. It should be on an instruction
