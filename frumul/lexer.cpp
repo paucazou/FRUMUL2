@@ -3,7 +3,6 @@
 #include <locale>
 
 // TODO end of file is not well handled
-// TODO string litteral, parentheses inside values
 
 
 namespace frumul {
@@ -254,6 +253,7 @@ namespace frumul {
 
 	bst::str Lexer::escape () {
 		/* Manages all escape characters
+		 * BUG TODO new line is not handled actually
 		 */
 		// returned unmodified
 		static const cpUcs4 lquote {171}; // «
@@ -266,14 +266,17 @@ namespace frumul {
 		static const cpUcs4 newline {110}; // \n
 		static const cpUcs4 tab {116}; // \t
 		advanceBy();
-		switch (raw_current_char) {
+		auto raw_char_to_change{raw_current_char};
+		auto char_to_change{current_char};
+		advanceBy();
+		switch (raw_char_to_change) {
 			case lquote:
 			case rquote:
 			case lbrace:
 			case rbrace:
 			case slash:
 			case antislash:
-				return current_char;
+				return char_to_change;
 			case newline:
 				return "\n";
 			case tab:
@@ -453,8 +456,10 @@ namespace frumul {
 					throw BaseException(BaseException::SyntaxError,"Unfinished value.",
 							Position(start, pos-1,filepath,source));
 				}
+				else {
 				val += current_char;
 				advanceBy();
+				}
 			}
 		// type is the first one expected, either VAL_TEXT or LITTEXT
 		return Token {*expected.begin(),val,Position(start,pos-1,filepath,source)};
