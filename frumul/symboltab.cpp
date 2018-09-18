@@ -103,23 +103,35 @@ namespace frumul {
 		return content.size();
 	}
 
-	void SymbolTab::append(const VarSymbol& nsymbol) {
+	VarSymbol& SymbolTab::append(const VarSymbol& nsymbol) {
 		/* Append a new symbol
 		 */
 		content.push_back(nsymbol);
+		return content.back();
 	}
 
-	void SymbolTab::append(const bst::str& name, BT::ExprType type, const Position& pos) {
+	VarSymbol& SymbolTab::append(const bst::str& name, BT::ExprType type, const Position& pos) {
 		/* Create a new symbol and install it
 		 */
 		int nb {static_cast<int>(content.size())}; // new element has the same index as the size of the vector before inserting it
 		content.emplace_back(name,type,nb,pos);
+		return content.back();
 	}
 
 	void SymbolTab::markDefined(const bst::str& name) {
 		/* Mark defined requested name
 		 */
 		getVarSymbol(name).markDefined();
+	}
+
+	int SymbolTab::next() {
+		/* This function return an int
+		 * incremented by one
+		 * Useful for names set by the compiler
+		 * which user can not use
+		 */
+		static int i{0};
+		return ++i;
 	}
 
 

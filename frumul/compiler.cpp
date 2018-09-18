@@ -300,14 +300,33 @@ namespace frumul {
 	BT::ExprType __compiler::visit_loop(const Node& n) {
 		/* Compile a loop
 		 */
-#pragma message "Loops not yet set: integer, text, list"
+#pragma message "Loops not yet set: integer(with user defined variable), text, list"
 		auto start_of_loop{code.size()};
+		// useful with int
+		VarSymbol* v_s{nullptr};
+		bool has_hidden_variable{false};
 
 		// Which kind of expression follows 'loop' keyword ?
 		if (n.getNamedChildren().count("condition") > 0) {
 			switch (visit(n.get("condition"))) {
 				case BT::BOOL:
 					// nothing to do, since it's the basic case
+					break;
+				case BT::INT:
+					has_hidden_variable = true;
+					// append a zero constant (if necessary TODO)
+					constants.push_back(0);
+					// create a hidden variable
+					 v_s = &symbol_table->append(SymbolTab::next(),BT::INT,n.get("condition").getPosition());
+					 appendInstructions(BT::ASSIGN,v_s->getIndex());
+					 v_s->markDefined();
+					 // change the start of loop
+					 start_of_loop = code.size();
+					 // set the condition
+					 appendPushLastConstant();
+					 appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(), // push custom variable on the stack
+							 BT::BOOL_SUPERIOR,BT::INT);
+
 					break;
 				default:
 					throw exc(exc::TypeError,"This type can not be used to loop",n.get("condition").getPosition());
@@ -318,6 +337,14 @@ namespace frumul {
 		auto condition_pos{code.size()};
 		// fill the body
 		visit_basic_value(n.get("inside_loop"),false);
+		// manage hidden variable
+		if (has_hidden_variable) {
+			constants.push_back(1);
+			appendPushLastConstant();
+			appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(),
+					BT::INT_SUB,
+					BT::ASSIGN,v_s->getIndex());
+		}
 		// add the second jump
 		appendInstructions(BT::JUMP,0,0); // 0,0 will be filled later
 		auto second_jump_pos{code.size()};

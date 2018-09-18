@@ -315,7 +315,7 @@ namespace frumul {
 
 		// an expression starting by a variable
 		if (nextToken.getType() != Token::ASSIGN)
-			return expr();
+			return comparison();
 
 		// we can assume there is an assignment here
 		Node assign_node {variable_assignment()};

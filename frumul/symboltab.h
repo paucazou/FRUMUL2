@@ -48,9 +48,10 @@ namespace frumul {
 			const Position& getPosition(const bst::str& name) const;
 			int variableNumber() const;
 			// setters
-			void append(const VarSymbol& nsymbol);
-			void append(const bst::str& name, BT::ExprType type, const Position& pos);
+			VarSymbol& append(const VarSymbol& nsymbol);
+			VarSymbol& append(const bst::str& name, BT::ExprType type, const Position& pos);
 			void markDefined(const bst::str& name);
+			static int next();
 
 		private:
 			std::vector<VarSymbol> content;
