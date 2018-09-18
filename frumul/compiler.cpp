@@ -66,6 +66,27 @@ namespace frumul {
 		appendInstructions(BT::PUSH,BT::CONSTANT,constants.size()-1);
 	}
 
+	void __compiler::setJump(unsigned long source, unsigned long target) {
+		/* Set the jump at source position
+		 * to point to target
+		 */
+		// this is the number of instructions to jump.
+		// the VM will land on the last instruction of the body
+		// of the statement, but this instruction will be skip
+		// by the main loop
+		// it's important that the variable is not unsigned,
+		// since the VM will cast it to a signed one
+		int_fast16_t steps{
+			static_cast<int_fast16_t>(target - source)
+		};
+		assert(static_cast<unsigned long>(steps) == target - source && "short is too short (funny, no?)");
+		
+		auto pair {splitShort(steps)};
+		// set the steps just after the jump instruction
+		code[source-2] = pair.first;
+		code[source-1] = pair.second;
+	}
+
 	BT::ExprType __compiler::visit(const Node& n) {
 		/* Dispatch the node following
 		 * its type
@@ -238,27 +259,14 @@ namespace frumul {
 		auto ad_index{code.size()};
 		// compile the body of the statement
 		visit_basic_value(n.get("text"),false);
-		// get the size of the code for the second time.
+		// else part
+		if (n.getNamedChildren().count("else_text") > 0) {
+			appendInstructions(BT::JUMP,0,0);
+		}
+		// get the size of the code for the second/third time.
 		auto last_instruction_index{code.size()};
-		// this is the number of instructions to jump.
-		// the VM will land on the last instruction of the body
-		// of the statement, but this instruction will be skip
-		// by the main loop
-		// it's important that the variable is not unsigned,
-		// since the VM will cast it to a signed one
-		int_fast16_t steps{
-			static_cast<int_fast16_t>(last_instruction_index - ad_index)
-		};
-
-		assert(static_cast<unsigned long>(steps) == last_instruction_index - ad_index && "short is too short (funny, no?)");
-
-		// split the steps in two bytes
-		byte i { static_cast<byte>(steps) }; 		// least important bits
-		byte j { static_cast<byte>(steps >> 8) }; 	// most important bits
-
-		// set the bytes in code
-		code[ad_index-2] = j;
-		code[ad_index-1] = i;
+		
+		setJump(ad_index,last_instruction_index);
 
 
 		return BT::VOID;

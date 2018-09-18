@@ -21,4 +21,14 @@ namespace frumul {
 		return slurp(fileopened);
 	}
 
+	std::pair<byte,byte> splitShort(int_fast16_t i) {
+		/* Split i in two parts and return it
+		 * as a pair of bytes. The first one represents
+		 * the most important bytes
+		 */
+		byte a { static_cast<byte>(i) };
+		byte b { static_cast<byte>(i >> 8) };
+		return {b,a};
+	}
+
 } // namespace 

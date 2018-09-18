@@ -8,10 +8,12 @@
 #include <experimental/any>
 #include <initializer_list>
 #include <memory>
+#include <utility>
 #include "bytecode.h"
 #include "node.h"
 #include "symbol.h"
 #include "symboltab.h"
+#include "util.h"
 #include "value.h"
 //#include "header.h"
 
@@ -52,6 +54,7 @@ namespace frumul {
 			void insertInstructions(int i, std::initializer_list<byte> instructions);
 
 			void appendPushLastConstant();
+			void setJump(unsigned long source, unsigned long target);
 
 			void setReturnValue();
 			BT::ExprType visit(const Node& n);
