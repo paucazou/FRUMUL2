@@ -301,11 +301,11 @@ namespace frumul {
 		
 		// get string and push element on the stack
 		if (t & BT::CONSTANT) {
-			bst::str s{E::any_cast<bst::str>(bt.getConstant(data_nb))};
+			bst::str& s{E::any_cast<bst::str&>(bt.getConstant(data_nb))};
 			stack.push(s.uAt(negative_index(data_index,s.uLength())));
 		}
 		else {
-			bst::str s{E::any_cast<bst::str>(variables[data_nb])};
+			bst::str& s{E::any_cast<bst::str&>(variables[data_nb])};
 			stack.push(s.uAt(negative_index(data_index,s.uLength())));
 		}
 
