@@ -57,6 +57,7 @@ namespace frumul {
 			void setJump(unsigned long source, unsigned long target);
 
 			void setReturnValue();
+			VarSymbol& getOrCreateVarSymbol(const Node& name, BT::ExprType type);
 			BT::ExprType visit(const Node& n);
 			BT::ExprType visit_basic_value(const Node& n,bool add_return=true);
 			BT::ExprType visit_bin_op(const Node& n);

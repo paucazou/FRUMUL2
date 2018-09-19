@@ -577,9 +577,12 @@ namespace frumul {
 		// get the iterable if it exists
 		if (current_token->getType() == Token::ASSIGN) {
 			eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
-			Node iterable { comparison() };
+			// check that condition is a variable name and not an list index
+			if (condition.type() != Node::VARIABLE_NAME || condition.areChildrenNamed()) // if the type is VARIABLE_NAME but children are named, we know it is an list index
+				throw exc(exc::TypeError,"A variable name is expected", condition.getPosition());
+			Node variable_filler{ comparison() };
 			fields.insert({"variable",condition});
-			fields.insert({"iterable",iterable});
+			fields.insert({"variable_filler",variable_filler});
 		} else
 			fields.insert({"condition",condition});
 			

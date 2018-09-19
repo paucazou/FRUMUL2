@@ -87,6 +87,23 @@ namespace frumul {
 		code[source-1] = pair.second;
 	}
 
+	VarSymbol& __compiler::getOrCreateVarSymbol(const Node& var, BT::ExprType type) {
+		/* Look for a variable. If not found,
+		 * create it
+		 * return a reference to it
+		 */
+		const bst::str& name{var.getValue()};
+		// variable already declared
+		if (symbol_table->contains(name)) {
+			VarSymbol& v_s{symbol_table->getVarSymbol(name)};
+			if (v_s.getType() != type)
+				throw iexc(exc::TypeError,"This variable doesn't match the type required", var.getPosition(),"Variable first defined here:",v_s.getPosition());
+			return v_s;
+		}
+		// create new variable
+		return symbol_table->append(name,type,var.getPosition());
+	}
+
 	BT::ExprType __compiler::visit(const Node& n) {
 		/* Dispatch the node following
 		 * its type
@@ -300,11 +317,11 @@ namespace frumul {
 	BT::ExprType __compiler::visit_loop(const Node& n) {
 		/* Compile a loop
 		 */
-#pragma message "Loops not yet set: integer(with user defined variable), text, list"
+#pragma message "Loops not yet set:  text, list"
 		auto start_of_loop{code.size()};
 		// useful with int
 		VarSymbol* v_s{nullptr};
-		bool has_hidden_variable{false};
+		bool has_variable{false};
 
 		// Which kind of expression follows 'loop' keyword ?
 		if (n.getNamedChildren().count("condition") > 0) {
@@ -313,7 +330,7 @@ namespace frumul {
 					// nothing to do, since it's the basic case
 					break;
 				case BT::INT:
-					has_hidden_variable = true;
+					has_variable = true;
 					// append a zero constant (if necessary TODO)
 					constants.push_back(0);
 					// create a hidden variable
@@ -332,13 +349,30 @@ namespace frumul {
 					throw exc(exc::TypeError,"This type can not be used to loop",n.get("condition").getPosition());
 			};
 		}
+		else {
+			switch (visit(n.get("variable_filler"))) {
+				case BT::INT:
+					has_variable = true;
+					v_s = &getOrCreateVarSymbol(n.get("variable"),BT::INT);
+					appendInstructions(BT::ASSIGN,v_s->getIndex());
+					v_s->markDefined();
+					constants.push_back(0);
+					start_of_loop = code.size();
+					appendPushLastConstant();
+					appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(),
+							BT::BOOL_SUPERIOR,BT::INT);
+					break;
+				default:
+					exc(exc::TypeError,"This type can not be used with a variable",n.get("variable_filler").getPosition());
+			};
+		}
 		// add the first jump
 		appendInstructions(BT::JUMP_FALSE,0,0); // 0,0 will be filled later
 		auto condition_pos{code.size()};
 		// fill the body
 		visit_basic_value(n.get("inside_loop"),false);
 		// manage hidden variable
-		if (has_hidden_variable) {
+		if (has_variable) {
 			constants.push_back(1);
 			appendPushLastConstant();
 			appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(),
