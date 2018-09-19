@@ -14,5 +14,6 @@ namespace frumul {
 	std::string slurp (std::ifstream&);
 	bst::str readfile (const bst::str&);
 	std::pair<byte,byte> splitShort(int_fast16_t);
+	unsigned int negative_index(int index,unsigned int length);
 } // namespace 
 #endif

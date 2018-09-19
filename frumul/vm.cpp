@@ -300,10 +300,14 @@ namespace frumul {
 		int data_index { pop<int>() }; 	
 		
 		// get string and push element on the stack
-		if (t & BT::CONSTANT)
-			stack.push(E::any_cast<bst::str>(bt.getConstant(data_nb)).uAt(data_index));
-		else 
-			stack.push(E::any_cast<bst::str>(variables[data_nb]).uAt(data_index));
+		if (t & BT::CONSTANT) {
+			bst::str s{E::any_cast<bst::str>(bt.getConstant(data_nb))};
+			stack.push(s.uAt(negative_index(data_index,s.uLength())));
+		}
+		else {
+			bst::str s{E::any_cast<bst::str>(variables[data_nb])};
+			stack.push(s.uAt(negative_index(data_index,s.uLength())));
+		}
 
 	}
 

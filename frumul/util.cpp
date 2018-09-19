@@ -1,6 +1,7 @@
 #include <ios>
 #include <iostream>
 #include <system_error>
+#include "macros.h"
 #include "util.h"
 
 
@@ -29,6 +30,16 @@ namespace frumul {
 		byte a { static_cast<byte>(i) };
 		byte b { static_cast<byte>(i >> 8) };
 		return {b,a};
+	}
+
+	unsigned int negative_index(int index, unsigned int length) {
+		/* Return the positive index of an array (or array-like)
+		 * of length 'length'.
+		 * If index is not negative, it is returned unchanged
+		 */
+		if (index >= 0)
+			return index;
+		return length + index;
 	}
 
 } // namespace 
