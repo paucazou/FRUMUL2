@@ -290,21 +290,21 @@ namespace frumul {
 		/* Get the char of a string
 		 * Syntax:
 		 * 	TEXT_GET_CHAR
-		 * 	TYPE(CONST OR NOT)
-		 * 	INDEX_STRING
-		 * 	INDEX_ELT
+		 * 	TYPE(CONST OR VAR)
 		 */
 #pragma message("catch errors at runtime")
 		// get type
 		BT::ExprType t{static_cast<BT::ExprType>(*++it)};
-		// get string
-		const E::any& s = (t & BT::CONSTANT ?
-				&bt.getConstant(*++it) :
-				&variables[*++it]
-			    );
+		// get references
+		int data_nb { pop<int>() };
+		int data_index { pop<int>() }; 	
+		
+		// get string and push element on the stack
+		if (t & BT::CONSTANT)
+			stack.push(E::any_cast<bst::str>(bt.getConstant(data_nb)).uAt(data_index));
+		else 
+			stack.push(E::any_cast<bst::str>(variables[data_nb]).uAt(data_index));
 
-		// get element
-		stack.push(E::any_cast<bst::str>(s).uAt(*++it));
 	}
 
 	void VM::list_get_elt() {

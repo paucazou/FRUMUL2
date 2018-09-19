@@ -64,6 +64,7 @@ namespace frumul {
 			Node term ();
 			Node factor ();
 			Node reference ();
+			Node index ();
 
 			Node loop ();
 			Node condition ();

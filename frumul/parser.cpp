@@ -550,14 +550,24 @@ namespace frumul {
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES);
 
 		if (current_token->getType() == Token::LBRACKET) {
-			eat(Token::LBRACKET,Token::MAX_TYPES_VALUES);
-			Node index{expr()};
-			eat(Token::RBRACKET,Token::MAX_TYPES_VALUES);
-			end = index.getPosition().getEnd();
-			return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),{{"index",index}},variable_name};
+			Node idex{index()};
+			end = idex.getPosition().getEnd();
+			return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),{{"index",idex}},variable_name};
 		}
 
 		return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),variable_name};
+	}
+
+	Node Parser::index () {
+		/* Manages an index of a list
+		 * or of a text
+		 * for returned node, see comparison() details
+		 */
+#pragma message "Index with litteral list or text are not yet set"
+		eat(Token::LBRACKET,Token::MAX_TYPES_VALUES);
+		Node index{expr()}; // we expect an int here
+		eat(Token::RBRACKET,Token::MAX_TYPES_VALUES);
+		return index;
 	}
 
 	Node Parser::loop () {

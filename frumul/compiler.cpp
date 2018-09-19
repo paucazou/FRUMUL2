@@ -294,6 +294,28 @@ namespace frumul {
 		return BT::VOID;
 	}
 
+	BT::ExprType __compiler::visit_index(const Node& n, BT::ExprType type) {
+		/* compile an index
+		 * Node expected contains the index, but it's not the
+		 * index itself
+		 * TODO manage list
+		 */
+		// checks
+		if (type != BT::TEXT)
+			throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
+		// push index on the stack
+		if (visit(n.get("index")) != BT::INT)
+			throw exc(exc::TypeError,"The index must be an integer",n.get("index").getPosition());
+		// push variable number on the stack
+		// (checks have been done before)
+		constants.push_back(symbol_table->getIndex(n.getValue()));
+		appendPushLastConstant();
+		appendInstructions(BT::TEXT_GET_CHAR,BT::VARIABLE);
+
+		return BT::TEXT;
+
+	}
+
 	BT::ExprType __compiler::visit_litbool(const Node& n) {
 		/* Return true or false
 		 */
@@ -506,11 +528,19 @@ namespace frumul {
 		 */
 #pragma message "List not yet set"
 		const bst::str& name {n.getValue()};
+		// checks
 		if (!symbol_table->contains(name))
 			throw exc(exc::NameError,"Name not defined",n.getPosition());
 		if (!symbol_table->isDefined(name))
 			throw exc(exc::ValueError,"Variable contains no value",n.getPosition());
+
+		// with index
+		if (n.areChildrenNamed() && n.getNamedChildren().count("index") > 0) {
+			return visit_index(n,symbol_table->getType(name));
+		}
+		// with no index
 		appendInstructions(BT::PUSH,BT::VARIABLE,symbol_table->getIndex(name));
+		
 		return symbol_table->getType(name);
 	}
 }
