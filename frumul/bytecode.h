@@ -99,6 +99,31 @@ namespace frumul {
 			void addVariable(int i=1);
 
 			operator bool () const;
+
+			template <typename T>
+				int addConstant(const T& new_const) {
+					/* Add a new constant.
+					 * Return the index of the constant.
+					 * If the constant already exists,
+					 * return the index
+					 */
+					// try to find constant
+					int i{0};
+					for (auto it{constants.begin()}; it != constants.end(); ++it,++i) {
+						try {
+							if (E::any_cast<T&>(*it) == new_const)
+								return i;
+						} catch (E::bad_any_cast& bac) {
+							continue;
+						}
+					}
+
+					// fails to find: add it
+					constants.push_back(new_const);
+					return constants.size() - 1;
+
+				}
+
 		private:
 			ExprType return_type{TEXT};
 			Symbol& parent;

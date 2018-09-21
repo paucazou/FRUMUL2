@@ -291,6 +291,8 @@ namespace frumul {
 		 * Syntax:
 		 * 	TEXT_GET_CHAR
 		 * 	TYPE(CONST OR VAR)
+		 * 	pop string_reference
+		 * 	pop index_of_char
 		 */
 #pragma message("catch errors at runtime")
 		// get type
@@ -301,7 +303,7 @@ namespace frumul {
 		
 		// get string and push element on the stack
 		if (t & BT::CONSTANT) {
-			bst::str& s{E::any_cast<bst::str&>(bt.getConstant(data_nb))};
+			const bst::str& s{E::any_cast<const bst::str&>(bt.getConstant(data_nb))};
 			stack.push(s.uAt(negative_index(data_index,s.uLength())));
 		}
 		else {
@@ -365,9 +367,11 @@ namespace frumul {
 		 * into a variable
 		 * Syntax
 		 * 	ASSIGN
-		 * 	INDEX
+		 * 	pop reference_of_variable
+		 * 	pop value
 		 */
-		variables[*++it] = stack.pop();
+		int i{E::any_cast<int>(stack.pop())};
+		variables[i] = stack.pop();
 	}
 
 }

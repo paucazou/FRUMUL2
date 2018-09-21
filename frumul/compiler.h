@@ -53,7 +53,14 @@ namespace frumul {
 			void appendInstructions(std::initializer_list<byte> instructions);
 			void insertInstructions(int i, std::initializer_list<byte> instructions);
 
-			void appendPushLastConstant();
+			void appendPushConstant(int i);
+			template <typename T>
+				void appendAndPushConstant(const T& new_const) {
+					appendPushConstant(
+							bytecode.addConstant<T>(new_const)
+							);
+				}
+
 			void setJump(unsigned long source, unsigned long target);
 
 			void setReturnValue();

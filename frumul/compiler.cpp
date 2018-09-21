@@ -59,11 +59,11 @@ namespace frumul {
 		code.insert(begin+i,instructions);
 	}
 
-	void __compiler::appendPushLastConstant() {
+	void __compiler::appendPushConstant(int i) {
 		/* Append instructions to push constant on stack
 		 * This utility should be called just after added a new constant
 		 */
-		appendInstructions(BT::PUSH,BT::CONSTANT,constants.size()-1);
+		appendInstructions(BT::PUSH,BT::CONSTANT,i);
 	}
 
 	void __compiler::setJump(unsigned long source, unsigned long target) {
@@ -308,8 +308,7 @@ namespace frumul {
 			throw exc(exc::TypeError,"The index must be an integer",n.get("index").getPosition());
 		// push variable number on the stack
 		// (checks have been done before)
-		constants.push_back(symbol_table->getIndex(n.getValue()));
-		appendPushLastConstant();
+		appendAndPushConstant<int>(symbol_table->getIndex(n.getValue()));
 		appendInstructions(BT::TEXT_GET_CHAR,BT::VARIABLE);
 
 		return BT::TEXT;
@@ -322,8 +321,7 @@ namespace frumul {
 		static const std::map<bst::str,bool> bools{
 			{"false",false},
 			{"true",true}};
-		constants.push_back(bools.at(n.getValue()));
-		appendPushLastConstant();
+		appendAndPushConstant<bool>(bools.at(n.getValue()));
 		return BT::BOOL;
 	}
 			
@@ -331,8 +329,9 @@ namespace frumul {
 	BT::ExprType __compiler::visit_litint(const Node& n) {
 		/* Compile a litteral integer
 		 */
-		constants.push_back(static_cast<int>(n.getValue()));
-		appendInstructions(BT::PUSH,BT::CONSTANT,constants.size()-1);
+		appendAndPushConstant<int>(
+					static_cast<int>(n.getValue())
+				);
 		return BT::INT;
 	}
 
@@ -351,10 +350,10 @@ namespace frumul {
 				case BT::BOOL:
 					// nothing to do, since it's the basic case
 					break;
-				case BT::INT:
+				case BT::INT: {
 					has_variable = true;
-					// append a zero constant (if necessary TODO)
-					constants.push_back(0);
+					// append a zero constant (if necessary)
+					int index_of_zero {bytecode.addConstant(0)};
 					// create a hidden variable
 					 v_s = &symbol_table->append(SymbolTab::next(),BT::INT,n.get("condition").getPosition());
 					 appendInstructions(BT::ASSIGN,v_s->getIndex());
@@ -362,10 +361,11 @@ namespace frumul {
 					 // change the start of loop
 					 start_of_loop = code.size();
 					 // set the condition
-					 appendPushLastConstant();
+					 appendPushConstant(index_of_zero);
 					 appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(), // push custom variable on the stack
 							 BT::BOOL_SUPERIOR,BT::INT);
 
+					      }
 					break;
 				default:
 					throw exc(exc::TypeError,"This type can not be used to loop",n.get("condition").getPosition());
@@ -373,16 +373,18 @@ namespace frumul {
 		}
 		else {
 			switch (visit(n.get("variable_filler"))) {
-				case BT::INT:
+				case BT::INT: {
 					has_variable = true;
 					v_s = &getOrCreateVarSymbol(n.get("variable"),BT::INT);
 					appendInstructions(BT::ASSIGN,v_s->getIndex());
 					v_s->markDefined();
-					constants.push_back(0);
+
+					int index_of_zero {bytecode.addConstant(0)};
 					start_of_loop = code.size();
-					appendPushLastConstant();
+					appendPushConstant(index_of_zero);
 					appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(),
 							BT::BOOL_SUPERIOR,BT::INT);
+					      }
 					break;
 				default:
 					exc(exc::TypeError,"This type can not be used with a variable",n.get("variable_filler").getPosition());
@@ -395,8 +397,7 @@ namespace frumul {
 		visit_basic_value(n.get("inside_loop"),false);
 		// manage hidden variable
 		if (has_variable) {
-			constants.push_back(1);
-			appendPushLastConstant();
+			appendAndPushConstant<int>(1);
 			appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(),
 					BT::INT_SUB,
 					BT::ASSIGN,v_s->getIndex());
@@ -413,8 +414,7 @@ namespace frumul {
 	BT::ExprType __compiler::visit_littext(const Node& n) {
 		/* Compile a litteral text
 		 */
-		constants.push_back(n.getValue());
-		appendPushLastConstant();
+		appendAndPushConstant<bst::str>(n.getValue());
 		return BT::TEXT;
 	}
 
