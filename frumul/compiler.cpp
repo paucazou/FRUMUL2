@@ -156,15 +156,17 @@ namespace frumul {
 
 				appendInstructions(
 						BT::PUSH,BT::VARIABLE,r_index, // push returned value on the stack
-						BT::TEXT_ADD, // add returned to return value
-						BT::ASSIGN,r_index); // assign back to returned value
+						BT::TEXT_ADD); // add returned to return value
+				appendAndPushConstant<int>(r_index);
+				appendInstructions(BT::ASSIGN); // assign back to returned value
 			} else {
 
 			if (rt != return_type)
 				throwInconsistentType(return_type,rt,n,child);
 
 			// set returned value
-			appendInstructions(BT::ASSIGN,r_index,BT::RETURN); // assign last elt of stack to return value and return
+			appendAndPushConstant<int>(r_index);
+			appendInstructions(BT::ASSIGN,BT::RETURN); // assign last elt of stack to return value and return
 			}
 
 		}
@@ -356,7 +358,8 @@ namespace frumul {
 					int index_of_zero {bytecode.addConstant(0)};
 					// create a hidden variable
 					 v_s = &symbol_table->append(SymbolTab::next(),BT::INT,n.get("condition").getPosition());
-					 appendInstructions(BT::ASSIGN,v_s->getIndex());
+					 appendAndPushConstant<int>(v_s->getIndex());
+					 appendInstructions(BT::ASSIGN);
 					 v_s->markDefined();
 					 // change the start of loop
 					 start_of_loop = code.size();
@@ -376,7 +379,8 @@ namespace frumul {
 				case BT::INT: {
 					has_variable = true;
 					v_s = &getOrCreateVarSymbol(n.get("variable"),BT::INT);
-					appendInstructions(BT::ASSIGN,v_s->getIndex());
+					appendAndPushConstant<int>(v_s->getIndex());
+					appendInstructions(BT::ASSIGN);
 					v_s->markDefined();
 
 					int index_of_zero {bytecode.addConstant(0)};
@@ -399,8 +403,9 @@ namespace frumul {
 		if (has_variable) {
 			appendAndPushConstant<int>(1);
 			appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(),
-					BT::INT_SUB,
-					BT::ASSIGN,v_s->getIndex());
+					BT::INT_SUB);
+			appendAndPushConstant<int>(v_s->getIndex());
+			appendInstructions(BT::ASSIGN);
 		}
 		// add the second jump
 		appendInstructions(BT::JUMP,0,0); // 0,0 will be filled later
@@ -478,7 +483,8 @@ namespace frumul {
 			else
 				appendInstructions(BT::CAST,rt,s_type);
 		}
-		appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
+		appendAndPushConstant<int>(symbol_table->getIndex(name));
+		appendInstructions(BT::ASSIGN);
 		symbol_table->markDefined(name);
 		return BT::VOID;
 	}
@@ -516,7 +522,8 @@ namespace frumul {
 			if (value_rt != type_)
 				throwInconsistentType(type_,value_rt,n.get("type").getPosition(),n.get("value").getPosition());
 
-			appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
+			appendAndPushConstant<int>(symbol_table->getIndex(name));
+			appendInstructions(BT::ASSIGN);
 			symbol_table->markDefined(name);
 
 		}

@@ -370,7 +370,7 @@ namespace frumul {
 		 * 	pop reference_of_variable
 		 * 	pop value
 		 */
-		int i{E::any_cast<int>(stack.pop())};
+		int i{pop<int>()};
 		variables[i] = stack.pop();
 	}
 
