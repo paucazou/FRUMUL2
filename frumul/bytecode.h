@@ -37,7 +37,9 @@ namespace frumul {
 				SYMBOL 		= 1 << 2,
 				BOOL 		= 1 << 3,
 
-				CONSTANT 	= 1 << 4,
+				LIST		= 1 << 4,
+
+				CONSTANT 	= 1 << 4, // equal to LIST, but not used in same context
 				VARIABLE	= 1 << 5,
 				MAX_EXPR_TYPE,
 			};

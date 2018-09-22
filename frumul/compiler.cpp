@@ -514,6 +514,7 @@ namespace frumul {
 			{"int",BT::INT},
 			{"bool",BT::BOOL},
 			{"symbol",BT::SYMBOL},
+			{"list",BT::LIST},
 		};
 		type.tolower();
 		BT::ExprType type_{BT::VOID};

@@ -324,8 +324,13 @@ namespace frumul {
 		if (current_token->getType() == Token::COMMA) {
 			// we need to get the type
 			eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
-			assign_node.addChild("type",Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue()));
-			eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat type
+			//assign_node.addChild("type",Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue()));
+			//eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat type
+
+			// get type
+			for (const auto& p : types()) {
+				assign_node.addChild(p.first,p.second);
+			}
 
 			int start{assign_node.getPosition().getStart()};
 			int end{current_token->getPosition().getEnd()};
@@ -335,6 +340,34 @@ namespace frumul {
 
 		return assign_node;
 
+	}
+
+	StrNodeMap Parser::types () {
+		/* Manages the types of a declaration
+		 * Return a StrNodeMap with at least one field
+		 * and max three which are named:
+		 * 	- type
+		 * 	- list_depth (optional)
+		 * 	- type_primitive (optional, required if type is a list
+		 */
+		StrNodeMap fields;
+
+		// main type
+		fields.insert({"type" , Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue())});
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat type
+
+		// if the variable is a list, get its number (optional) and its primitive type
+		if (current_token->getType() == Token::NUMBER || current_token->getType() == Token::VARIABLE) {
+
+			if (current_token->getType() == Token::NUMBER) {
+				fields.insert({"list_depth",Node(Node::LITINT,current_token->getPosition(),current_token->getValue())});
+				eat(Token::NUMBER,Token::MAX_TYPES_VALUES); // eat number
+			}
+
+			fields.insert({"primitive_type",Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue())});
+			eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat primitive type
+		}
+		return fields;
 	}
 
 	Node Parser::variable_declaration () {
@@ -348,13 +381,17 @@ namespace frumul {
 		StrNodeMap fields;
 		fields.insert({"name" , Node(Node::VARIABLE_NAME,current_token->getPosition(),current_token->getValue())});
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat name
+
 		if (current_token->getType() == Token::ASSIGN) {
 			eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
 			fields.insert({"value" , comparison()});
 		}
 		eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
-		fields.insert({"type" , Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue())});
-		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat type
+
+		// get the type
+		StrNodeMap types_fields{types()};
+		fields.insert(types_fields.begin(),types_fields.end());
+
 		int end{current_token->getPosition().getEnd()};
 		return Node(Node::VARIABLE_DECLARATION,Position(start,end,filepath,source),fields);
 	}
@@ -519,8 +556,21 @@ namespace frumul {
 				assert(false&&"parent_expr not yet set");
 				//return parent_expr()
 			case Token::LBRACKET:
+				{
 				// list litteral
-				return list();
+				Node list_{list()};	
+				// if there is an index
+				if (current_token->getType() == Token::LBRACKET) {
+					Node index_ {index()};
+					return Node{Node::LIST_WITH_INDEX,Position(
+							list_.getPosition().getStart(),
+							index_.getPosition().getEnd(),
+							filepath,source),
+					       {{"list",list_},{"index",index_}}
+					};
+				}
+				return list_;
+				}
 			case Token::LPAREN:
 				{
 				eat(Token::LPAREN,Token::MAX_TYPES_VALUES);
@@ -937,15 +987,15 @@ namespace frumul {
 	}
 
 	Node Parser::list() {
-		/* Manages the list
+		/* Manages the list litteral
 		 * Return a Node list
 		 * with the elements inside the list
 		 */
 		int start{getTokenStart()};
-		NodeVector elements;
+		StrNodeMap elements;
 		eat(Token::LBRACKET,Token::MAX_TYPES_VALUES); // eat [
-		while (current_token->getType() != Token::RBRACKET) {
-			elements.push_back(comparison());
+		for (int i{0};current_token->getType() != Token::RBRACKET; ++i) {
+			elements.insert({bst::str(i),comparison()});
 			if (current_token->getType() == Token::VBAR)
 				eat(Token::VBAR,Token::MAX_TYPES_VALUES); // eat ¦
 		}

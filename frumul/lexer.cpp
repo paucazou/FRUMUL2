@@ -8,7 +8,6 @@
 namespace frumul {
 #ifdef DEBUG
 #define printline std::cout << __LINE__ << std::endl
-#define printl(elt) std::cout << elt << std::endl
 	void Lexer::test () {
 		recognizeCaselessID("___header___");
 		advanceTo(tempos);

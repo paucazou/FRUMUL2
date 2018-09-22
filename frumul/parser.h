@@ -59,6 +59,7 @@ namespace frumul {
 
 			Node variable_declaration ();
 			Node variable_assignment ();
+			StrNodeMap types ();
 			Node comparison ();
 			Node expr ();
 			Node term ();
