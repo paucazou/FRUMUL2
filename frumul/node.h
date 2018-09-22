@@ -79,6 +79,8 @@ namespace frumul {
 			//getters
 			Type type() const;
 			bool areChildrenNamed () const;
+			bool has(const bst::str& key) const;
+			bool has(int index) const;
 
 			const Position& getPosition() const;
 

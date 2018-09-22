@@ -75,6 +75,26 @@ namespace frumul {
 		return childrenNamed;
 	}
 
+	bool Node::has(const bst::str& key) const {
+		/* true if node has 'key' in his 
+		 * children
+		 * false if children are not named
+		 */
+		if (!childrenNamed)
+			return false;
+		return named_children.count(key) > 0;
+	}
+
+	bool Node::has(int index) const {
+		/* true if node has index
+		 * in his children
+		 * false if children are named
+		 */
+		if (childrenNamed || index < 0)
+			return false;
+		return static_cast<unsigned int>(index) < numbered_children.size();
+	}
+
 	const Position& Node::getPosition() const {
 		/* Return the position of the node
 		 * in the text
