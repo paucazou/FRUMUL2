@@ -913,13 +913,17 @@ namespace frumul {
 				}
 			case Token::LAQUOTE:
 				{
+					StrNodeMap fields;
 					int start {getTokenStart()};
 					eat(Token::LAQUOTE,Token::LITTEXT,Token::MAX_TYPES_VALUES); // eat «
 					bst::str val {current_token->getValue()};
 					eat(Token::LITTEXT,Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat text itself
 					int end {getTokenStart()};
 					eat(Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat »
-					return Node{ Node::LITTEXT,Position(start,end,filepath,source),val};
+					if (current_token->getType() == Token::LBRACKET) {
+						fields.insert({"index",index()});
+					}
+					return Node{ Node::LITTEXT,Position(start,end,filepath,source),fields,val};
 				}
 			default:
 				//-Wswitch !!!

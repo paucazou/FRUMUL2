@@ -310,8 +310,15 @@ namespace frumul {
 			throw exc(exc::TypeError,"The index must be an integer",n.get("index").getPosition());
 		// push variable number on the stack
 		// (checks have been done before)
-		appendAndPushConstant<int>(symbol_table->getIndex(n.getValue()));
-		appendInstructions(BT::TEXT_GET_CHAR,BT::VARIABLE);
+		if (n.type() == Node::VARIABLE_NAME) {
+			appendAndPushConstant<int>(symbol_table->getIndex(n.getValue()));
+			appendInstructions(BT::TEXT_GET_CHAR,BT::VARIABLE);
+		} else {
+			// litteral text
+			int i {bytecode.addConstant(n.getValue())};
+			appendAndPushConstant<int>(i);
+			appendInstructions(BT::TEXT_GET_CHAR,BT::CONSTANT);
+		}
 
 		return BT::TEXT;
 
@@ -419,6 +426,8 @@ namespace frumul {
 	BT::ExprType __compiler::visit_littext(const Node& n) {
 		/* Compile a litteral text
 		 */
+		if (n.has("index"))
+			return visit_index(n,BT::TEXT);
 		appendAndPushConstant<bst::str>(n.getValue());
 		return BT::TEXT;
 	}
@@ -542,7 +551,7 @@ namespace frumul {
 			throw exc(exc::ValueError,"Variable contains no value",n.getPosition());
 
 		// with index
-		if (n.areChildrenNamed() && n.getNamedChildren().count("index") > 0) {
+		if (n.has("index")) {
 			return visit_index(n,symbol_table->getType(name));
 		}
 		// with no index
