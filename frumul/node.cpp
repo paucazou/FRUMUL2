@@ -145,6 +145,15 @@ namespace frumul {
 		return numbered_children;
 	}
 
+	unsigned int Node::size() const {
+		/* Return the number of children
+		 */
+		if (childrenNamed)
+			return named_children.size();
+		else
+			return numbered_children.size();
+	}
+
 	void Node::addChild(const bst::str& name, const Node& child) {
 		/* Add a child in children.
 		 */

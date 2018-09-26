@@ -34,6 +34,7 @@
 	E(VarSymbolUnknown)\
 	E(NameError)\
 	E(ValueError)\
+	E(IndexError)\
 	E(MAX_TYPES)\
 
 namespace frumul {

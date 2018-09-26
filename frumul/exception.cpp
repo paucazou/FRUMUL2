@@ -16,6 +16,13 @@ namespace frumul {
 		       	catch (const BaseException& exc) {
 				std::cerr << exc.what();
 			}
+			catch (const std::exception& exc) {
+				std::cerr << exc.what();
+			}
+			catch (...)
+			{
+				throw;
+			}
                 }
                 else {
                         std::cerr << "Unexpected error.\n";

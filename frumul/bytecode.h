@@ -73,8 +73,11 @@ namespace frumul {
 				BOOL_INF_EQUAL,
 				BOOL_SUP_EQUAL,
 
+				LIST_ADD,
 				LIST_APPEND,
 				LIST_GET_ELT,
+				LIST_SET_ELT,
+
 				JUMP_TRUE, // jump with a bool before and the emplacement to go after, ignored if bool is false
 				JUMP_FALSE, // inverse of CONDITIONAL_JUMP
 				JUMP, // jump with the emplacement to go just after, relative to the last part of the emplacement
@@ -136,5 +139,6 @@ namespace frumul {
 			int v_nb{0};
 	};
 	using BT = ByteCode;
+	using AnyVector = std::vector<E::any>;
 }
 #endif

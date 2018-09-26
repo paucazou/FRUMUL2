@@ -266,24 +266,22 @@ namespace frumul {
 	}
 
 	void VM::list_append() {
-		/* Append last element of stack into
-		 * specific list
+		/* Append second last element of stack into
+		 * last list of the stack
 		 * Syntax:
 		 * 	LIST_APPEND
-		 * 	TYPE
-		 * 	INDEX
+		 * 	pop(elt)
+		 * 	pop(list)
+		 * 	push(list)
 		 */
-		BT::ExprType t{static_cast<BT::ExprType>(*++it)};
-		E::any list{variables[*++it]};
-
-		switch (t) {
-			case BT::INT:	LIST_PUSH(int);break;
-			case BT::TEXT:	LIST_PUSH(bst::str);break;
-			case BT::SYMBOL:LIST_PUSH(RSymbol);break;
-			case BT::BOOL:	LIST_PUSH(bool);break;
-			default:
-				assert(false&&"Type unknown");
-		};
+#pragma message "This function doesn't work with gcc 6.3.0: AnyVector has weird behaviour. This works with clang++ 3.8.1"
+		// pops element and list
+		E::any elt{stack.pop()};
+		AnyVector list{pop<AnyVector>()};
+		// append
+		list.push_back(elt);
+		// push list on stack
+		stack.push(list);
 	}
 
 	void VM::text_get_char() {
@@ -318,28 +316,19 @@ namespace frumul {
 		 * and push it into the stack
 		 * Syntax:
 		 * 	LIST_GET_ELT
-		 * 	TYPE (CONST OR NOT)
-		 * 	INDEX_LIST
-		 * 	INDEX_ELT
+		 * 	pop(index)
+		 * 	pop(list)
+		 * 	push(list)
 		 */
 #pragma message("We must catch errors at runtime")
-		// get type
-		BT::ExprType t{static_cast<BT::ExprType>(*++it)};
+		// get index
+		int index{pop<int>()};
 		// get list
-		const E::any& list {(t & BT::CONSTANT ?
-				bt.getConstant(*++it) :
-				variables[*++it]
-			       )};
-		// get element
-		int i{*++it};
-		if (t & BT::INT)
-			stack.push(E::any_cast<std::vector<int>>(list)[i]);
-		else if (t & BT::TEXT)
-			stack.push(E::any_cast<std::vector<bst::str>>(list)[i]);
-		else if (t & BT::SYMBOL)
-			stack.push(E::any_cast<std::vector<RSymbol>>(list)[i]);
-		else if (t & BT::BOOL)
-			stack.push(E::any_cast<std::vector<bool>>(list)[i]);
+		AnyVector list{pop<AnyVector>()};
+		// push element on the stack
+		printl("Get elt list size");
+		printl(list.size());
+		stack.push(list[negative_index(index,list.size())]);
 	}
 		
 	void VM::push() {
@@ -367,11 +356,10 @@ namespace frumul {
 		 * into a variable
 		 * Syntax
 		 * 	ASSIGN
-		 * 	pop reference_of_variable
+		 * 	REFERENCE_VARIABLE
 		 * 	pop value
 		 */
-		int i{pop<int>()};
-		variables[i] = stack.pop();
+		variables[*++it] = stack.pop();
 	}
 
 }

@@ -561,14 +561,18 @@ namespace frumul {
 				Node list_{list()};	
 				// if there is an index
 				if (current_token->getType() == Token::LBRACKET) {
-					Node index_ {index()};
+					NodeVector fields {list_};
+					for (int i{0};current_token->getType() == Token::LBRACKET;++i) {
+						// fields must be get by order of insertion, not by numeric order
+						fields.push_back(index());
+					}
+					auto last_elt {std::prev(fields.end())};
 					return Node{Node::LIST_WITH_INDEX,Position(
 							list_.getPosition().getStart(),
-							index_.getPosition().getEnd(),
+							last_elt->getPosition().getEnd(),
 							filepath,source),
-					       {{"list",list_},{"index",index_}}
+					       		fields};
 					};
-				}
 				return list_;
 				}
 			case Token::LPAREN:
@@ -613,7 +617,6 @@ namespace frumul {
 		 * or of a text
 		 * for returned node, see comparison() details
 		 */
-#pragma message "Index with litteral list or text are not yet set"
 		eat(Token::LBRACKET,Token::MAX_TYPES_VALUES);
 		Node index{expr()}; // we expect an int here
 		eat(Token::RBRACKET,Token::MAX_TYPES_VALUES);
@@ -992,15 +995,19 @@ namespace frumul {
 		 * with the elements inside the list
 		 */
 		int start{getTokenStart()};
-		StrNodeMap elements;
+		NodeVector elements;
 		eat(Token::LBRACKET,Token::MAX_TYPES_VALUES); // eat [
 		for (int i{0};current_token->getType() != Token::RBRACKET; ++i) {
-			elements.insert({bst::str(i),comparison()});
-			if (current_token->getType() == Token::VBAR)
-				eat(Token::VBAR,Token::MAX_TYPES_VALUES); // eat ¦
+			elements.push_back(comparison());
+			if (current_token->getType() == Token::COMMA)
+				eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ¦
 		}
 		int end{getTokenStart()};
 		eat(Token::RBRACKET,Token::MAX_TYPES_VALUES); // eat ]
+
+		if (elements.size() == 0)
+			throw exc(exc::SyntaxError,"Litteral list can not be empty",Position(start,end,filepath,source));
+
 		return Node{Node::LIST,Position(start,end,filepath,source),elements};
 	}
 

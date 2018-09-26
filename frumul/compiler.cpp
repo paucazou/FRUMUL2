@@ -66,6 +66,17 @@ namespace frumul {
 		appendInstructions(BT::PUSH,BT::CONSTANT,i);
 	}
 
+	void __compiler::appendAndPushConstAnyVector() {
+		/* Special function to create a constant vector
+		 * in constants
+		 */
+		if (_const_vector_pos == -1) {
+			constants.push_back(AnyVector{});
+			_const_vector_pos = constants.size() -1;
+		}
+		appendPushConstant(_const_vector_pos);
+	}
+
 	void __compiler::setJump(unsigned long source, unsigned long target) {
 		/* Set the jump at source position
 		 * to point to target
@@ -114,6 +125,8 @@ namespace frumul {
 			case Node::BIN_OP:		return visit_bin_op(n);
 			case Node::CONDITION:		return visit_condition(n);
 			case Node::COMPARISON:		return visit_comparison(n);
+			case Node::LIST:		return visit_list(n);
+			case Node::LIST_WITH_INDEX:	return visit_list_with_index(n);
 			case Node::LITBOOL:		return visit_litbool(n);
 			case Node::LITINT:		return visit_litint(n);
 			case Node::LITTEXT:		return visit_littext(n);
@@ -157,16 +170,16 @@ namespace frumul {
 				appendInstructions(
 						BT::PUSH,BT::VARIABLE,r_index, // push returned value on the stack
 						BT::TEXT_ADD); // add returned to return value
-				appendAndPushConstant<int>(r_index);
-				appendInstructions(BT::ASSIGN); // assign back to returned value
+				//appendAndPushConstant<int>(r_index);
+				appendInstructions(BT::ASSIGN,r_index); // assign back to returned value
 			} else {
 
 			if (rt != return_type)
 				throwInconsistentType(return_type,rt,n,child);
 
 			// set returned value
-			appendAndPushConstant<int>(r_index);
-			appendInstructions(BT::ASSIGN,BT::RETURN); // assign last elt of stack to return value and return
+			//appendAndPushConstant<int>(r_index);
+			appendInstructions(BT::ASSIGN,r_index,BT::RETURN); // assign last elt of stack to return value and return
 			}
 
 		}
@@ -324,6 +337,60 @@ namespace frumul {
 
 	}
 
+	BT::ExprType __compiler::visit_list(const Node& n) {
+		/* Visit a litteral list
+		 * and compile it
+		 * List can not be empty.
+		 */
+
+		// get the type of the elements
+		appendAndPushConstAnyVector();
+		BT::ExprType elt_type{ visit(n.get(0)) };
+		appendInstructions(BT::LIST_APPEND);
+
+		for (unsigned int i{1}; i < n.size();++i) {
+			if (visit(n.get(i)) != elt_type)
+				throw iexc(exc::InconsistantType,bst::str(i) + " element is of different type than the previous elements of the list. First element: ",n.get(0).getPosition(),"Element of other type",n.get(i).getPosition());
+			appendInstructions(BT::LIST_APPEND);
+		}
+
+		assert((elt_type + BT::LIST < 256 )&& "Maximum list depth is 15 in this implementation");
+
+		return static_cast<BT::ExprType>(elt_type + BT::LIST); // set the depth of the list by adding it
+	}
+
+	BT::ExprType __compiler::visit_list_with_index(const Node& n) {
+		/* Compile a litteral list followed by an index
+		 */
+		// we iterates over the map to keep the order of insertion (see parser)
+		// TODO this should be refactored with a multimap with std::variant (when possible)
+
+
+		// load list and get her type
+		auto it{n.getNumberedChildren().begin()};
+		assert(it->type() == Node::LIST&&"First node is not a list");
+		BT::ExprType list_type{visit(*it++)}; // we increment AFTER the derefencement
+
+		// iterates over the indices by order
+		for (;it != n.getNumberedChildren().end();++it) {
+			// check that the number of indices is under the depth of the list
+			if (list_type < BT::LIST)
+				throw exc(exc::IndexError,"Number of indices is too large for the required list",it->getPosition());
+
+			// push index on the stack
+			if (visit(*it) != BT::INT)
+				throw exc(exc::TypeError,"Index must be an int",it->getPosition());
+			// append instructions to get the element
+			appendInstructions(BT::LIST_GET_ELT);
+			
+			list_type = static_cast<BT::ExprType>(list_type - BT::LIST);
+
+		}
+		return list_type; // should match with the type of the element extracted
+
+#pragma message "list of text with indices not yet set"
+	}
+
 	BT::ExprType __compiler::visit_litbool(const Node& n) {
 		/* Return true or false
 		 */
@@ -365,8 +432,8 @@ namespace frumul {
 					int index_of_zero {bytecode.addConstant(0)};
 					// create a hidden variable
 					 v_s = &symbol_table->append(SymbolTab::next(),BT::INT,n.get("condition").getPosition());
-					 appendAndPushConstant<int>(v_s->getIndex());
-					 appendInstructions(BT::ASSIGN);
+					 //appendAndPushConstant<int>(v_s->getIndex());
+					 appendInstructions(BT::ASSIGN,v_s->getIndex());
 					 v_s->markDefined();
 					 // change the start of loop
 					 start_of_loop = code.size();
@@ -386,8 +453,8 @@ namespace frumul {
 				case BT::INT: {
 					has_variable = true;
 					v_s = &getOrCreateVarSymbol(n.get("variable"),BT::INT);
-					appendAndPushConstant<int>(v_s->getIndex());
-					appendInstructions(BT::ASSIGN);
+					//appendAndPushConstant<int>(v_s->getIndex());
+					appendInstructions(BT::ASSIGN,v_s->getIndex());
 					v_s->markDefined();
 
 					int index_of_zero {bytecode.addConstant(0)};
@@ -492,8 +559,8 @@ namespace frumul {
 			else
 				appendInstructions(BT::CAST,rt,s_type);
 		}
-		appendAndPushConstant<int>(symbol_table->getIndex(name));
-		appendInstructions(BT::ASSIGN);
+		//appendAndPushConstant<int>(symbol_table->getIndex(name));
+		appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
 		symbol_table->markDefined(name);
 		return BT::VOID;
 	}
@@ -532,8 +599,8 @@ namespace frumul {
 			if (value_rt != type_)
 				throwInconsistentType(type_,value_rt,n.get("type").getPosition(),n.get("value").getPosition());
 
-			appendAndPushConstant<int>(symbol_table->getIndex(name));
-			appendInstructions(BT::ASSIGN);
+			//appendAndPushConstant<int>();
+			appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
 			symbol_table->markDefined(name);
 
 		}

@@ -40,6 +40,7 @@ namespace frumul {
 			std::vector<E::any>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
 			std::unique_ptr<SymbolTab> symbol_table{std::make_unique<SymbolTab>()};
+			int _const_vector_pos{-1};
 
 			// functions
 			template <typename ...T>
@@ -54,6 +55,7 @@ namespace frumul {
 			void insertInstructions(int i, std::initializer_list<byte> instructions);
 
 			void appendPushConstant(int i);
+			void appendAndPushConstAnyVector();
 			template <typename T>
 				void appendAndPushConstant(const T& new_const) {
 					appendPushConstant(
@@ -72,6 +74,8 @@ namespace frumul {
 			BT::ExprType visit_comparison(const Node& n);
 			BT::ExprType visit_condition(const Node& n);
 			BT::ExprType visit_index(const Node& n, BT::ExprType type);
+			BT::ExprType visit_list(const Node& n);
+			BT::ExprType visit_list_with_index(const Node& n);
 			BT::ExprType visit_litbool(const Node& n);
 			BT::ExprType visit_litint(const Node& n);
 			BT::ExprType visit_littext(const Node& n);

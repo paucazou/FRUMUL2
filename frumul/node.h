@@ -92,6 +92,8 @@ namespace frumul {
 
 			const std::map<bst::str,Node>& getNamedChildren() const;
 			const std::vector<Node>& getNumberedChildren() const;
+
+			unsigned int size() const;
 			
 			//setters
 			void addChild(const bst::str& name, const Node& child);
@@ -110,6 +112,7 @@ namespace frumul {
 		private:
 			const Type node_type;
 			const Position pos;
+#pragma message "Please use std::variant if possible"
 			union {
 				std::map<bst::str,Node> named_children;
 				std::vector<Node> numbered_children;
@@ -122,6 +125,7 @@ namespace frumul {
 	// aliases for widely used templates types
 	using NodeVector = std::vector<Node>;
 	using StrNodeMap = std::map<bst::str,Node>;
+	using StrNodeMMap = std::multimap<bst::str,Node>;
 	using uNode = std::unique_ptr<Node>;
 
 }// namespace
