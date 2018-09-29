@@ -49,7 +49,7 @@ namespace frumul {
 			code.push_back(i);
 	}
 
-	void __compiler::insertInstructions(int i, std::initializer_list<byte> instructions) {
+	size_t __compiler::insertInstructions(int i, std::initializer_list<byte> instructions) {
 		/* insert instructions after i position
 		 * of bytecode 
 		 * if i is the last element, it can be found with the size of the vector only:
@@ -57,6 +57,7 @@ namespace frumul {
 		 */
 		std::vector<byte>::iterator begin{bytecode.getBegin()};
 		code.insert(begin+i,instructions);
+		return instructions.size();
 	}
 
 	void __compiler::appendPushConstant(int i) {
@@ -222,7 +223,17 @@ namespace frumul {
 					return BT::TEXT;
 				}
 			default:
-				throw exc(exc::TypeError,n.getValue() + " can not be used with type " + BT::typeToString(right),n.getPosition());
+				if (right >= BT::LIST && n.getValue() == "+") {
+					BT::ExprType t2{visit(n.get("left"))};
+					// add two lists together
+					if (t2 == right)
+						appendInstructions(BT::LIST_ADD);
+					else
+						throwInconsistentType(right,t2,n.get("left"),n.get("right"));
+
+				}
+				else
+					throw exc(exc::TypeError,n.getValue() + " can not be used with type " + BT::typeToString(right),n.getPosition());
 
 		};
 		return BT::VOID;
@@ -354,7 +365,7 @@ namespace frumul {
 			appendInstructions(BT::LIST_APPEND);
 		}
 
-		assert((elt_type + BT::LIST < 256 )&& "Maximum list depth is 15 in this implementation");
+		//assert(((elt_type + BT::LIST) < 256 )&& "Maximum list depth is 15 in this implementation"); // clang has a warning for that. Remove it?
 
 		return static_cast<BT::ExprType>(elt_type + BT::LIST); // set the depth of the list by adding it
 	}
@@ -374,21 +385,27 @@ namespace frumul {
 		// iterates over the indices by order
 		for (;it != n.getNumberedChildren().end();++it) {
 			// check that the number of indices is under the depth of the list
-			if (list_type < BT::LIST)
+			if (list_type < BT::LIST && list_type != BT::TEXT) {
+			
 				throw exc(exc::IndexError,"Number of indices is too large for the required list",it->getPosition());
+			}
 
 			// push index on the stack
 			if (visit(*it) != BT::INT)
 				throw exc(exc::TypeError,"Index must be an int",it->getPosition());
-			// append instructions to get the element
-			appendInstructions(BT::LIST_GET_ELT);
-			
-			list_type = static_cast<BT::ExprType>(list_type - BT::LIST);
+			if (list_type == BT::TEXT) {
+				// append instructions to get the character
+				appendInstructions(BT::TEXT_GET_CHAR,BT::STACK_ELT);
+			} else {
+				// append instructions to get the element
+				appendInstructions(BT::LIST_GET_ELT);
+				
+				list_type = static_cast<BT::ExprType>(list_type - BT::LIST);
+			}
 
 		}
 		return list_type; // should match with the type of the element extracted
 
-#pragma message "list of text with indices not yet set"
 	}
 
 	BT::ExprType __compiler::visit_litbool(const Node& n) {
@@ -414,11 +431,20 @@ namespace frumul {
 	BT::ExprType __compiler::visit_loop(const Node& n) {
 		/* Compile a loop
 		 */
-#pragma message "Loops not yet set:  text, list"
+#pragma message "Loops not yet set: list"
+		/* This function uses pointers to elements of vector.
+		 * This is dangerous, since vectors can be resized and 
+		 * the pointers become dangling. Be careful if you
+		 * modify the code
+		 */
+
 		auto start_of_loop{code.size()};
 		// useful with int
-		VarSymbol* v_s{nullptr};
-		bool has_variable{false};
+		unsigned int hidden_variable_i{0};
+		// useful with list and text iteration
+		unsigned int hidden_index_i{0};
+		bool has_int_variable{false};
+		bool has_iterable_variable{false};
 
 		// Which kind of expression follows 'loop' keyword ?
 		if (n.getNamedChildren().count("condition") > 0) {
@@ -427,19 +453,20 @@ namespace frumul {
 					// nothing to do, since it's the basic case
 					break;
 				case BT::INT: {
-					has_variable = true;
+					has_int_variable = true;
 					// append a zero constant (if necessary)
 					int index_of_zero {bytecode.addConstant(0)};
 					// create a hidden variable
-					 v_s = &symbol_table->append(SymbolTab::next(),BT::INT,n.get("condition").getPosition());
+					 VarSymbol *v_s = &symbol_table->append(SymbolTab::next(),BT::INT,n.get("condition").getPosition());
+					 hidden_variable_i = v_s->getIndex();
 					 //appendAndPushConstant<int>(v_s->getIndex());
-					 appendInstructions(BT::ASSIGN,v_s->getIndex());
+					 appendInstructions(BT::ASSIGN,hidden_variable_i);
 					 v_s->markDefined();
 					 // change the start of loop
 					 start_of_loop = code.size();
 					 // set the condition
 					 appendPushConstant(index_of_zero);
-					 appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(), // push custom variable on the stack
+					 appendInstructions(BT::PUSH,BT::VARIABLE,hidden_variable_i,// push custom variable on the stack
 							 BT::BOOL_SUPERIOR,BT::INT);
 
 					      }
@@ -451,18 +478,46 @@ namespace frumul {
 		else {
 			switch (visit(n.get("variable_filler"))) {
 				case BT::INT: {
-					has_variable = true;
-					v_s = &getOrCreateVarSymbol(n.get("variable"),BT::INT);
-					//appendAndPushConstant<int>(v_s->getIndex());
-					appendInstructions(BT::ASSIGN,v_s->getIndex());
+					has_int_variable= true;
+					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),BT::INT);
+					hidden_variable_i = v_s->getIndex();
+					appendInstructions(BT::ASSIGN,hidden_variable_i);
 					v_s->markDefined();
 
 					int index_of_zero {bytecode.addConstant(0)};
 					start_of_loop = code.size();
 					appendPushConstant(index_of_zero);
-					appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(),
+					appendInstructions(BT::PUSH,BT::VARIABLE,hidden_variable_i,
 							BT::BOOL_SUPERIOR,BT::INT);
 					      }
+					break;
+				case BT::TEXT:
+					{
+					has_iterable_variable = true;
+					// create variable if necessary
+					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),BT::TEXT);
+					hidden_variable_i = v_s->getIndex();
+					v_s->markDefined();
+			printl(*v_s);
+					// create hidden variable to save the index
+					VarSymbol* hidden_index = &symbol_table->append(SymbolTab::next(),BT::TEXT,n.getPosition());
+					hidden_index_i = hidden_index->getIndex();
+					const int index_of_zero{bytecode.addConstant(0)};
+					const size_t steps{
+						insertInstructions(start_of_loop,
+							BT::PUSH,BT::CONSTANT,index_of_zero,
+							BT::ASSIGN,hidden_index_i)
+					};
+					// change start of loop, set just before the push of the text
+					start_of_loop += steps;
+					// get length of text
+					appendInstructions(BT::LENGTH,BT::TEXT);
+					// get index value
+					appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
+					// set comparison 
+					appendInstructions(BT::BOOL_INFERIOR,BT::INT);
+
+					}
 					break;
 				default:
 					exc(exc::TypeError,"This type can not be used with a variable",n.get("variable_filler").getPosition());
@@ -471,15 +526,30 @@ namespace frumul {
 		// add the first jump
 		appendInstructions(BT::JUMP_FALSE,0,0); // 0,0 will be filled later
 		auto condition_pos{code.size()};
+		// manage iterable (list or text) (must be before the body)
+		if (has_iterable_variable) {
+			// push again text 
+			visit(n.get("variable_filler"));
+			// get index
+			appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
+			// push char on stack and assign it to variable
+			appendInstructions(BT::TEXT_GET_CHAR,BT::STACK_ELT,
+					BT::ASSIGN,hidden_variable_i);
+			// set new index again for next iteration
+			appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
+			appendAndPushConstant<int>(1);
+			appendInstructions(BT::INT_ADD,
+					BT::ASSIGN,hidden_index_i);
+
+		}
 		// fill the body
 		visit_basic_value(n.get("inside_loop"),false);
-		// manage hidden variable
-		if (has_variable) {
+		// manage hidden variable (must be after the body)
+		if (has_int_variable) {
 			appendAndPushConstant<int>(1);
-			appendInstructions(BT::PUSH,BT::VARIABLE,v_s->getIndex(),
+			appendInstructions(BT::PUSH,BT::VARIABLE,hidden_variable_i,
 					BT::INT_SUB);
-			appendAndPushConstant<int>(v_s->getIndex());
-			appendInstructions(BT::ASSIGN);
+			appendInstructions(BT::ASSIGN,hidden_variable_i);
 		}
 		// add the second jump
 		appendInstructions(BT::JUMP,0,0); // 0,0 will be filled later
@@ -585,10 +655,20 @@ namespace frumul {
 		};
 		type.tolower();
 		BT::ExprType type_{BT::VOID};
+		bst::str type_key{"type"}; // useful for the catch beyond
 		try {
 			type_ = types.at(type);
+			// manages list
+			if (type_ == BT::LIST) {
+				type_key = "primitive_type";
+				bst::str primitive_type{n.get(type_key).getValue()};
+				primitive_type.tolower();
+				type_ = visit_list_type_declaration(n, types.at(primitive_type));
+			}
+				
+
 		} catch (const std::out_of_range& oor){
-			throw exc(exc::UnknownType,"Invalid type declared",n.get("type").getPosition());
+			throw exc(exc::UnknownType,"Invalid type declared",n.get(type_key).getPosition());
 		}
 
 		// set symbol
@@ -605,6 +685,21 @@ namespace frumul {
 
 		}
 		return BT::VOID;
+	}
+
+	BT::ExprType __compiler::visit_list_type_declaration(const Node& n,BT::ExprType primitive) {
+		/* Return the right type of a list
+		 */
+		BT::ExprType l_type{primitive};
+		if (n.has("list_depth") && n.get("list_depth").getValue() != "1") 
+			l_type = static_cast<BT::ExprType>(
+					l_type +  static_cast<int>(n.get("list_depth").getValue()) * BT::LIST
+					);
+		else
+			l_type = static_cast<BT::ExprType>(l_type + BT::LIST);
+
+		return l_type;
+
 	}
 
 	BT::ExprType __compiler::visit_variable_name(const Node& n) {

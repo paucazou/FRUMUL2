@@ -48,11 +48,11 @@ namespace frumul {
 					appendInstructions({static_cast<byte>(instructions)...});
 				}
 			template <typename ...T>
-				void insertInstructions(int i, T... instructions) {
-					insertInstructions(i,{static_cast<byte>(instructions)...});
+				size_t insertInstructions(int i, T... instructions) {
+					return insertInstructions(i,{static_cast<byte>(instructions)...});
 				}
 			void appendInstructions(std::initializer_list<byte> instructions);
-			void insertInstructions(int i, std::initializer_list<byte> instructions);
+			size_t insertInstructions(int i, std::initializer_list<byte> instructions);
 
 			void appendPushConstant(int i);
 			void appendAndPushConstAnyVector();
@@ -76,6 +76,7 @@ namespace frumul {
 			BT::ExprType visit_index(const Node& n, BT::ExprType type);
 			BT::ExprType visit_list(const Node& n);
 			BT::ExprType visit_list_with_index(const Node& n);
+			BT::ExprType visit_list_type_declaration(const Node& n,BT::ExprType primitive);
 			BT::ExprType visit_litbool(const Node& n);
 			BT::ExprType visit_litint(const Node& n);
 			BT::ExprType visit_littext(const Node& n);

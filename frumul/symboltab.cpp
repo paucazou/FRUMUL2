@@ -41,6 +41,15 @@ namespace frumul {
 		is_defined = true;
 	}
 
+	bst::str VarSymbol::toString() const {
+		bst::str s{"<VarSymbol|"};
+		s += name + bst::str(" - ");
+		s += BT::typeToString(type) + ">\n";
+		s += "Index: " + bst::str(nb) + '\n';
+		s += pos.toString();
+		return s;
+	}
+
 	//SymbolTab
 	
 	SymbolTab::SymbolTab() {

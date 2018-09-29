@@ -83,6 +83,7 @@ namespace frumul {
 				case BT::INT_POS:	UNARY_OP(+,int); break;
 				case BT::TEXT_ADD:	BINARY_OP_SAME_TYPE(+,bst::str);break;
 				case BT::TEXT_MUL:	BINARY_OP(*,bst::str,int);break;
+				case BT::LIST_ADD:	BINARY_OP_SAME_TYPE(+,AnyVector);break;
 				case BT::BOOL_AND:	BINARY_OP_BOOL(&&);break;
 				case BT::BOOL_OR:	BINARY_OP_BOOL(||);break;
 				case BT::BOOL_NOT:	UNARY_OP(!,bool); break;
@@ -96,6 +97,7 @@ namespace frumul {
 				case BT::TEXT_GET_CHAR:	text_get_char();break;
 				case BT::LIST_APPEND:	list_append();break;
 				case BT::LIST_GET_ELT: 	list_get_elt();break;
+				case BT::LENGTH:	length();break;
 				case BT::JUMP_TRUE: 	jump_true();break;
 				case BT::JUMP_FALSE:	jump_false();break;
 				case BT::JUMP:		jump(); break;
@@ -111,6 +113,33 @@ namespace frumul {
 			};
 			++it; // increment the iterator to manage the next instruction
 		}
+	}
+
+	void VM::length() {
+		/* Get the length of a text or of a list
+		 * Syntax:
+		 * 	LENGTH
+		 * 	TYPE (TEXT OR LIST)
+		 * 	pop(text/list)
+		 * 	push(length)
+		 */
+		// prepare elements
+		int len{-1};
+		E::any elt{stack.pop()};
+		// find length
+		switch (*++it) {
+			case BT::LIST:
+				len = E::any_cast<AnyVector&>(elt).size();
+				break;
+			case BT::TEXT:
+				len = E::any_cast<bst::str&>(elt).uLength();
+				break;
+			default:
+				assert(false&&"Type expected: text or list.");
+		};
+		// push elements on stack
+		stack.push(len);
+
 	}
 
 	void VM::jump_true() {
@@ -288,25 +317,34 @@ namespace frumul {
 		/* Get the char of a string
 		 * Syntax:
 		 * 	TEXT_GET_CHAR
-		 * 	TYPE(CONST OR VAR)
-		 * 	pop string_reference
-		 * 	pop index_of_char
+		 * 	TYPE(CONST/VAR/FROM_STACK)
+		 * 	pop string_reference/index_of_char
+		 * 	pop index_of_char/string
 		 */
 #pragma message("catch errors at runtime")
 		// get type
 		BT::ExprType t{static_cast<BT::ExprType>(*++it)};
-		// get references
-		int data_nb { pop<int>() };
-		int data_index { pop<int>() }; 	
-		
-		// get string and push element on the stack
-		if (t & BT::CONSTANT) {
-			const bst::str& s{E::any_cast<const bst::str&>(bt.getConstant(data_nb))};
-			stack.push(s.uAt(negative_index(data_index,s.uLength())));
+		if (t & BT::STACK_ELT) {
+			int i{pop<int>()};
+			bst::str s {pop<bst::str>()};
+			stack.push(s.uAt(negative_index(i,s.uLength())));
 		}
-		else {
-			bst::str& s{E::any_cast<bst::str&>(variables[data_nb])};
-			stack.push(s.uAt(negative_index(data_index,s.uLength())));
+		else
+		{
+			// get references
+			int data_nb { pop<int>() };
+			int data_index { pop<int>() }; 	
+			
+			// get string and push element on the stack
+			if (t & BT::CONSTANT) {
+				const bst::str& s{E::any_cast<const bst::str&>(bt.getConstant(data_nb))};
+				stack.push(s.uAt(negative_index(data_index,s.uLength())));
+			}
+			// from variable
+			else {
+				bst::str& s{E::any_cast<bst::str&>(variables[data_nb])};
+				stack.push(s.uAt(negative_index(data_index,s.uLength())));
+			}
 		}
 
 	}

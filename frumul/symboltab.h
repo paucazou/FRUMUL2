@@ -11,6 +11,7 @@
 #include <vector>
 #include "bytecode.h"
 #include "exception.h"
+#include "macros.h"
 #include "position.h"
 namespace frumul {
 	class VarSymbol{
@@ -24,6 +25,8 @@ namespace frumul {
 			const Position& getPosition() const;
 			// setters
 			void markDefined();
+			bst::str toString() const;
+			STDOUT(VarSymbol)
 		private:
 
 			bst::str name;

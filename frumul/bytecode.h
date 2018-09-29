@@ -12,7 +12,7 @@
 #include <map>
 #include <vector>
 #include "bstrlib/bstrwrap.h"
-//#include "header.h"
+
 
 namespace E = std::experimental;
 
@@ -27,7 +27,7 @@ namespace frumul {
 		 * of the values
 		 */
 		public:
-			enum ExprType {
+			enum ExprType : byte {
 				/* Type of the variables, constants
 				 * and other expressions
 				 */
@@ -41,8 +41,10 @@ namespace frumul {
 
 				CONSTANT 	= 1 << 4, // equal to LIST, but not used in same context
 				VARIABLE	= 1 << 5,
+				STACK_ELT	= 1 << 6,
 				MAX_EXPR_TYPE,
 			};
+
 
 			enum Instruction {
 				/* Instruction type
@@ -78,6 +80,8 @@ namespace frumul {
 				LIST_GET_ELT,
 				LIST_SET_ELT,
 
+				LENGTH,
+
 				JUMP_TRUE, // jump with a bool before and the emplacement to go after, ignored if bool is false
 				JUMP_FALSE, // inverse of CONDITIONAL_JUMP
 				JUMP, // jump with the emplacement to go just after, relative to the last part of the emplacement
@@ -100,6 +104,7 @@ namespace frumul {
 			std::vector<E::any>& getConstants();
 			std::vector<byte>& getCode();
 			static bst::str typeToString(ExprType);
+			static bst::str listToString(ExprType);
 
 			void addVariable(int i=1);
 
@@ -140,5 +145,8 @@ namespace frumul {
 	};
 	using BT = ByteCode;
 	using AnyVector = std::vector<E::any>;
+	
+	// functions related to the bytecode
+	AnyVector& operator + (AnyVector&, const AnyVector&);
 }
 #endif

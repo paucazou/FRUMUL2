@@ -39,6 +39,7 @@ namespace frumul {
 		private:
 			// functions
 			void main_loop();
+			void length();
 			void jump();
 			void jump_true();
 			void jump_false();

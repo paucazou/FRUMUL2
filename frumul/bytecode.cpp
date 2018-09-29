@@ -67,10 +67,31 @@ namespace frumul {
 			case SYMBOL:	return "SYMBOL";
 			case VOID:	return "VOID";
 			default:
-					printl(e);
-					assert(false&&"Type unknown");
+					if (e >= LIST)
+						return listToString(e);
+						
+					else {
+						printl(e);
+						assert(false&&"Type unknown");
+					}
 		};
 		return "nothing"; // to silent clang
+	}
+
+	bst::str ByteCode::listToString(ExprType e) {
+		/* String representation of a list
+		 */
+		bst::str s{"LIST "};
+		// depth
+		int depth{0};
+		while (e >= LIST) {
+			e = static_cast<ExprType>(e - LIST);
+			depth += 1;
+		}
+		s += bst::str(depth) + " ";
+		// type
+		s += typeToString(e);
+		return s;
 	}
 
 	void ByteCode::addVariable(int i) {
@@ -85,5 +106,17 @@ namespace frumul {
 		 */
 		return !code.empty();
 	}
+
+	// other functions
+
+	AnyVector& operator + (AnyVector& a, const AnyVector& b) {
+		/* Add the content of b in a and return
+		 * a reference to a
+		 */
+		a.insert(a.end(), // where to add b
+			b.begin(),b.end()); // content of b
+		return a;
+	}
+
 
 }
