@@ -222,6 +222,19 @@ namespace frumul {
 						throw exc(exc::InvalidOperator,n.getValue() + " can not be used with type TEXT", n.getPosition());
 					return BT::TEXT;
 				}
+			case BT::BOOL:
+				{
+					BT::ExprType t2{visit(n.get("left"))};
+					if (t2 != BT::BOOL)
+						throwInconsistentType(BT::BOOL,t2,n.get("left"),n.get("right"));
+					static std::map<bst::str,BT::Instruction> types {
+						{"&",BT::BOOL_AND},
+						{"|",BT::BOOL_OR},
+					};
+					code.push_back(types[n.getValue()]);
+
+					return BT::BOOL;
+				}
 			default:
 				if (right >= BT::LIST && n.getValue() == "+") {
 					BT::ExprType t2{visit(n.get("left"))};
@@ -256,9 +269,16 @@ namespace frumul {
 	BT::ExprType __compiler::visit_comparison(const Node& n) {
 		/* Compile a comparison
 		 */
-		for (size_t i{0}; i < n.getNumberedChildren().size(); i+=3) {
+		// positions relative to the first operand
+		constexpr int right_operand_pos{2};
+		constexpr int operator_pos{1};
+		constexpr int next_left_operand{2};
+		printl(n);
+
+		for (size_t i{0}; i < n.getNumberedChildren().size()-next_left_operand; i+=next_left_operand) {
+			printl(i);
 			// get right operand
-			BT::ExprType right_rt{visit(n.get(i + 2))};
+			BT::ExprType right_rt{visit(n.get(i + right_operand_pos))};
 			// get left operand
 			BT::ExprType left_rt{visit(n.get(i))};
 
@@ -266,7 +286,7 @@ namespace frumul {
 			if (left_rt != right_rt)
 				throwInconsistentType(left_rt,right_rt,n.get(0),n.get(i));
 			// if op is <,>, <= or >=, check if type is INT
-			const Node& op {n.get(i+1)};
+			const Node& op {n.get(i+operator_pos)};
 			if (op.getValue() != "=" && left_rt != BT::INT)
 				throw exc(exc::InvalidOperator,op.getValue() + " can not be used with type " + BT::typeToString(left_rt),op.getPosition());
 
