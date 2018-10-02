@@ -605,6 +605,18 @@ namespace frumul {
 
 		if (current_token->getType() == Token::LBRACKET) {
 			Node idex{index()};
+			// change a char/elt of a list ?
+			if (current_token->getType() == Token::ASSIGN) {
+				// eat assign
+				eat(Token::ASSIGN,Token::MAX_TYPES_VALUES);
+				// get value
+				Node value{comparison()};
+				end = value.getPosition().getEnd();
+				// return node
+				return Node {Node::INDEX_ASSIGNMENT,
+					Position(start,end,filepath,source),
+					NodeVector{idex,value},variable_name};
+			}
 			end = idex.getPosition().getEnd();
 			return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),{{"index",idex}},variable_name};
 		}
