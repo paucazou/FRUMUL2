@@ -68,6 +68,7 @@ namespace frumul {
 				TEXT_ADD,
 				TEXT_MUL,
 				TEXT_GET_CHAR,
+				TEXT_SET_CHAR,
 				// Arguments postponed: at least one arg is after the instruction, and can use the last item of a stack
 				BOOL_EQUAL,
 				BOOL_INFERIOR,

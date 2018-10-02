@@ -9,6 +9,7 @@
 #include <experimental/any>
 #include "bstrlib/bstrwrap.h"
 #include "bytecode.h"
+#include "exception.h"
 #include "functions.inl"
 #include "symbol.h"
 //#include "header.h"
@@ -48,6 +49,7 @@ namespace frumul {
 			void list_append();
 			void list_get_elt();
 			void text_get_char();
+			void text_set_char();
 			void push();
 			void assign();
 			template <typename T>

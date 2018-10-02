@@ -74,6 +74,7 @@ namespace frumul {
 			BT::ExprType visit_comparison(const Node& n);
 			BT::ExprType visit_condition(const Node& n);
 			BT::ExprType visit_index(const Node& n, BT::ExprType type);
+			BT::ExprType visit_index_assignment(const Node& n);
 			BT::ExprType visit_list(const Node& n);
 			BT::ExprType visit_list_with_index(const Node& n);
 			BT::ExprType visit_list_type_declaration(const Node& n,BT::ExprType primitive);
@@ -86,6 +87,7 @@ namespace frumul {
 			BT::ExprType visit_variable_assignment(const Node& n);
 			BT::ExprType visit_variable_declaration(const Node& n);
 			BT::ExprType visit_variable_name(const Node& n);
+			void checkVariable(const bst::str& name,const Node& n);
 
 			void throwInconsistentType(BT::ExprType t1, BT::ExprType t2,const Node& n1, const Node& n2);
 			void throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Position& n1, const Position& n2);

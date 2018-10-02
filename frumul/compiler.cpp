@@ -126,6 +126,7 @@ namespace frumul {
 			case Node::BIN_OP:		return visit_bin_op(n);
 			case Node::CONDITION:		return visit_condition(n);
 			case Node::COMPARISON:		return visit_comparison(n);
+			case Node::INDEX_ASSIGNMENT:	return visit_index_assignment(n);
 			case Node::LIST:		return visit_list(n);
 			case Node::LIST_WITH_INDEX:	return visit_list_with_index(n);
 			case Node::LITBOOL:		return visit_litbool(n);
@@ -339,10 +340,9 @@ namespace frumul {
 	}
 
 	BT::ExprType __compiler::visit_index(const Node& n, BT::ExprType type) {
-		/* compile an index
+		/* compile an index of a text
 		 * Node expected contains the index, but it's not the
 		 * index itself
-		 * TODO manage list
 		 */
 		// checks
 		if (type != BT::TEXT)
@@ -364,6 +364,43 @@ namespace frumul {
 
 		return BT::TEXT;
 
+	}
+	
+	BT::ExprType __compiler::visit_index_assignment(const Node& n) {
+		/* Visit the assignment of an element of
+		 * a list or a string
+		 */
+#pragma message "enable index assignment for lists"
+		const bst::str& name {n.getValue()};
+		const NodeVector& fields{n.getNumberedChildren()};
+
+		checkVariable(name,n); // variable checks
+		// type of the variable
+		BT::ExprType var_type{symbol_table->getType(name)};
+		BT::ExprType type_expected{BT::VOID};
+
+		if (var_type != BT::TEXT && var_type > BT::LIST)
+			throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
+
+		if (var_type == BT::TEXT)
+			type_expected = BT::TEXT;
+
+		// push the value first
+		const auto& value {fields[negative_index(-1,fields.size())]};
+		if (visit(value) != type_expected)
+			throw exc(exc::TypeError,"The value should match the type expected",value.getPosition());
+
+		// push the index in second
+		if (visit(fields[0]) != BT::INT)
+			throw exc(exc::TypeError,"Index must be an integer",fields[0].getPosition());
+
+		// push the reference of the string in last
+		appendAndPushConstant(symbol_table->getIndex(name));
+		
+		// set the instruction
+		appendInstructions(BT::TEXT_SET_CHAR);
+
+		return BT::VOID;
 	}
 
 	BT::ExprType __compiler::visit_list(const Node& n) {
@@ -726,11 +763,7 @@ namespace frumul {
 #pragma message "List not yet set"
 		const bst::str& name {n.getValue()};
 		// checks
-		if (!symbol_table->contains(name))
-			throw exc(exc::NameError,"Name not defined",n.getPosition());
-		if (!symbol_table->isDefined(name))
-			throw exc(exc::ValueError,"Variable contains no value",n.getPosition());
-
+		checkVariable(name,n);
 		// with index
 		if (n.has("index")) {
 			return visit_index(n,symbol_table->getType(name));
@@ -740,4 +773,15 @@ namespace frumul {
 		
 		return symbol_table->getType(name);
 	}
+
+	void __compiler::checkVariable(const bst::str& name, const Node& n) {
+		/* Checks that variable name has already
+		 * been defined and has been defined
+		 */
+		if (!symbol_table->contains(name))
+			throw exc(exc::NameError,"Name not defined",n.getPosition());
+		if (!symbol_table->isDefined(name))
+			throw exc(exc::ValueError,"Variable contains no value",n.getPosition());
+	}
+
 }

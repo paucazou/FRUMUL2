@@ -41,5 +41,13 @@ namespace frumul {
 			return index;
 		return length + index;
 	}
-
+	
+	unsigned int negative_index(int index, unsigned int length, bool check) {
+		/* Throw exception if check is true
+		 * and index is over length
+		 */
+		if ((index < 0 && -index >= length) || (index > 0 && index >= length))
+			throw BackException(exc::IndexError);
+		return negative_index(index,length);
+	}
 } // namespace 

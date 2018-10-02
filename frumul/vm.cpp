@@ -103,6 +103,7 @@ namespace frumul {
 				case BT::BOOL_INF_EQUAL:COMPARE_INT(<=);break;
 				case BT::BOOL_SUP_EQUAL:COMPARE_INT(>=);break;
 				case BT::TEXT_GET_CHAR:	text_get_char();break;
+				case BT::TEXT_SET_CHAR:	text_set_char();break;
 				case BT::LIST_APPEND:	list_append();break;
 				case BT::LIST_GET_ELT: 	list_get_elt();break;
 				case BT::LENGTH:	length();break;
@@ -355,6 +356,27 @@ namespace frumul {
 			}
 		}
 
+	}
+
+	void VM::text_set_char() {
+		/* Set an element of text
+		 * Syntax:
+		 * 	TEXT_SET_CHAR
+		 * 	pop(text_variable_id)
+		 * 	pop(index_of_char)
+		 * 	pop(char)
+		 */
+#pragma message "Catch index error at runtime."
+		int text_var {pop<int>()};
+		int index{pop<int>()};
+		const bst::str c{pop<const bst::str>()};
+		// check that c has a 1 length
+		if (c.uLength() != 1)
+			throw BackException(exc::ValueError);
+
+		bst::str& var{E::any_cast<bst::str&>(variables[text_var])};
+
+		var.uReplace(negative_index(index,var.uLength()),c);
 	}
 
 	void VM::list_get_elt() {

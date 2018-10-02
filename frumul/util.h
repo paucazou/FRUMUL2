@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 #include "bstrlib/bstrwrap.h"
+#include "exception.h"
 
 namespace frumul {
 	using byte = uint_fast8_t;
@@ -15,5 +16,6 @@ namespace frumul {
 	bst::str readfile (const bst::str&);
 	std::pair<byte,byte> splitShort(int_fast16_t);
 	unsigned int negative_index(int index,unsigned int length);
+	unsigned int negative_index(int index,unsigned int length,bool check);
 } // namespace 
 #endif

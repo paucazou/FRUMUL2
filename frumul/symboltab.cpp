@@ -28,6 +28,7 @@ namespace frumul {
 	bool VarSymbol::isDefined() const {
 		/* true if symbol has been defined at least once
 		 */
+#pragma message "Not safe: if a variable is first set in a loop/if block, it can be not set if the loop/if is not executed"
 		return is_defined;
 	}
 
