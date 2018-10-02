@@ -273,10 +273,8 @@ namespace frumul {
 		constexpr int right_operand_pos{2};
 		constexpr int operator_pos{1};
 		constexpr int next_left_operand{2};
-		printl(n);
 
 		for (size_t i{0}; i < n.getNumberedChildren().size()-next_left_operand; i+=next_left_operand) {
-			printl(i);
 			// get right operand
 			BT::ExprType right_rt{visit(n.get(i + right_operand_pos))};
 			// get left operand

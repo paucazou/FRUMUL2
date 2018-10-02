@@ -530,7 +530,7 @@ namespace frumul {
 			t = Token::GREATER;
 		}
 		else if (current_char == "<") {
-			val = ">";
+			val = "<";
 			t = Token::LESS;
 		}
 		else if (current_char == "§") {

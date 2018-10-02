@@ -41,6 +41,14 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 			 assert(false&&"Type unknown"); \
 	}; \
 	} while (false) // to allow the semi colon
+
+/* Useful only for integer comparison with <,>,<=,>= operators
+ */
+#define COMPARE_INT(op) \
+	do { \
+	++it; \
+	stack.push(pop<int>() op pop<int>()); \
+	} while (false)
 	
 namespace frumul {
 	VM::VM(ByteCode& nbt,const bst::str& nlang) :
@@ -90,10 +98,10 @@ namespace frumul {
 
 				// postponed arguments
 				case BT::BOOL_EQUAL:	COMPARE(==);break;
-				case BT::BOOL_INFERIOR:	COMPARE(<);break;
-				case BT::BOOL_SUPERIOR:	COMPARE(>);break;
-				case BT::BOOL_INF_EQUAL:COMPARE(<=);break;
-				case BT::BOOL_SUP_EQUAL:COMPARE(>=);break;
+				case BT::BOOL_INFERIOR:	COMPARE_INT(<);break;
+				case BT::BOOL_SUPERIOR:	COMPARE_INT(>);break;
+				case BT::BOOL_INF_EQUAL:COMPARE_INT(<=);break;
+				case BT::BOOL_SUP_EQUAL:COMPARE_INT(>=);break;
 				case BT::TEXT_GET_CHAR:	text_get_char();break;
 				case BT::LIST_APPEND:	list_append();break;
 				case BT::LIST_GET_ELT: 	list_get_elt();break;
