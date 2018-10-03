@@ -164,10 +164,12 @@ namespace frumul {
 				//insertInstructions(last_index,BT::PUSH,BT::VARIABLE,r_index);
 
 				// cast
-				if (rt == BT::SYMBOL) // cast impossible
+				/*if (rt == BT::SYMBOL) // cast impossible
 					throwInconsistentType(return_type,rt,n,child);
-				else if (rt != return_type)
-					appendInstructions(BT::CAST,rt,return_type);
+					*/
+				if (rt != return_type)
+					cast(rt,return_type,n,child);
+					//appendInstructions(BT::CAST,rt,return_type);
 
 				appendInstructions(
 						BT::PUSH,BT::VARIABLE,r_index, // push returned value on the stack
@@ -387,8 +389,10 @@ namespace frumul {
 
 		// push the value first
 		const auto& value {fields[negative_index(-1,fields.size())]};
-		if (visit(value) != type_expected)
-			throw exc(exc::TypeError,"The value should match the type expected",value.getPosition());
+		BT::ExprType val_rt {visit(value)};
+		if (val_rt != type_expected)
+			cast(val_rt,type_expected,n,value);
+			//throw exc(exc::TypeError,"The value should match the type expected",value.getPosition());
 
 		// push the index in second
 		if (visit(fields[0]) != BT::INT)
@@ -677,12 +681,15 @@ namespace frumul {
 		const BT::ExprType s_type {symbol_table->getType(name)};
 		if (rt != s_type) {
 			// cast if possible
+			cast(rt,s_type,n,n.get("value"));
+			/*
 			if (rt == BT::SYMBOL ||
 				(s_type == BT::SYMBOL && rt != BT::TEXT)
 			   )
 				throwInconsistentType(rt,s_type,n.get("value"),n.get("name"));
 			else
 				appendInstructions(BT::CAST,rt,s_type);
+				*/
 		}
 		//appendAndPushConstant<int>(symbol_table->getIndex(name));
 		appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
@@ -732,7 +739,7 @@ namespace frumul {
 		if (n.getNamedChildren().count("value")) {
 			BT::ExprType value_rt {visit(n.get("value"))};
 			if (value_rt != type_)
-				throwInconsistentType(type_,value_rt,n.get("type").getPosition(),n.get("value").getPosition());
+				cast(value_rt,type_,n,n.get("value"));
 
 			//appendAndPushConstant<int>();
 			appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
@@ -760,7 +767,6 @@ namespace frumul {
 	BT::ExprType __compiler::visit_variable_name(const Node& n) {
 		/* compile a call to a variable
 		 */
-#pragma message "List not yet set"
 		const bst::str& name {n.getValue()};
 		// checks
 		checkVariable(name,n);
@@ -772,6 +778,24 @@ namespace frumul {
 		appendInstructions(BT::PUSH,BT::VARIABLE,symbol_table->getIndex(name));
 		
 		return symbol_table->getType(name);
+	}
+
+	void __compiler::cast(BT::ExprType source, BT::ExprType target, const Node& source_node, const Node& target_node) {
+		/* Compiles a cast if possible between source and target
+		 * Cast can be compiled only in assignment, declaration and addition
+		 * to the return value if its type is text
+		 */
+
+		if (
+				source == BT::SYMBOL ||
+				(source == BT::SYMBOL && target != BT::TEXT) ||
+				source == BT::VOID ||
+				source >= BT::LIST ||
+				target >= BT::LIST
+		   )
+			throwInconsistentType(target,source,target_node,source_node);
+
+		appendInstructions(BT::CAST,source,target);
 	}
 
 	void __compiler::checkVariable(const bst::str& name, const Node& n) {

@@ -1,4 +1,5 @@
 #include "vm.h"
+#include "functions.inl"
 
 // macros
 constexpr int address_size = 2; // should be used everywhere an address is required
@@ -68,7 +69,13 @@ namespace frumul {
 	E::any VM::run() {
 		/* run vm and return value
 		 */
-		main_loop();
+		try {
+			main_loop();
+		}
+		catch (BackException& e) {
+			long int position {std::distance(bt.getBegin(),it)};
+			bt.throwRuntimeError(position);
+		}
 		return variables[0];
 	}
 
@@ -235,22 +242,30 @@ namespace frumul {
 		 * 	SOURCE_TYPE
 		 * 	TARGET_TYPE
 		 */
-#pragma message("Do not forget to catch errors at runtime")
+#pragma message("Do not forget to catch errors at runtime: text->symbol")
 		BT::ExprType source_t {static_cast<BT::ExprType>(*++it)};
 		BT::ExprType target_t {static_cast<BT::ExprType>(*++it)};
 		switch (source_t) {
 			case BT::TEXT:
 				switch (target_t) {
 					case BT::INT:
-						stack.push(static_cast<int>(pop<bst::str>()));
+						{
+						bst::str s{pop<bst::str>()};
+						if (!can_be_cast_to<int>(s))
+							throw BackException(exc::TypeError);
+
+						stack.push(static_cast<int>(s));
+						}
 						break;
 					case BT::BOOL:
 						{
 							bst::str s{pop<bst::str>()};	
 							if (s == "1" || s == "true")
 								stack.push(true);
-							else
+							else if (s == "0" || s == "false")
 								stack.push(false);
+							else
+								throw BackException(exc::TypeError);
 						
 					   	}
 						break;
@@ -272,7 +287,12 @@ namespace frumul {
 						stack.push(bst::str(pop<int>()));
 						break;
 					case BT::BOOL:
-						stack.push(static_cast<bool>(pop<bool>()));
+						{
+						int i{pop<int>()};
+						if (i != 1 && i != 0)
+							throw BackException(exc::TypeError);
+						stack.push(static_cast<bool>(i));
+						}
 						break;
 					default:
 						assert(false&&"Type unknown");
@@ -366,7 +386,6 @@ namespace frumul {
 		 * 	pop(index_of_char)
 		 * 	pop(char)
 		 */
-#pragma message "Catch index error at runtime."
 		int text_var {pop<int>()};
 		int index{pop<int>()};
 		const bst::str c{pop<const bst::str>()};
@@ -376,7 +395,8 @@ namespace frumul {
 
 		bst::str& var{E::any_cast<bst::str&>(variables[text_var])};
 
-		var.uReplace(negative_index(index,var.uLength()),c);
+		// index error is catched thanks to negative_index
+		var.uReplace(negative_index(index,var.uLength(),true),c);
 	}
 
 	void VM::list_get_elt() {

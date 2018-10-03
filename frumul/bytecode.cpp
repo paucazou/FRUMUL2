@@ -100,6 +100,20 @@ namespace frumul {
 		v_nb += i;
 	}
 
+	void ByteCode::addRuntimeError(const BaseException& e) {
+		/* Add an exception that can be raised
+		 * by the vm on runtime if necessary.
+		 * It keeps the error in a map called runtime_errors
+		 * with the position of the last instruction added
+		 * as the key.
+		 * So call this function after the last instruction
+		 * you want the exception to be raised.
+		 */
+		runtime_errors.insert({
+				code.size() - 1,e
+				});
+	}
+
 	ByteCode::operator bool () const {
 		/* false if bytecode has
 		 * not been yet set

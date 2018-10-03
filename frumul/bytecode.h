@@ -9,9 +9,10 @@
 #include <cstdint>
 #include <experimental/any>
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include "bstrlib/bstrwrap.h"
+#include "exception.h"
 
 
 namespace E = std::experimental;
@@ -108,6 +109,8 @@ namespace frumul {
 			static bst::str listToString(ExprType);
 
 			void addVariable(int i=1);
+			void addRuntimeError(const BaseException&);
+			void throwRuntimeError(unsigned int i);
 
 			operator bool () const;
 
@@ -143,6 +146,8 @@ namespace frumul {
 			std::vector<E::any> constants;
 			// number of variables
 			int v_nb{0};
+			// errors at runtime
+			std::unordered_map<unsigned int,BaseException> runtime_errors;
 	};
 	using BT = ByteCode;
 	using AnyVector = std::vector<E::any>;

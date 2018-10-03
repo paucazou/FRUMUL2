@@ -87,6 +87,7 @@ namespace frumul {
 			BT::ExprType visit_variable_assignment(const Node& n);
 			BT::ExprType visit_variable_declaration(const Node& n);
 			BT::ExprType visit_variable_name(const Node& n);
+			void cast(BT::ExprType source, BT::ExprType target, const Node& source_node, const Node& target_node);
 			void checkVariable(const bst::str& name,const Node& n);
 
 			void throwInconsistentType(BT::ExprType t1, BT::ExprType t2,const Node& n1, const Node& n2);

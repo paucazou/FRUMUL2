@@ -5,6 +5,7 @@
  */
 #include <deque>
 #include <memory>
+#include <sstream>
 #include <stack>
 
 namespace frumul {
@@ -42,6 +43,18 @@ namespace frumul {
 
 		return std::unique_ptr<T>();
 	}
+
+	
+	template <typename T>
+		bool can_be_cast_to(const bst::str& s) {
+			/* Check that s can be converted 
+			 * to T
+			 */
+			std::string ss((const char*)(s.data));
+			std::istringstream iss{ss};
+			T tmp;
+			return (iss >> tmp) && (iss.eof());
+		}
 
 	template <typename T, typename Container=std::deque<T>>
 		class RandomStack : public std::stack<T,Container> {
