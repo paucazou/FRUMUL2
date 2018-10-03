@@ -32,6 +32,8 @@ namespace frumul {
 			bst::str name;
 			BT::ExprType type;
 			int nb;
+			int scope{0};
+			int scope_parent{0};
 			bool is_defined{false};
 			Position pos;
 	};

@@ -113,6 +113,7 @@ namespace frumul {
 				case BT::TEXT_SET_CHAR:	text_set_char();break;
 				case BT::LIST_APPEND:	list_append();break;
 				case BT::LIST_GET_ELT: 	list_get_elt();break;
+				case BT::LIST_SET_ELT:	list_set_elt();break;
 				case BT::LENGTH:	length();break;
 				case BT::JUMP_TRUE: 	jump_true();break;
 				case BT::JUMP_FALSE:	jump_false();break;
@@ -350,13 +351,12 @@ namespace frumul {
 		 * 	pop string_reference/index_of_char
 		 * 	pop index_of_char/string
 		 */
-#pragma message("catch errors at runtime")
 		// get type
 		BT::ExprType t{static_cast<BT::ExprType>(*++it)};
 		if (t & BT::STACK_ELT) {
 			int i{pop<int>()};
 			bst::str s {pop<bst::str>()};
-			stack.push(s.uAt(negative_index(i,s.uLength())));
+			stack.push(s.uAt(negative_index(i,s.uLength(),true)));
 		}
 		else
 		{
@@ -367,12 +367,12 @@ namespace frumul {
 			// get string and push element on the stack
 			if (t & BT::CONSTANT) {
 				const bst::str& s{E::any_cast<const bst::str&>(bt.getConstant(data_nb))};
-				stack.push(s.uAt(negative_index(data_index,s.uLength())));
+				stack.push(s.uAt(negative_index(data_index,s.uLength(),true)));
 			}
 			// from variable
 			else {
 				bst::str& s{E::any_cast<bst::str&>(variables[data_nb])};
-				stack.push(s.uAt(negative_index(data_index,s.uLength())));
+				stack.push(s.uAt(negative_index(data_index,s.uLength(),true)));
 			}
 		}
 
@@ -408,15 +408,12 @@ namespace frumul {
 		 * 	pop(list)
 		 * 	push(list)
 		 */
-#pragma message("We must catch errors at runtime")
 		// get index
 		int index{pop<int>()};
 		// get list
 		AnyVector list{pop<AnyVector>()};
 		// push element on the stack
-		printl("Get elt list size");
-		printl(list.size());
-		stack.push(list[negative_index(index,list.size())]);
+		stack.push(list[negative_index(index,list.size(),true)]);
 	}
 		
 	void VM::push() {

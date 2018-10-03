@@ -114,6 +114,13 @@ namespace frumul {
 				});
 	}
 
+	void ByteCode::throwRuntimeError(unsigned int i) {
+		/* Throw an error during the runtime
+		 * The error must be set by the compiler
+		 */
+		throw runtime_errors.at(i);
+	}
+
 	ByteCode::operator bool () const {
 		/* false if bytecode has
 		 * not been yet set

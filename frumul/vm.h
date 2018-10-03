@@ -48,6 +48,7 @@ namespace frumul {
 			void cast();
 			void list_append();
 			void list_get_elt();
+			void list_set_elt();
 			void text_get_char();
 			void text_set_char();
 			void push();
