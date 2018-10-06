@@ -399,6 +399,37 @@ namespace frumul {
 		var.uReplace(negative_index(index,var.uLength(),true),c);
 	}
 
+	void VM::list_set_elt() {
+		/* Set an element of a list
+		 * Syntax:
+		 * 	LIST_SET_ELT
+		 * 	NUMBER_OF_INDICES
+		 * 	pop(variable_index)
+		 * 	pop(index)...
+		 * 	pop(value)
+		 */
+		// get the number of indices
+		int indices_nb {*++it};
+		// get the id of the list
+		int var_i {pop<int>()};
+
+		AnyVector* list{E::any_cast<AnyVector>(&variables[var_i])};
+
+		// get the indices
+		for (;indices_nb > 1; --indices_nb) {
+			int i{pop<int>()};
+			list = E::any_cast<AnyVector*>(&list[i]);
+		}
+		// get the value
+		E::any val{stack.pop()};
+
+		// get the last index and set it
+		int last_index {pop<int>()};
+		list->operator[](negative_index(last_index,list->size(),true)) = val;
+
+
+	}
+
 	void VM::list_get_elt() {
 		/* Get an element of a list
 		 * and push it into the stack

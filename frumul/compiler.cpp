@@ -350,7 +350,7 @@ namespace frumul {
 		if (type != BT::TEXT)
 			throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
 		// push index on the stack
-		if (visit(n.get("index")) != BT::INT)
+		if (visit(n.get(0)) != BT::INT)
 			throw exc(exc::TypeError,"The index must be an integer",n.get("index").getPosition());
 		// push variable number on the stack
 		// (checks have been done before)
@@ -371,8 +371,9 @@ namespace frumul {
 	BT::ExprType __compiler::visit_index_assignment(const Node& n) {
 		/* Visit the assignment of an element of
 		 * a list or a string
+		 * expects a node with numbered children.
+		 * first one is the index, last one the
 		 */
-#pragma message "enable index assignment for lists"
 		const bst::str& name {n.getValue()};
 		const NodeVector& fields{n.getNumberedChildren()};
 
@@ -381,11 +382,13 @@ namespace frumul {
 		BT::ExprType var_type{symbol_table->getType(name)};
 		BT::ExprType type_expected{BT::VOID};
 
-		if (var_type != BT::TEXT && var_type > BT::LIST)
+		if (var_type != BT::TEXT && var_type < BT::LIST)
 			throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
 
 		if (var_type == BT::TEXT)
 			type_expected = BT::TEXT;
+		else // list
+			type_expected = static_cast<BT::ExprType>(var_type - BT::LIST);
 
 		// push the value first
 		const auto& value {fields[negative_index(-1,fields.size())]};
@@ -394,15 +397,27 @@ namespace frumul {
 			cast(val_rt,type_expected,n,value);
 			//throw exc(exc::TypeError,"The value should match the type expected",value.getPosition());
 
-		// push the index in second
-		if (visit(fields[0]) != BT::INT)
-			throw exc(exc::TypeError,"Index must be an integer",fields[0].getPosition());
+		int indices_nb {0}; // useful for list indices
+		if (var_type == BT::TEXT) {
+			// push the index in second
+			if (visit(fields[0]) != BT::INT)
+				throw exc(exc::TypeError,"Index must be an integer",fields[0].getPosition());
+		} else {
+			// get the indices and increment indices_nb
+			for (size_t i{0}; i < fields.size() -1; ++i, ++indices_nb) {
+				if (visit(fields[i]) != type_expected)
+					throw exc(exc::TypeError,"Index must be an integer",fields[i].getPosition());
+			}
+		}
 
-		// push the reference of the string in last
+		// push the reference of the string/list in last
 		appendAndPushConstant(symbol_table->getIndex(name));
-		
+
 		// set the instruction
-		appendInstructions(BT::TEXT_SET_CHAR);
+		if (var_type == BT::TEXT) 
+			appendInstructions(BT::TEXT_SET_CHAR);
+		else 
+			appendInstructions(BT::LIST_SET_ELT,indices_nb);
 
 		return BT::VOID;
 	}
@@ -434,6 +449,7 @@ namespace frumul {
 		 */
 		// we iterates over the map to keep the order of insertion (see parser)
 		// TODO this should be refactored with a multimap with std::variant (when possible)
+#pragma message "List as variable with index not yet set"
 
 
 		// load list and get her type
@@ -622,7 +638,7 @@ namespace frumul {
 	BT::ExprType __compiler::visit_littext(const Node& n) {
 		/* Compile a litteral text
 		 */
-		if (n.has("index"))
+		if (n.has(0))
 			return visit_index(n,BT::TEXT);
 		appendAndPushConstant<bst::str>(n.getValue());
 		return BT::TEXT;
@@ -771,7 +787,7 @@ namespace frumul {
 		// checks
 		checkVariable(name,n);
 		// with index
-		if (n.has("index")) {
+		if (n.has(0)) {
 			return visit_index(n,symbol_table->getType(name));
 		}
 		// with no index

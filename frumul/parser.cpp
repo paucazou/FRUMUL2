@@ -604,21 +604,24 @@ namespace frumul {
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES);
 
 		if (current_token->getType() == Token::LBRACKET) {
-			Node idex{index()};
+			NodeVector fields;
+			while (current_token->getType() == Token::LBRACKET)
+				fields.push_back(index());
+
 			// change a char/elt of a list ?
 			if (current_token->getType() == Token::ASSIGN) {
 				// eat assign
 				eat(Token::ASSIGN,Token::MAX_TYPES_VALUES);
 				// get value
-				Node value{comparison()};
-				end = value.getPosition().getEnd();
+				fields.push_back(comparison());
+				end = fields.back().getPosition().getEnd();
 				// return node
 				return Node {Node::INDEX_ASSIGNMENT,
 					Position(start,end,filepath,source),
-					NodeVector{idex,value},variable_name};
+					fields,variable_name};
 			}
-			end = idex.getPosition().getEnd();
-			return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),{{"index",idex}},variable_name};
+			end = fields.back().getPosition().getEnd();
+			return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),fields,variable_name};
 		}
 
 		return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),variable_name};
@@ -978,7 +981,7 @@ namespace frumul {
 				}
 			case Token::LAQUOTE:
 				{
-					StrNodeMap fields;
+					NodeVector fields;
 					int start {getTokenStart()};
 					eat(Token::LAQUOTE,Token::LITTEXT,Token::MAX_TYPES_VALUES); // eat «
 					bst::str val {current_token->getValue()};
@@ -986,7 +989,7 @@ namespace frumul {
 					int end {getTokenStart()};
 					eat(Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat »
 					if (current_token->getType() == Token::LBRACKET) {
-						fields.insert({"index",index()});
+						fields.push_back(index());
 					}
 					return Node{ Node::LITTEXT,Position(start,end,filepath,source),fields,val};
 				}
