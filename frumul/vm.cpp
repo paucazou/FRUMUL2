@@ -418,13 +418,16 @@ namespace frumul {
 		// get the indices
 		for (;indices_nb > 1; --indices_nb) {
 			int i{pop<int>()};
-			list = E::any_cast<AnyVector*>(&list[i]);
+			unsigned int index{negative_index(i,list->size(),true)};
+
+			list = E::any_cast<AnyVector>(&list->operator[](index));
 		}
+		// get the last index 
+		int last_index {pop<int>()};
+
 		// get the value
 		E::any val{stack.pop()};
 
-		// get the last index and set it
-		int last_index {pop<int>()};
 		list->operator[](negative_index(last_index,list->size(),true)) = val;
 
 
@@ -439,6 +442,7 @@ namespace frumul {
 		 * 	pop(list)
 		 * 	push(list)
 		 */
+		
 		// get index
 		int index{pop<int>()};
 		// get list

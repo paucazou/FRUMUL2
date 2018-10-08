@@ -341,14 +341,11 @@ namespace frumul {
 		return BT::VOID;
 	}
 
-	BT::ExprType __compiler::visit_index(const Node& n, BT::ExprType type) {
+	BT::ExprType __compiler::visit_index(const Node& n) {
 		/* compile an index of a text
 		 * Node expected contains the index, but it's not the
 		 * index itself
 		 */
-		// checks
-		if (type != BT::TEXT)
-			throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
 		// push index on the stack
 		if (visit(n.get(0)) != BT::INT)
 			throw exc(exc::TypeError,"The index must be an integer",n.get("index").getPosition());
@@ -374,6 +371,7 @@ namespace frumul {
 		 * expects a node with numbered children.
 		 * first one is the index, last one the
 		 */
+#pragma message "Text character assignment from a list not yet set"
 		const bst::str& name {n.getValue()};
 		const NodeVector& fields{n.getNumberedChildren()};
 
@@ -388,7 +386,8 @@ namespace frumul {
 		if (var_type == BT::TEXT)
 			type_expected = BT::TEXT;
 		else // list
-			type_expected = static_cast<BT::ExprType>(var_type - BT::LIST);
+			type_expected = static_cast<BT::ExprType>(var_type - 
+					(BT::LIST * (fields.size()-1)));
 
 		// push the value first
 		const auto& value {fields[negative_index(-1,fields.size())]};
@@ -405,7 +404,7 @@ namespace frumul {
 		} else {
 			// get the indices and increment indices_nb
 			for (size_t i{0}; i < fields.size() -1; ++i, ++indices_nb) {
-				if (visit(fields[i]) != type_expected)
+				if (visit(fields[i]) != BT::INT)
 					throw exc(exc::TypeError,"Index must be an integer",fields[i].getPosition());
 			}
 		}
@@ -454,7 +453,7 @@ namespace frumul {
 
 		// load list and get her type
 		auto it{n.getNumberedChildren().begin()};
-		assert(it->type() == Node::LIST&&"First node is not a list");
+		assert((it->type() == Node::LIST || it->type() == Node::VARIABLE_NAME)&&"First node is not a list");
 		BT::ExprType list_type{visit(*it++)}; // we increment AFTER the derefencement
 
 		// iterates over the indices by order
@@ -639,7 +638,7 @@ namespace frumul {
 		/* Compile a litteral text
 		 */
 		if (n.has(0))
-			return visit_index(n,BT::TEXT);
+			return visit_index(n);
 		appendAndPushConstant<bst::str>(n.getValue());
 		return BT::TEXT;
 	}
@@ -788,7 +787,20 @@ namespace frumul {
 		checkVariable(name,n);
 		// with index
 		if (n.has(0)) {
-			return visit_index(n,symbol_table->getType(name));
+			if (symbol_table->getType(name) == BT::TEXT)
+				return visit_index(n);
+			else if (symbol_table->getType(name) >= BT::LIST) {
+				// modify the node to match with node expected
+				// by visit_list_with_index
+				NodeVector fields;
+				fields.push_back(Node(Node::VARIABLE_NAME,n.getPosition(),name));
+				for (const auto& elt : n.getNumberedChildren())
+					fields.push_back(elt);
+
+				return visit_list_with_index(Node{Node::LIST_WITH_INDEX,n.getPosition(),fields});
+			}
+			else
+				throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
 		}
 		// with no index
 		appendInstructions(BT::PUSH,BT::VARIABLE,symbol_table->getIndex(name));

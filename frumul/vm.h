@@ -57,6 +57,11 @@ namespace frumul {
 				T pop() {
 					/* pops the last elements of the stack
 					 */
+					printl("Position: ");
+					printl(std::distance(bt.getBegin(),it));
+					printl("Top of stack:");
+					printl(stack.top().type().name());
+
 					return E::any_cast<T>(stack.pop());
 				}
 			// attributes

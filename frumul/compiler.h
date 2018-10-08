@@ -73,7 +73,7 @@ namespace frumul {
 			void visit_compare_op(const Node& n);
 			BT::ExprType visit_comparison(const Node& n);
 			BT::ExprType visit_condition(const Node& n);
-			BT::ExprType visit_index(const Node& n, BT::ExprType type);
+			BT::ExprType visit_index(const Node& n);
 			BT::ExprType visit_index_assignment(const Node& n);
 			BT::ExprType visit_list(const Node& n);
 			BT::ExprType visit_list_with_index(const Node& n);
