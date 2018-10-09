@@ -404,34 +404,56 @@ namespace frumul {
 		 * Syntax:
 		 * 	LIST_SET_ELT
 		 * 	NUMBER_OF_INDICES
+		 * 	SET_CHAR_BOOL
 		 * 	pop(variable_index)
 		 * 	pop(index)...
 		 * 	pop(value)
 		 */
 		// get the number of indices
 		int indices_nb {*++it};
+		// Set a char or an element of the list ?
+		bool is_char_to_set{static_cast<bool>(*++it)};
 		// get the id of the list
 		int var_i {pop<int>()};
 
 		AnyVector* list{E::any_cast<AnyVector>(&variables[var_i])};
+		bst::str* text_ptr{nullptr};
 
 		// get the indices
 		for (;indices_nb > 1; --indices_nb) {
 			int i{pop<int>()};
 			unsigned int index{negative_index(i,list->size(),true)};
 
-			list = E::any_cast<AnyVector>(&list->operator[](index));
+			if (is_char_to_set && indices_nb == 2)
+				text_ptr = E::any_cast<bst::str>(&list->operator[](index));
+			else
+				list = E::any_cast<AnyVector>(&list->operator[](index));
 		}
 		// get the last index 
 		int last_index {pop<int>()};
 
-		// get the value
-		E::any val{stack.pop()};
 
-		list->operator[](negative_index(last_index,list->size(),true)) = val;
+		if (is_char_to_set) {
+			// get the value
+			const bst::str c{pop<const bst::str>()};
+			
+			// check that c has a 1 length
+			if (c.uLength() != 1)
+				throw BackException(exc::ValueError);
+
+			// index error is catched thanks to negative_index
+			text_ptr->uReplace(negative_index(last_index,text_ptr->uLength(),true),c);
+
+		}
+		else {
+			// get the value
+			E::any val{stack.pop()};
+			list->operator[](negative_index(last_index,list->size(),true)) = val;
+		}
 
 
 	}
+
 
 	void VM::list_get_elt() {
 		/* Get an element of a list

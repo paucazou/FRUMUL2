@@ -371,7 +371,6 @@ namespace frumul {
 		 * expects a node with numbered children.
 		 * first one is the index, last one the
 		 */
-#pragma message "Text character assignment from a list not yet set"
 		const bst::str& name {n.getValue()};
 		const NodeVector& fields{n.getNumberedChildren()};
 
@@ -383,18 +382,32 @@ namespace frumul {
 		if (var_type != BT::TEXT && var_type < BT::LIST)
 			throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
 
+		bool is_char_to_set{false}; // useful for list containing chars to set
+
+			printl("FORMULE");
+			printl(var_type);
+			printl(BT::LIST);
+			printl(fields.size());
+			printl(static_cast<int>(
+						var_type % (BT::LIST * (fields.size() - 1))
+					       ));
 		if (var_type == BT::TEXT)
 			type_expected = BT::TEXT;
-		else // list
+		else if ((var_type & BT::TEXT) && 
+			(var_type % (BT::LIST * (fields.size() - 1)) != BT::TEXT) 
+			){// lists of texts // complicated condition 
+			type_expected = BT::TEXT;
+			is_char_to_set = true;
+		}
+		else 
 			type_expected = static_cast<BT::ExprType>(var_type - 
-					(BT::LIST * (fields.size()-1)));
+					(BT::LIST * (fields.size()-1))); // BUG overflow when error
 
 		// push the value first
 		const auto& value {fields[negative_index(-1,fields.size())]};
 		BT::ExprType val_rt {visit(value)};
 		if (val_rt != type_expected)
-			cast(val_rt,type_expected,n,value);
-			//throw exc(exc::TypeError,"The value should match the type expected",value.getPosition());
+			cast(val_rt,type_expected,value,n);
 
 		int indices_nb {0}; // useful for list indices
 		if (var_type == BT::TEXT) {
@@ -416,7 +429,7 @@ namespace frumul {
 		if (var_type == BT::TEXT) 
 			appendInstructions(BT::TEXT_SET_CHAR);
 		else 
-			appendInstructions(BT::LIST_SET_ELT,indices_nb);
+			appendInstructions(BT::LIST_SET_ELT,indices_nb,is_char_to_set);
 
 		return BT::VOID;
 	}

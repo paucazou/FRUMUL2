@@ -421,6 +421,9 @@ namespace frumul {
 		 * It can return a comparison if it found one,
 		 * or an expression.
 		 */
+		// BUG TODO  {if x = 1 & true} & has priority over =, which is inconsistanto
+		// should be true & true & true, not only a binary operator
+#pragma message "bug here : & has priority over ="
 		Node expression { expr() };
 		if (!intokl(current_token->getType(),{Token::EQUAL,Token::GREATER,Token::LESS}))
 			return expression;
