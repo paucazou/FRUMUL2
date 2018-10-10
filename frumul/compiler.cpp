@@ -435,10 +435,16 @@ namespace frumul {
 		appendAndPushConstant(symbol_table->getIndex(name));
 
 		// set the instruction
-		if (var_type == BT::TEXT) 
+		if (var_type == BT::TEXT) {
 			appendInstructions(BT::TEXT_SET_CHAR);
-		else 
+			bytecode.addRuntimeError(exc{exc::ValueError,"The text contains more than one char",value.getPosition()});
+			bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of characters in the text",n.getPosition()});
+		}
+		else {
 			appendInstructions(BT::LIST_SET_ELT,indices_nb,is_char_to_set);
+			bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of elements in the list",n.getPosition()});
+		}
+
 
 		return BT::VOID;
 	}

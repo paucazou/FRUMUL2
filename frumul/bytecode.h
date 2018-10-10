@@ -10,6 +10,7 @@
 #include <experimental/any>
 #include <functional>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 #include "bstrlib/bstrwrap.h"
 #include "exception.h"
@@ -110,7 +111,7 @@ namespace frumul {
 
 			void addVariable(int i=1);
 			void addRuntimeError(const BaseException&);
-			void throwRuntimeError(unsigned int i);
+			void throwRuntimeError(unsigned int i, exc::Type t);
 
 			operator bool () const;
 
@@ -147,10 +148,11 @@ namespace frumul {
 			// number of variables
 			int v_nb{0};
 			// errors at runtime
-			std::unordered_map<unsigned int,BaseException> runtime_errors;
+			std::unordered_map<std::pair<unsigned int,BaseException::Type>,BaseException> runtime_errors;
 	};
 	using BT = ByteCode;
 	using AnyVector = std::vector<E::any>;
+	using IntExcPair = std::pair<unsigned int, BaseException::Type>;
 	
 	// functions related to the bytecode
 	AnyVector& operator + (AnyVector&, const AnyVector&);

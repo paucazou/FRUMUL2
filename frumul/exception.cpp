@@ -42,6 +42,10 @@ namespace frumul {
 		return returned;
 	}
 
+	BaseException::Type BaseException::getType() const {
+		return type;
+	}
+
 	// Inconsistant class
 	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo, const Position& npos, const bst::str& ninfo2, const std::vector<Position> npositions) :
 		BaseException(ntype,ninfo,npos), info2{ninfo2}, positions2{npositions}

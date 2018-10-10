@@ -51,6 +51,7 @@ namespace frumul {
 
 			BaseException (Type ntype,const bst::str& ninfo,const Position& npos);
 			virtual const bst::str what () const noexcept; // return a custom message
+			Type getType() const;
 		protected:
 			const Type type;
 			const bst::str addinfo;		// infos entered while creating the instance

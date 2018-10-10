@@ -110,15 +110,15 @@ namespace frumul {
 		 * you want the exception to be raised.
 		 */
 		runtime_errors.insert({
-				code.size() - 1,e
+				IntExcPair(code.size() - 1,e.getType()),e
 				});
 	}
 
-	void ByteCode::throwRuntimeError(unsigned int i) {
+	void ByteCode::throwRuntimeError(unsigned int i, exc::Type t) {
 		/* Throw an error during the runtime
 		 * The error must be set by the compiler
 		 */
-		throw runtime_errors.at(i);
+		throw runtime_errors.at(IntExcPair(i,t));
 	}
 
 	ByteCode::operator bool () const {

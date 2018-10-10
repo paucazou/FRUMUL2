@@ -74,7 +74,7 @@ namespace frumul {
 		}
 		catch (BackException& e) {
 			long int position {std::distance(bt.getBegin(),it)};
-			bt.throwRuntimeError(position);
+			bt.throwRuntimeError(position,e.getType());
 		}
 		return variables[0];
 	}
