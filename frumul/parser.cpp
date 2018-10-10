@@ -294,7 +294,7 @@ namespace frumul {
 			return Node{Node::EMPTY,current_token->getPosition()};
 
 		if (current_token->getType() != Token::VARIABLE) // we know it is not a statement
-			return comparison(); 
+			return bin_op(Token::OR) ; 
 
 		if (current_token->getValue() == "if")
 			return condition();
@@ -315,7 +315,7 @@ namespace frumul {
 
 		// an expression starting by a variable
 		if (nextToken.getType() != Token::ASSIGN)
-			return comparison();
+			return bin_op(Token::OR);
 
 		// we can assume there is an assignment here
 		Node assign_node {variable_assignment()};
@@ -384,7 +384,7 @@ namespace frumul {
 
 		if (current_token->getType() == Token::ASSIGN) {
 			eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
-			fields.insert({"value" , comparison()});
+			fields.insert({"value" , bin_op(Token::OR)});
 		}
 		eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
 
@@ -410,7 +410,7 @@ namespace frumul {
 		// get assign
 		eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
 		// get value
-		fields.insert({"value",comparison()});
+		fields.insert({"value",bin_op(Token::OR)});
 
 		int end{fields.at("value").getPosition().getEnd()};
 		return Node{Node::VARIABLE_ASSIGNMENT,Position(start,end,filepath,source),fields};
@@ -421,10 +421,7 @@ namespace frumul {
 		 * It can return a comparison if it found one,
 		 * or an expression.
 		 */
-		// BUG TODO  {if x = 1 & true} & has priority over =, which is inconsistanto
-		// should be true & true & true, not only a binary operator
-#pragma message "bug here : & has priority over ="
-		Node expression { expr() };
+		Node expression { bin_op(Token::PLUS,Token::MINUS) };
 		if (!intokl(current_token->getType(),{Token::EQUAL,Token::GREATER,Token::LESS}))
 			return expression;
 
@@ -459,7 +456,7 @@ namespace frumul {
 			};
 			if (isComparison) {
 				fields.push_back(Node{Node::COMPARE_OP,Position(start,end,filepath,source),val});
-				fields.push_back(expr());
+				fields.push_back(bin_op(Token::PLUS,Token::MINUS));
 			}
 		}
 
@@ -468,7 +465,7 @@ namespace frumul {
 		return compare_node;
 	}
 
-	Node Parser::expr () {
+	Node Parser::expr () { // DEPRECATED
 		/* Manages all the expressions
 		 * Return a node
 		 * which can have a value
@@ -510,7 +507,7 @@ namespace frumul {
 		return returned_node;
 	}
 
-	Node Parser::term () {
+	Node Parser::term () { // DEPRECATED
 		/* Manages all the term.
 		 * return Node of various types
 		 * Recursive function
@@ -583,7 +580,7 @@ namespace frumul {
 			case Token::LPAREN:
 				{
 				eat(Token::LPAREN,Token::MAX_TYPES_VALUES);
-				Node expression {comparison()};
+				Node expression {bin_op(Token::OR)};
 				eat(Token::RPAREN,Token::MAX_TYPES_VALUES);
 				return expression;
 				}
@@ -618,7 +615,7 @@ namespace frumul {
 				// eat assign
 				eat(Token::ASSIGN,Token::MAX_TYPES_VALUES);
 				// get value
-				fields.push_back(comparison());
+				fields.push_back(bin_op(Token::OR));
 				end = fields.back().getPosition().getEnd();
 				// return node
 				return Node {Node::INDEX_ASSIGNMENT,
@@ -635,10 +632,9 @@ namespace frumul {
 	Node Parser::index () {
 		/* Manages an index of a list
 		 * or of a text
-		 * for returned node, see comparison() details
 		 */
 		eat(Token::LBRACKET,Token::MAX_TYPES_VALUES);
-		Node index{expr()}; // we expect an int here
+		Node index{bin_op(Token::OR)}; // we expect an int here
 		eat(Token::RBRACKET,Token::MAX_TYPES_VALUES);
 		return index;
 	}
@@ -656,14 +652,14 @@ namespace frumul {
 		StrNodeMap fields;
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat 'loop'
 		// get comparison/number of times
-		Node condition { comparison() };
+		Node condition { bin_op(Token::OR) };
 		// get the iterable if it exists
 		if (current_token->getType() == Token::ASSIGN) {
 			eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
 			// check that condition is a variable name and not an list index
 			if (condition.type() != Node::VARIABLE_NAME || condition.areChildrenNamed()) // if the type is VARIABLE_NAME but children are named, we know it is an list index
 				throw exc(exc::TypeError,"A variable name is expected", condition.getPosition());
-			Node variable_filler{ comparison() };
+			Node variable_filler{ bin_op(Token::OR) };
 			fields.insert({"variable",condition});
 			fields.insert({"variable_filler",variable_filler});
 		} else
@@ -694,7 +690,7 @@ namespace frumul {
 		StrNodeMap fields;
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); //eat 'if'
 		// get comparison
-		fields.insert({"comparison",comparison()});
+		fields.insert({"comparison",bin_op(Token::OR)});
 		eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); //eat }
 		// get text inside
 		fields.insert({"text",basic_value(getTokenStart())});
@@ -958,7 +954,7 @@ namespace frumul {
 				val += "=";
 				eat(Token::EQUAL,Token::MAX_TYPES_VALUES);
 			}
-			Node expression{expr()}; // get the number. We do not call comparison, since we don't expect one. Actually, calling comparison would create an error if another comparison sign is found
+			Node expression{bin_op(Token::PLUS,Token::MINUS)}; // get the number. We do not call comparison, since we don't expect one. Actually, calling comparison would create an error if another comparison sign is found
 			int end {expression.getPosition().getEnd()};
 			fields.push_back(Node{Node::BIN_OP,Position(start,end,filepath,source),{expression},val});
 		}
@@ -1018,7 +1014,7 @@ namespace frumul {
 		NodeVector elements;
 		eat(Token::LBRACKET,Token::MAX_TYPES_VALUES); // eat [
 		for (int i{0};current_token->getType() != Token::RBRACKET; ++i) {
-			elements.push_back(comparison());
+			elements.push_back(bin_op(Token::OR));
 			if (current_token->getType() == Token::COMMA)
 				eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ¦
 		}

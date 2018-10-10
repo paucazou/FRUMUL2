@@ -845,6 +845,10 @@ namespace frumul {
 			throwInconsistentType(target,source,target_node,source_node);
 
 		appendInstructions(BT::CAST,source,target);
+		// add a runtime error
+		if (target != BT::TEXT && source != BT::BOOL) {
+			bytecode.addRuntimeError(exc(exc::CastError,"Impossible to cast value",source_node.getPosition()));
+		}
 	}
 
 	void __compiler::checkVariable(const bst::str& name, const Node& n) {

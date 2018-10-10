@@ -253,7 +253,7 @@ namespace frumul {
 						{
 						bst::str s{pop<bst::str>()};
 						if (!can_be_cast_to<int>(s))
-							throw BackException(exc::TypeError);
+							throw BackException(exc::CastError);
 
 						stack.push(static_cast<int>(s));
 						}
@@ -266,7 +266,7 @@ namespace frumul {
 							else if (s == "0" || s == "false")
 								stack.push(false);
 							else
-								throw BackException(exc::TypeError);
+								throw BackException(exc::CastError);
 						
 					   	}
 						break;
@@ -291,7 +291,7 @@ namespace frumul {
 						{
 						int i{pop<int>()};
 						if (i != 1 && i != 0)
-							throw BackException(exc::TypeError);
+							throw BackException(exc::CastError);
 						stack.push(static_cast<bool>(i));
 						}
 						break;
@@ -315,7 +315,7 @@ namespace frumul {
 						stack.push(static_cast<int>(pop<bool>()));
 						break;
 					default:
-						assert(false&&"Type unkwnown");
+						assert(false&&"Type unknown");
 				};
 				break;
 			default:
