@@ -532,6 +532,8 @@ namespace frumul {
 		return binop;
 	}
 
+
+
 	Node Parser::factor () {
 		/* Manages all factor.
 		 * return Node of various types
@@ -1098,6 +1100,50 @@ namespace frumul {
 #pragma message "Do not forget to catch lang error"
 		}
 	}
+
+
+	Node Parser::bin_op(std::initializer_list<Token::Type> ops) {
+		/* Manages the binary operators:
+		 *      +-*%/&|
+		 */
+
+		Node left{left_bin_op(ops.begin())};
+
+		bst::str val;
+		if (intokl(current_token->getType(),ops))
+			val = current_token->getValue();
+		else
+			return left;
+
+		Node binop {Node::BIN_OP,current_token->getPosition(),StrNodeMap(),val};
+		eat(current_token->getType(),Token::MAX_TYPES_VALUES);
+
+		binop.addChild("left",left);
+		binop.addChild("right",bin_op(ops));
+		return binop;
+	}
+
+
+	Node Parser::left_bin_op(std::initializer_list<Token::Type>::iterator it) 
+	{
+		/* Manages the left part of a bin operator
+		 */
+
+		switch (*it) {
+			case Token::OR:
+				return bin_op(Token::AND);
+			case Token::AND:
+				return comparison();
+			case Token::PLUS: // order expected: plus, minus
+				return bin_op(Token::MUL,Token::DIV,Token::MODULO);
+			case Token::MUL:
+				return factor();
+			default:
+				assert(false&&"Left bin op: error");
+		};
+		return factor(); // useless, I know. It's for the warning
+	}
+
 
 	std::map<bst::str,bst::str>Parser::files {};
 

@@ -89,6 +89,16 @@ namespace frumul {
 
 			Node text ();
 			void tag();
+
+			Node left_bin_op(std::initializer_list<Token::Type>::iterator);
+
+			template <typename ...T>
+				Node bin_op(T ...ops) {
+					return bin_op({ops...});
+				}
+
+			Node bin_op(std::initializer_list<Token::Type> ops);
+
 	};
 }// namespace
 
