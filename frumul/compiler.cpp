@@ -391,17 +391,26 @@ namespace frumul {
 			printl(static_cast<int>(
 						var_type % (BT::LIST * (fields.size() - 1))
 					       ));
-		if (var_type == BT::TEXT)
+		if (var_type == BT::TEXT) {
 			type_expected = BT::TEXT;
+			if (fields.size() > 2)
+				throw iexc(exc::IndexError,"Number of indices can not exceed one for a text",n.getPosition(),"text defined here: ",symbol_table->getPosition(name));
+		}
 		else if ((var_type & BT::TEXT) && 
 			(var_type % (BT::LIST * (fields.size() - 1)) != BT::TEXT) 
 			){// lists of texts // complicated condition 
 			type_expected = BT::TEXT;
 			is_char_to_set = true;
+
+			if (fields.size() - 2 > var_type / BT::LIST)
+				throw iexc(exc::IndexError,"Number of indices exceeds the depth of the list",n.getPosition(),"List defined here: ",symbol_table->getPosition(name));
 		}
-		else 
+		else {
+			if (fields.size() - 1 > var_type / BT::LIST)
+				throw iexc(exc::IndexError,"Number of indices exceeds the depth of the list",n.getPosition(),"List defined here: ",symbol_table->getPosition(name));
 			type_expected = static_cast<BT::ExprType>(var_type - 
 					(BT::LIST * (fields.size()-1))); // BUG overflow when error
+		}
 
 		// push the value first
 		const auto& value {fields[negative_index(-1,fields.size())]};
@@ -461,7 +470,6 @@ namespace frumul {
 		 */
 		// we iterates over the map to keep the order of insertion (see parser)
 		// TODO this should be refactored with a multimap with std::variant (when possible)
-#pragma message "List as variable with index not yet set"
 
 
 		// load list and get her type
