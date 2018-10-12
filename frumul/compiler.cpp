@@ -540,7 +540,6 @@ namespace frumul {
 	BT::ExprType __compiler::visit_loop(const Node& n) {
 		/* Compile a loop
 		 */
-#pragma message "Loops not yet set: list"
 		/* This function uses pointers to elements of vector.
 		 * This is dangerous, since vectors can be resized and 
 		 * the pointers become dangling. Be careful if you
@@ -585,7 +584,8 @@ namespace frumul {
 			};
 		}
 		else {
-			switch (visit(n.get("variable_filler"))) {
+			BT::ExprType variable_filler {visit(n.get("variable_filler"))}; 
+			switch (variable_filler) {
 				case BT::INT: {
 					has_int_variable= true;
 					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),BT::INT);
@@ -607,7 +607,6 @@ namespace frumul {
 					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),BT::TEXT);
 					hidden_variable_i = v_s->getIndex();
 					v_s->markDefined();
-			printl(*v_s);
 					// create hidden variable to save the index
 					VarSymbol* hidden_index = &symbol_table->append(SymbolTab::next(),BT::TEXT,n.getPosition());
 					hidden_index_i = hidden_index->getIndex();
@@ -629,7 +628,37 @@ namespace frumul {
 					}
 					break;
 				default:
-					exc(exc::TypeError,"This type can not be used with a variable",n.get("variable_filler").getPosition());
+					if (variable_filler < BT::LIST)
+						exc(exc::TypeError,"This type can not be used with a variable",n.get("variable_filler").getPosition());
+					
+					// case of a list
+					// No, I did not copy/paste. I rewrote it by hand. Yes, it's as stupid; maybe even worse. Too lazy to create a function for that.
+					{
+						BT::ExprType elt_type{static_cast<BT::ExprType>(variable_filler - BT::LIST)};
+						has_iterable_variable = true;
+						// create variable if necessary
+						VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),elt_type);
+						hidden_variable_i = v_s->getIndex();
+						v_s->markDefined();
+						// create hidden variable to save the index
+						VarSymbol* hidden_index = &symbol_table->append(SymbolTab::next(),elt_type,n.getPosition());
+
+						hidden_index_i = hidden_index->getIndex();
+						const int index_of_zero{bytecode.addConstant(0)};
+						const size_t steps{
+							insertInstructions(start_of_loop,
+								BT::PUSH, BT::CONSTANT,index_of_zero,
+								BT::ASSIGN,hidden_index_i)
+						};
+						// change start of loop, just before the push of the elements
+						start_of_loop += steps;
+						// get length of list
+						appendInstructions(BT::LENGTH,BT::LIST);
+						// get index value
+						appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
+						// set comparison
+						appendInstructions(BT::BOOL_INFERIOR,BT::INT);
+					}
 			};
 		}
 		// add the first jump
@@ -638,12 +667,16 @@ namespace frumul {
 		// manage iterable (list or text) (must be before the body)
 		if (has_iterable_variable) {
 			// push again text 
-			visit(n.get("variable_filler"));
+			BT::ExprType variable_filler{visit(n.get("variable_filler"))};
 			// get index
 			appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
-			// push char on stack and assign it to variable (no runtime error possible here)
-			appendInstructions(BT::TEXT_GET_CHAR,BT::STACK_ELT,
-					BT::ASSIGN,hidden_variable_i);
+			// push char/list elt on stack and assign it to variable (no runtime error possible here)
+			if (variable_filler == BT::TEXT)
+				appendInstructions(BT::TEXT_GET_CHAR,BT::STACK_ELT,
+						BT::ASSIGN,hidden_variable_i);
+			else
+				appendInstructions(BT::LIST_GET_ELT,
+						BT::ASSIGN,hidden_variable_i);
 			// set new index again for next iteration
 			appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
 			appendAndPushConstant<int>(1);
