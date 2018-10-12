@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <experimental/any>
 #include <functional>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 #include "bstrlib/bstrwrap.h"
@@ -148,7 +148,7 @@ namespace frumul {
 			// number of variables
 			int v_nb{0};
 			// errors at runtime
-			std::unordered_map<std::pair<unsigned int,BaseException::Type>,BaseException> runtime_errors;
+			std::map<std::pair<unsigned int,BaseException::Type>,BaseException> runtime_errors;
 	};
 	using BT = ByteCode;
 	using AnyVector = std::vector<E::any>;

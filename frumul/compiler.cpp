@@ -360,6 +360,8 @@ namespace frumul {
 			appendAndPushConstant<int>(i);
 			appendInstructions(BT::TEXT_GET_CHAR,BT::CONSTANT);
 		}
+		// runtime error handled here (after instructions are set)
+		bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of characters in the text",n.get(0).getPosition()});
 
 		return BT::TEXT;
 
@@ -442,7 +444,10 @@ namespace frumul {
 		}
 		else {
 			appendInstructions(BT::LIST_SET_ELT,indices_nb,is_char_to_set);
-			bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of elements in the list",n.getPosition()});
+			if (is_char_to_set)
+				bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of elements in the list",n.getPosition()});
+			else
+				bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of elements in the list/text",n.getPosition()});
 		}
 
 
@@ -497,9 +502,12 @@ namespace frumul {
 			if (list_type == BT::TEXT) {
 				// append instructions to get the character
 				appendInstructions(BT::TEXT_GET_CHAR,BT::STACK_ELT);
+				// add runtime error
+				bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of characters in the text",it->getPosition()});
 			} else {
 				// append instructions to get the element
 				appendInstructions(BT::LIST_GET_ELT);
+				bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of elements in the list",it->getPosition()});
 				
 				list_type = static_cast<BT::ExprType>(list_type - BT::LIST);
 			}
@@ -633,7 +641,7 @@ namespace frumul {
 			visit(n.get("variable_filler"));
 			// get index
 			appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
-			// push char on stack and assign it to variable
+			// push char on stack and assign it to variable (no runtime error possible here)
 			appendInstructions(BT::TEXT_GET_CHAR,BT::STACK_ELT,
 					BT::ASSIGN,hidden_variable_i);
 			// set new index again for next iteration
