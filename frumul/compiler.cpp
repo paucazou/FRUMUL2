@@ -136,7 +136,7 @@ namespace frumul {
 			case Node::UNARY_OP:		return visit_unary_op(n);
 			case Node::VAL_TEXT:		return visit_val_text(n);
 			case Node::VARIABLE_ASSIGNMENT:	return visit_variable_assignment(n);
-			case Node::VARIABLE_DECLARATION:return visit_variable_declaration(n);
+			case Node::VARIABLE_DECLARATION:return visit_variable_declaration(n); 
 			case Node::VARIABLE_NAME:	return visit_variable_name(n);
 			default:
 				printl(n);
@@ -151,30 +151,25 @@ namespace frumul {
 		 * of the call (only for text returning values: that does not affect
 		 * the other types of values, which MUST add RETURN)
 		 */
+		// enter new scope
+		++*symbol_table;
+
 		constexpr int r_index{0}; // return index
 		for (const auto& child : n.getNumberedChildren()) {
 
-			//int last_index {static_cast<int>(code.size())}; // last element of code index
 			BT::ExprType rt{visit(child)};
 
 			if (return_type == BT::TEXT) {
 				if (rt == BT::VOID)
 					continue;
-				// prepare the stack to append to return value
-				//insertInstructions(last_index,BT::PUSH,BT::VARIABLE,r_index);
 
 				// cast
-				/*if (rt == BT::SYMBOL) // cast impossible
-					throwInconsistentType(return_type,rt,n,child);
-					*/
 				if (rt != return_type)
 					cast(rt,return_type,n,child);
-					//appendInstructions(BT::CAST,rt,return_type);
 
 				appendInstructions(
 						BT::PUSH,BT::VARIABLE,r_index, // push returned value on the stack
 						BT::TEXT_ADD); // add returned to return value
-				//appendAndPushConstant<int>(r_index);
 				appendInstructions(BT::ASSIGN,r_index); // assign back to returned value
 			} else {
 
@@ -182,13 +177,15 @@ namespace frumul {
 				throwInconsistentType(return_type,rt,n,child);
 
 			// set returned value
-			//appendAndPushConstant<int>(r_index);
 			appendInstructions(BT::ASSIGN,r_index,BT::RETURN); // assign last elt of stack to return value and return
 			}
 
 		}
 		if (add_return)
 			code.push_back(BT::RETURN);
+
+		// return to parent scope
+		--*symbol_table;
 		return return_type;
 	}
 
@@ -569,7 +566,7 @@ namespace frumul {
 					 hidden_variable_i = v_s->getIndex();
 					 //appendAndPushConstant<int>(v_s->getIndex());
 					 appendInstructions(BT::ASSIGN,hidden_variable_i);
-					 v_s->markDefined();
+					 //v_s->markDefined();
 					 // change the start of loop
 					 start_of_loop = code.size();
 					 // set the condition
@@ -591,7 +588,7 @@ namespace frumul {
 					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),BT::INT);
 					hidden_variable_i = v_s->getIndex();
 					appendInstructions(BT::ASSIGN,hidden_variable_i);
-					v_s->markDefined();
+					//v_s->markDefined();
 
 					int index_of_zero {bytecode.addConstant(0)};
 					start_of_loop = code.size();
@@ -606,7 +603,7 @@ namespace frumul {
 					// create variable if necessary
 					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),BT::TEXT);
 					hidden_variable_i = v_s->getIndex();
-					v_s->markDefined();
+					//v_s->markDefined();
 					// create hidden variable to save the index
 					VarSymbol* hidden_index = &symbol_table->append(SymbolTab::next(),BT::TEXT,n.getPosition());
 					hidden_index_i = hidden_index->getIndex();
@@ -639,7 +636,7 @@ namespace frumul {
 						// create variable if necessary
 						VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),elt_type);
 						hidden_variable_i = v_s->getIndex();
-						v_s->markDefined();
+						//v_s->markDefined();
 						// create hidden variable to save the index
 						VarSymbol* hidden_index = &symbol_table->append(SymbolTab::next(),elt_type,n.getPosition());
 
@@ -776,7 +773,7 @@ namespace frumul {
 		}
 		//appendAndPushConstant<int>(symbol_table->getIndex(name));
 		appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
-		symbol_table->markDefined(name);
+		//symbol_table->markDefined(name);
 		return BT::VOID;
 	}
 
@@ -787,7 +784,7 @@ namespace frumul {
 		const bst::str& name{n.get("name").getValue()};
 		bst::str type{n.get("type").getValue()};
 		// check: already defined ?
-		if (symbol_table->contains(name))
+		if (symbol_table->contains(name,true)) // true for current scope only
 			throw iexc(exc::NameAlreadyDefined,"This name has already been defined here:",symbol_table->getPosition(name),"Name defined another time here: ",n.getPosition());
 
 		// find type
@@ -818,7 +815,7 @@ namespace frumul {
 
 		// set symbol
 		symbol_table->append(name,type_,n.getPosition());
-		// optional: set value
+		// optional: set value 
 		if (n.getNamedChildren().count("value")) {
 			BT::ExprType value_rt {visit(n.get("value"))};
 			if (value_rt != type_)
@@ -826,7 +823,7 @@ namespace frumul {
 
 			//appendAndPushConstant<int>();
 			appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
-			symbol_table->markDefined(name);
+			//symbol_table->markDefined(name);
 
 		}
 		return BT::VOID;
@@ -904,8 +901,9 @@ namespace frumul {
 		 */
 		if (!symbol_table->contains(name))
 			throw exc(exc::NameError,"Name not defined",n.getPosition());
-		if (!symbol_table->isDefined(name))
+		/*if (!symbol_table->isDefined(name)) // DEPRECATED, as variables are always defined at declaration
 			throw exc(exc::ValueError,"Variable contains no value",n.getPosition());
+			*/
 	}
 
 }

@@ -309,8 +309,8 @@ namespace frumul {
 		
 		Token nextToken {lex.peekToken(0,Token::MAX_TYPES_VALUES)};
 
-		// variable declaration without assignment
-		if (nextToken.getType() == Token::COMMA)
+		// variable declaration without assignment DEPRECATED: initialization is now required
+		if (false && nextToken.getType() == Token::COMMA)
 			return variable_declaration();
 
 		// an expression starting by a variable
@@ -324,8 +324,6 @@ namespace frumul {
 		if (current_token->getType() == Token::COMMA) {
 			// we need to get the type
 			eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
-			//assign_node.addChild("type",Node(Node::VARIABLE_TYPE,current_token->getPosition(),current_token->getValue()));
-			//eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat type
 
 			// get type
 			for (const auto& p : types()) {
@@ -370,7 +368,7 @@ namespace frumul {
 		return fields;
 	}
 
-	Node Parser::variable_declaration () {
+	Node Parser::variable_declaration () { // DEPRECATED since initialization is now required
 		/* Manages every variable declaration
 		 * Return a node with
 		 * three fields:

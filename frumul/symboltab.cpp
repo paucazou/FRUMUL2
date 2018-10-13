@@ -8,8 +8,8 @@
 
 namespace frumul {
 	// VarSymbol
-	VarSymbol::VarSymbol(const bst::str& nname, BT::ExprType ntype, int nnb, const Position& npos) :
-		name{nname}, type{ntype}, nb{nnb}, pos{npos}
+	VarSymbol::VarSymbol(const bst::str& nname, BT::ExprType ntype, int nnb, int nscope, const Position& npos) :
+		name{nname}, type{ntype}, nb{nnb}, scope{nscope}, pos{npos}
 	{
 	}
 
@@ -25,21 +25,12 @@ namespace frumul {
 		return nb;
 	}
 
-	bool VarSymbol::isDefined() const {
-		/* true if symbol has been defined at least once
-		 */
-#pragma message "Not safe: if a variable is first set in a loop/if block, it can be not set if the loop/if is not executed"
-		return is_defined;
+	int VarSymbol::getScope() const {
+		return scope;
 	}
 
 	const Position& VarSymbol::getPosition() const {
 		return pos;
-	}
-
-	void VarSymbol::markDefined() {
-		/* mark the symbol as defined at least once
-		 */
-		is_defined = true;
 	}
 
 	bst::str VarSymbol::toString() const {
@@ -56,19 +47,27 @@ namespace frumul {
 	SymbolTab::SymbolTab() {
 	}
 
-	VarSymbol& SymbolTab::getVarSymbol(const bst::str& name) {
+	VarSymbol& SymbolTab::getVarSymbol(const bst::str& name, bool current_scope_only) {
 		/* return symbol requested
 		 */
-		for (auto& s : content)
-			if (s.getName() == name)
-				return s;
+		int floor_scope {(current_scope_only ? current_scope : 0)};
+
+		for (int scope{current_scope}; scope >= floor_scope; scope = scopes[scope])
+			for (auto& s : content)
+				if (s.getName() == name && s.getScope() == scope)
+					return s;
+
 		throw BackException(exc::VarSymbolUnknown);
 	}
 
-	const VarSymbol& SymbolTab::getVarSymbol(const bst::str& name) const{
-		for (const auto& s: content)
-			if (s.getName() == name)
-				return s;
+	const VarSymbol& SymbolTab::getVarSymbol(const bst::str& name,bool current_scope_only) const{
+		int floor_scope {(current_scope_only ? current_scope : 0)};
+
+		for (int scope{current_scope}; scope >= floor_scope; scope = scopes.at(scope))
+			for (const auto& s: content)
+				if (s.getName() == name && s.getScope() == scope)
+					return s;
+
 		throw BackException(exc::VarSymbolUnknown);
 	}
 
@@ -84,21 +83,16 @@ namespace frumul {
 		return getVarSymbol(name).getType();
 	}
 
-	bool SymbolTab::contains(const bst::str& name) const {
+	bool SymbolTab::contains(const bst::str& name, bool current_scope_only) const {
 		/* true if *this contains name required
+		 * and is available in the current scope
 		 */
 		try {
-			getVarSymbol(name);
+			getVarSymbol(name,current_scope_only);
 			return true;
 		} catch (const BackException&){
 			return false;
 		}
-	}
-
-	bool SymbolTab::isDefined(const bst::str& name) const {
-		/* true if symbol required is defined
-		 */
-		return getVarSymbol(name).isDefined();
 	}
 
 	const Position& SymbolTab::getPosition(const bst::str& name) const {
@@ -113,8 +107,15 @@ namespace frumul {
 		return content.size();
 	}
 
+	int SymbolTab::getCurrentScope() const {
+		/* Return the current scope
+		 */
+		return current_scope;
+	}
+
 	VarSymbol& SymbolTab::append(const VarSymbol& nsymbol) {
 		/* Append a new symbol
+		 * Please call contains before
 		 */
 		content.push_back(nsymbol);
 		return content.back();
@@ -122,16 +123,27 @@ namespace frumul {
 
 	VarSymbol& SymbolTab::append(const bst::str& name, BT::ExprType type, const Position& pos) {
 		/* Create a new symbol and install it
+		 * Please call contains before
 		 */
 		int nb {static_cast<int>(content.size())}; // new element has the same index as the size of the vector before inserting it
-		content.emplace_back(name,type,nb,pos);
+		content.emplace_back(name,type,nb,current_scope,pos);
 		return content.back();
 	}
 
-	void SymbolTab::markDefined(const bst::str& name) {
-		/* Mark defined requested name
+	int& SymbolTab::operator++() {
+		/* Increment the scope
 		 */
-		getVarSymbol(name).markDefined();
+		int parent {current_scope};
+		current_scope = ++last_scope;
+		scopes.emplace(current_scope,parent);
+		return current_scope;
+	}
+
+	int& SymbolTab::operator--() {
+		/* Decrement the scope
+		 */
+		current_scope = scopes[current_scope]; // get the parent scope
+		return current_scope;
 	}
 
 	int SymbolTab::next() {
