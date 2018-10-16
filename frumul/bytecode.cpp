@@ -8,6 +8,13 @@ namespace frumul {
 	{
 	}
 
+#if 0
+	ByteCode::ByteCode(const ByteCode& other) :
+		return_type{other.return_type}, parent{other.parent}, code{other.code}, constants{other.constants}, v_nb{other.v_nb}, runtime_errors{other.runtime_errors}
+	{
+	}
+#endif
+
 	std::vector<byte>::iterator ByteCode::getBegin() {
 		/* Get the iterator pointing to the first
 		 * element of the code
@@ -71,7 +78,6 @@ namespace frumul {
 						return listToString(e);
 						
 					else {
-						printl(e);
 						assert(false&&"Type unknown");
 					}
 		};

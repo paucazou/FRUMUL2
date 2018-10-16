@@ -55,6 +55,6 @@ objectify () {
 }
 
 alias check_frumul="cppcheck ./frumul/ --enable=all --inconclusive --force --std=c++11 -i $bstrlib"
-alias valgrind="valgrind --leak-check=yes"
+alias valgrind="valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all"
 	
 

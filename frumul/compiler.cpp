@@ -35,9 +35,6 @@ namespace frumul {
 				symbol_table->append("",return_type,node.getPosition()); //an empty name is the only one that can't be set by the user
 			visit(node);
 			bytecode.addVariable(symbol_table->variableNumber());
-			printl("Bytecode:");
-			for (const auto& elt : bytecode.getCode())
-				printl(static_cast<int>(elt));
 		}
 		return bytecode;
 	}
@@ -383,13 +380,6 @@ namespace frumul {
 
 		bool is_char_to_set{false}; // useful for list containing chars to set
 
-			printl("FORMULE");
-			printl(var_type);
-			printl(BT::LIST);
-			printl(fields.size());
-			printl(static_cast<int>(
-						var_type % (BT::LIST * (fields.size() - 1))
-					       ));
 		if (var_type == BT::TEXT) {
 			type_expected = BT::TEXT;
 			if (fields.size() > 2)

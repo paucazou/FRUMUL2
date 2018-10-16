@@ -69,8 +69,15 @@ namespace frumul {
 	}
 
 	OneValue::OneValue(const OneValue& other) :
-		langs{other.langs}, value{other.value}, parent{other.parent}
+		langs{other.langs}, parent{other.parent}
 	{
+		// copy union
+		if (is_byte_code_compiled)
+			bt = new ByteCode{*other.bt};
+		else if (other.value)
+			value = new Node{*other.value};
+
+		// copy position
 		if (other.pos)
 			pos = std::make_unique<Position>(*other.pos);
 	}
@@ -125,7 +132,10 @@ namespace frumul {
 	void OneValue::setNode(const Node& node) {
 		/* Set node and position
 		 */
-		value = new Node(node);
+		value = new Node{node};
+		printl("In set node");
+		printl(node);
+		printl(*value);
 		pos = std::make_unique<Position>(node.getPosition());
 	}
 
@@ -143,17 +153,20 @@ namespace frumul {
 		 */
 		// compile if necessary
 		if (!is_byte_code_compiled) {
-			//ValueCompiler compiler{*this};
+			printl("in One::value execute");
+			printl(*value);
 			std::unique_ptr<ValueCompiler> compiler {std::make_unique<ValueCompiler>(*this)};
 			ByteCode* _bt { new ByteCode(compiler->compile()) };
 			delete value;
 			bt = _bt;
 			is_byte_code_compiled = true;
 		}
+#if 0
 		printl("Bytecode:");
 		for (const auto& byte : bt->getCode())
 			printl(static_cast<int>(byte));
 		printl("Bytecode - end");
+#endif
 		VM vm{*bt,lang};
 		return vm.run();
 	}
@@ -187,7 +200,11 @@ namespace frumul {
 	Value::Value(const Value& other) :
 		values{other.values}, parent{other.parent} //parent points to garbage
 	{
-#pragma message "Parent points to garbage"
+		printl("In copy of value");
+		printl(other.values.size());
+		for (const auto& elt: values)
+			printl(elt);
+#pragma message "Parent points to garbage, but when ?"
 	}
 
 	E::any Value::execute(const bst::str& lang) {
@@ -271,6 +288,8 @@ namespace frumul {
 	OneValue& Value::set(const Node& val, std::vector<Lang>& nlangs) {
 		/* Create a new value
 		 */
+		// TODO it is really dangerous to create a reference to a element of a vector
+		// since it can become a dangling pointer
 		OneValue& oval{set(nlangs)};
 		oval.setNode(val);
 		return oval;

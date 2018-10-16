@@ -97,6 +97,7 @@ namespace frumul {
 				MAX_INSTRUCTIONS,
 			};
 			explicit ByteCode(Symbol& s);
+			//explicit ByteCode(const ByteCode& other);
 			std::vector<byte>::iterator getBegin();
 			std::vector<byte>::iterator getEnd();
 			int getVariableNumber() const;

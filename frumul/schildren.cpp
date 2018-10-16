@@ -6,11 +6,14 @@ namespace frumul {
 	Schildren::Schildren () :
 		parent{nullptr}
 	{
+		children.reserve(5);
 	}
 
 	Schildren::Schildren (Symbol& np) :
 		parent{&np}
 	{
+#pragma message "how to avoid problems with vector ? change it by a list ?"
+		children.reserve(5);
 	}
 
 	Symbol& Schildren::getChild(const Node& node) {

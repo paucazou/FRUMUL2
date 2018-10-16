@@ -178,6 +178,10 @@ namespace frumul {
 		return *parent;
 	}
 
+	const Value& Symbol::getValue() const {
+		return *value;
+	}
+
 	// setters
 	
 	void Symbol::setParent(Symbol& nparent) {

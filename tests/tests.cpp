@@ -32,19 +32,28 @@ namespace ftest {
 		goto back; // yes, it's bad
 	}	
 
-	void symbolBrowser(const frumul::Symbol& s) {
+	bool symbolBrowser(const frumul::Symbol& s) {
 		/* Takes a symbol and prints
 		 * the major informations
 		 * about it
+		 * if return true, quits
 		 */
 	back: // yes, another goto, because I'm the worst coder ever !!!
 		std::cout << s;
-		std::cout << "Enter the name of a child, '--parent','--alias': ";
+		std::cout << "Enter the name of a child, '--parent','--alias'. 'value' to print value. 'quit' to quit: ";
 		bst::str answer;
 		std::cin >> answer;
-		if (answer == "--parent")
-			return;
-		if (answer == "--alias") {
+		if (answer == "quit")
+			return true;
+		else if (answer == "value") {
+			std::cout << s.getValue() << std::endl;
+		}
+
+		else if (answer == "--parent") {
+			if (symbolBrowser(s.getParent()))
+				return true;
+		}
+		else if (answer == "--alias") {
 			assert(s.hasAlias()&& "Symbol has no alias");
 			assert(s.getAlias()&& "Symbol alias not set");
 			symbolBrowser(s.getAlias().getVal());

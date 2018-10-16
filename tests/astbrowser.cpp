@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 		// browse ast
 		ftest::astBrowser(parser.parse());
 		// browse symbols
-		//ftest::symbolBrowser (parser.getHeaderSymbol());
+		ftest::symbolBrowser (parser.getHeaderSymbol());
 		// print result
 		printl("Output:\n=======");
 		std::cout << transpiler.getOutput();

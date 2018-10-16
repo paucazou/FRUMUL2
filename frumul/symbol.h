@@ -73,6 +73,7 @@ namespace frumul {
 			const Alias& getAlias() const;
 			const Schildren& getChildren() const;
 			const Symbol& getParent() const;
+			const Value& getValue() const;
 
 			// setters
 			void setParent(Symbol& nparent);
