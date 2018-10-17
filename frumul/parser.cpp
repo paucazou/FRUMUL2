@@ -601,7 +601,17 @@ namespace frumul {
 		bst::str variable_name {current_token->getValue()};
 
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES);
+		// is this a symbol call ?
+		if (current_token->getType() == Token::LPAREN) {
 
+			eat(Token::LPAREN,Token::MAX_TYPES_VALUES); // eat (
+			NodeVector arguments {call_arguments()}; // get the arguments
+			int end{current_token->getPosition().getEnd()};
+			eat(Token::RPAREN,Token::MAX_TYPES_VALUES); // eat )
+			return Node(Node::SYMCALL,Position(start,end,filepath,source),arguments,variable_name);
+		}
+
+		// is this an list/text extraction ?
 		if (current_token->getType() == Token::LBRACKET) {
 			NodeVector fields;
 			while (current_token->getType() == Token::LBRACKET)
