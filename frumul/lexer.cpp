@@ -310,10 +310,11 @@ namespace frumul {
 		}
 		return true;
 	}
-	Token Lexer::getID(bool kwExpected) { 
+	Token Lexer::getID(Token::Type t, bool kwExpected) { 
 		/* Recognize an ID
 		 * and return the token.
 		 * An ID starts and ends with whitespace.
+		 * t is the type to return (usually Token::ID)
 		 * if kwExpected is true (default is false)
 		 * , then the value is lowercased.
 		 */
@@ -327,8 +328,14 @@ namespace frumul {
 		int end{pos-1};
 		if (kwExpected)
 			value.tolower();
-		return Token{Token::ID,value,Position(start,end,filepath,source)};
+		return Token{t,value,Position(start,end,filepath,source)};
 
+	}
+
+	Token Lexer::getID(bool kwExpected) {
+		/* Simple wrapper of getID(Token::Type,bool)
+		 */
+		return getID(Token::ID,kwExpected);
 	}
 
 	Token Lexer::tokenizeNamespaceValue (std::initializer_list<Token::Type> expected) {
@@ -534,8 +541,7 @@ namespace frumul {
 			t = Token::LESS;
 		}
 		else if (current_char == "§") {
-			val = "§";
-			t = Token::PARENT;
+			return getID(Token::SYMBOL);
 		}
 		else if (current_char == "+") {
 			val = "+";

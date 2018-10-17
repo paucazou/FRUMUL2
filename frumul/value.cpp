@@ -133,9 +133,6 @@ namespace frumul {
 		/* Set node and position
 		 */
 		value = new Node{node};
-		printl("In set node");
-		printl(node);
-		printl(*value);
 		pos = std::make_unique<Position>(node.getPosition());
 	}
 
@@ -153,8 +150,6 @@ namespace frumul {
 		 */
 		// compile if necessary
 		if (!is_byte_code_compiled) {
-			printl("in One::value execute");
-			printl(*value);
 			std::unique_ptr<ValueCompiler> compiler {std::make_unique<ValueCompiler>(*this)};
 			ByteCode* _bt { new ByteCode(compiler->compile()) };
 			delete value;
@@ -200,10 +195,6 @@ namespace frumul {
 	Value::Value(const Value& other) :
 		values{other.values}, parent{other.parent} //parent points to garbage
 	{
-		printl("In copy of value");
-		printl(other.values.size());
-		for (const auto& elt: values)
-			printl(elt);
 #pragma message "Parent points to garbage, but when ?"
 	}
 

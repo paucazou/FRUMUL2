@@ -294,7 +294,7 @@ namespace frumul {
 			return Node{Node::EMPTY,current_token->getPosition()};
 
 		if (current_token->getType() != Token::VARIABLE) // we know it is not a statement
-			return bin_op(Token::OR) ; 
+			return bin_op(Token::OR); 
 
 		if (current_token->getValue() == "if")
 			return condition();
@@ -551,10 +551,9 @@ namespace frumul {
 			return litteral();
 
 		switch (current_token->getType()) {
-			case Token::PARENT:
+			case Token::SYMBOL:
 				// symbol call or alias litteral
-				assert(false&&"parent_expr not yet set");
-				//return parent_expr()
+				return symbol_call_or_litteral();
 			case Token::LBRACKET:
 				{
 				// list litteral
@@ -635,6 +634,44 @@ namespace frumul {
 		Node index{bin_op(Token::OR)}; // we expect an int here
 		eat(Token::RBRACKET,Token::MAX_TYPES_VALUES);
 		return index;
+	}
+
+	Node Parser::symbol_call_or_litteral() {
+		/* Return a node which is a litteral
+		 * symbol, or the call to a value
+		 * if it is only a litteral value, it has no child
+		 * and a value which is the tail of the symbol
+		 * if it is a call, it has numbered children, which
+		 * are the arguments of the call
+		 */
+		Token name{*current_token};
+		eat(Token::SYMBOL,Token::MAX_TYPES_VALUES); // eat § and get the following token
+
+		// is this a symbol call ?
+		if (current_token->getType() == Token::LPAREN) {
+			int start{name.getPosition().getStart()};
+
+			eat(Token::LPAREN,Token::MAX_TYPES_VALUES); // eat (
+			NodeVector arguments {call_arguments()}; // get the arguments
+			int end{current_token->getPosition().getEnd()};
+			eat(Token::RPAREN,Token::MAX_TYPES_VALUES); // eat )
+			return Node(Node::SYMCALL,Position(start,end,filepath,source),arguments,name.getValue());
+		}
+
+		return Node(Node::LITSYM,name.getPosition(),name.getValue());
+
+	}
+
+	NodeVector Parser::call_arguments() {
+		/* Manages the arguments of a call
+		 */
+		NodeVector arguments;
+		while (current_token->getType() != Token::RPAREN) {
+			arguments.push_back(bin_op(Token::OR));
+			if (current_token->getType() == Token::COMMA)
+				eat(Token::COMMA,Token::MAX_TYPES_VALUES);
+		}
+		return arguments;
 	}
 
 	Node Parser::loop () {
@@ -1090,8 +1127,14 @@ namespace frumul {
 		transpiler->append(s.call(*this));
 		} catch (const BackException& e) {
 			// return type error
-			throw iexc(e.type,"Symbol called does not return text: ", s.getReturnTypePos(),"Symbol called here: ",*pos);
-#pragma message "Do not forget to catch lang error"
+			switch (e.type) {
+				case exc::TypeError:
+					throw iexc(e.type,"Symbol called does not return text: ", s.getReturnTypePos(),"Symbol called here: ",*pos);
+				case exc::LangError:
+					throw exc(e.type,"Symbol called has not required language",*pos);
+				default:
+					assert(false&&"Error unknown");
+			};
 		}
 	}
 

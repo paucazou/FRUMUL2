@@ -31,7 +31,7 @@
 	TOK(GREATER)		/* > */\
 	TOK(LESS)		/* < */\
 	TOK(NUMBER)		/* 1,2,3... */\
-	TOK(PARENT)		/* § */\
+	TOK(SYMBOL)		/* § and the tail */\
 	TOK(PLUS)		/* + */\
 	TOK(MINUS)		/* - */\
 	TOK(MUL)		/* * */\

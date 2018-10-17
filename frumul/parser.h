@@ -61,11 +61,14 @@ namespace frumul {
 			Node variable_assignment ();
 			StrNodeMap types ();
 			Node comparison ();
-			Node expr ();
-			Node term ();
+			Node expr (); // DEPRECATED
+			Node term (); // DEPRECATED
 			Node factor ();
 			Node reference ();
 			Node index ();
+
+			Node symbol_call_or_litteral();
+			NodeVector call_arguments();
 
 			Node loop ();
 			Node condition ();
