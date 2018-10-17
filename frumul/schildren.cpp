@@ -6,14 +6,11 @@ namespace frumul {
 	Schildren::Schildren () :
 		parent{nullptr}
 	{
-		children.reserve(5);
 	}
 
 	Schildren::Schildren (Symbol& np) :
 		parent{&np}
 	{
-#pragma message "how to avoid problems with vector ? change it by a list ?"
-		children.reserve(5);
 	}
 
 	Symbol& Schildren::getChild(const Node& node) {
@@ -106,7 +103,6 @@ namespace frumul {
 		 * If it has a remain, transmits it to the child
 		 * found. No privileged parameter allowed.
 		 */
-		std::cout << path << std::endl;
 		assert(path&&"path is empty");
 		// relative path allowed ?
 		if (flag & PathFlag::Relative) {
@@ -177,7 +173,7 @@ namespace frumul {
 		assert(false&&"No child of this name");
 	}
 
-	const std::vector<Symbol>& Schildren::getChildren() const {
+	const std::list<Symbol>& Schildren::getChildren() const {
 		/* get the children
 		 */
 		return children;

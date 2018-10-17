@@ -5,8 +5,8 @@
  * of a Symbol
  */
 
+#include <list>
 #include <utility>
-#include <vector>
 #include "node.h"
 #include "symbol.h"
 //#include "header.h"
@@ -44,7 +44,7 @@ namespace frumul {
 			Symbol& find(const bst::str& path, PathFlag flag=PathFlag::No) ;
 			// const getters
 			const Symbol& getChild(const bst::str& name) const;
-			const std::vector<Symbol>& getChildren() const;
+			const std::list<Symbol>& getChildren() const;
 			// setters
 			Symbol& addChild(const Symbol& s);
 			Symbol& appendChild();
@@ -52,7 +52,7 @@ namespace frumul {
 
 		private:
 			Symbol* parent{nullptr};
-			std::vector<Symbol> children;
+			std::list<Symbol> children;
 	};
 }
 #endif
