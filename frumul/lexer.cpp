@@ -172,14 +172,19 @@ namespace frumul {
 		// save the infos
 		int pos_saved{pos};
 
-		for (; rank >= 1; --rank) // rank is an unsigned int, since it should not be under zero
-			getNextToken(expected);
-		Token returned {getNextToken(expected)}; // Token is const, so it should
+		try {
+			for (; rank >= 1; --rank) // rank is an unsigned int, since it should not be under zero
+				getNextToken(expected);
+			Token returned {getNextToken(expected)}; // Token is const, so it should
 
-		// reload the infos
-		advanceTo(pos_saved);
+			// reload the infos
+			advanceTo(pos_saved);
 
-		return returned;
+			return returned;
+
+		} catch (exc& e) {
+			return Token();
+		}
 	}
 	
 	// private functions

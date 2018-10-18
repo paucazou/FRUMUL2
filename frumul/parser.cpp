@@ -77,7 +77,7 @@ namespace frumul {
 		 * return false if type does not match.
 		 */
 #if DEBUG
-		if (false&&current_token->getType() != Token::EOFILE)
+		if (current_token->getType() != Token::EOFILE)
 			std::cout << *current_token << std::endl;
 #endif
 		if (current_token->getType() == t) {
@@ -674,10 +674,27 @@ namespace frumul {
 
 	NodeVector Parser::call_arguments() {
 		/* Manages the arguments of a call
+		 * if the arguments of the call are named,
+		 * push a NAMED_ARG node in arguments list
 		 */
 		NodeVector arguments;
 		while (current_token->getType() != Token::RPAREN) {
-			arguments.push_back(bin_op(Token::OR));
+			// is it a named parameter ?
+			printl("in call");
+			printl(lex.peekToken(0,Token::MAX_TYPES_VALUES));
+			if (lex.peekToken(0,Token::MAX_TYPES_VALUES).getType() == Token::ASSIGN) {
+				StrNodeMap fields;
+				int start{getTokenStart()};
+				fields.insert({"name",Node(Node::VARIABLE_NAME,current_token->getPosition(),current_token->getValue())});
+				eat(Token::VARIABLE,Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat name
+				eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
+				fields.insert({"value",bin_op(Token::OR)});
+				int end{getTokenStart() -1};
+				arguments.push_back(
+						Node(Node::NAMED_ARG,Position(start,end,filepath,source),fields));
+			} else 
+				arguments.push_back(bin_op(Token::OR));
+			// are there other args?
 			if (current_token->getType() == Token::COMMA)
 				eat(Token::COMMA,Token::MAX_TYPES_VALUES);
 		}
