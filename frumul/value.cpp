@@ -265,11 +265,14 @@ namespace frumul {
 
 	OneValue& Value::set(std::vector<Lang>& nlangs) {
 		/* Set a new value with langs only
+		 * If the value already has one of the langs,
+		 * throw an error
 		 */
 		if (interLangs(nlangs,getLangs())) {
-			assert(false&&"exception not set");
-#pragma message "Exception not set"
-			throw 1;
+			for (const auto& nl : nlangs) // nl : new language
+				for (const auto& l : getLangs())
+					if (nl == l)
+						throw iexc(exc::LangError,"Required language is already linked to a value: ", nl.getPosition(),"Language already defined here: ",l.getPosition());
 		}
 		values.emplace_back(nlangs,parent);
 		return values.back();

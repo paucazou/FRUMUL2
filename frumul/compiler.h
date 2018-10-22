@@ -37,6 +37,7 @@ namespace frumul {
 			const Node& node;
 			BT::ExprType return_type{BT::TEXT};
 			ByteCode bytecode;
+			Symbol& parent;
 			std::vector<E::any>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
 			std::unique_ptr<SymbolTab> symbol_table{std::make_unique<SymbolTab>()};
@@ -80,6 +81,7 @@ namespace frumul {
 			BT::ExprType visit_list_type_declaration(const Node& n,BT::ExprType primitive);
 			BT::ExprType visit_litbool(const Node& n);
 			BT::ExprType visit_litint(const Node& n);
+			BT::ExprType visit_litsym(const Node& n);
 			BT::ExprType visit_littext(const Node& n);
 			BT::ExprType visit_loop(const Node& n);
 			BT::ExprType visit_unary_op(const Node& n);

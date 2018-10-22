@@ -4,9 +4,20 @@
  * function templates
  */
 #include <deque>
+#include <functional>
 #include <memory>
 #include <sstream>
 #include <stack>
+
+namespace std {
+	template <typename T>
+		bool operator == (const reference_wrapper<T>& first, const reference_wrapper<T>& second) {
+			/* Checks that first and second
+			 * point to the same object
+			 */
+			return &first.get() == &second.get();
+		}
+}
 
 namespace frumul {
 

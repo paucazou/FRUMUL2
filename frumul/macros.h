@@ -1,6 +1,7 @@
 /* This file contains many
  * macro utilities
  */
+#include <cstdint>
 #include <iostream>
 
 /*****************
@@ -51,6 +52,13 @@
 		out << elt.toString();\
 		return out;\
 	}
+
+/***********************
+ * Definition of aliases
+ * *********************/
+namespace std {
+	using byte = uint_fast8_t;
+}
 
 #ifdef DEBUG
 #define printl(elt) std::cout << ( elt ) << std::endl

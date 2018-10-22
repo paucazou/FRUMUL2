@@ -23,7 +23,7 @@ namespace frumul {
 	// __compiler
 
 	__compiler::__compiler (const Node& n, BT::ExprType rt, Symbol& s) :
-		node{n}, return_type{rt}, bytecode{s}
+		node{n}, return_type{rt}, bytecode{s}, parent{s}
 	{
 	}
 
@@ -128,6 +128,7 @@ namespace frumul {
 			case Node::LIST_WITH_INDEX:	return visit_list_with_index(n);
 			case Node::LITBOOL:		return visit_litbool(n);
 			case Node::LITINT:		return visit_litint(n);
+			case Node::LITSYM:		return visit_litsym(n);
 			case Node::LITTEXT:		return visit_littext(n);
 			case Node::LOOP:		return visit_loop(n);
 			case Node::UNARY_OP:		return visit_unary_op(n);
@@ -524,6 +525,18 @@ namespace frumul {
 		return BT::INT;
 	}
 
+	BT::ExprType __compiler::visit_litsym(const Node& n) {
+		/* compile a litteral symbol
+		 */
+		try {
+			RSymbol s{parent.getChildren().find(n.getValue(),PathFlag::Relative)};
+			appendAndPushConstant<RSymbol>(s);
+		} catch (const bst::str& path) { // if error
+			throw exc(exc::NameError,bst::str("Name not found: ") + n.getValue(),n.getPosition());
+		}
+		return BT::SYMBOL;
+	}
+
 	BT::ExprType __compiler::visit_loop(const Node& n) {
 		/* Compile a loop
 		 */
@@ -871,7 +884,7 @@ namespace frumul {
 
 		if (
 				source == BT::SYMBOL ||
-				(source == BT::SYMBOL && target != BT::TEXT) ||
+				(target == BT::SYMBOL && source != BT::TEXT) ||
 				source == BT::VOID ||
 				source >= BT::LIST ||
 				target >= BT::LIST

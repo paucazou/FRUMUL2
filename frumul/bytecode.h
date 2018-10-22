@@ -14,6 +14,8 @@
 #include <vector>
 #include "bstrlib/bstrwrap.h"
 #include "exception.h"
+#include "functions.inl"
+#include "macros.h"
 
 
 namespace E = std::experimental;
@@ -21,7 +23,6 @@ namespace E = std::experimental;
 namespace frumul {
 	class Symbol;
 
-	using byte = uint_fast8_t;
 	constexpr unsigned int MAX_VARIABLES{sizeof(byte)};
 
 	class ByteCode {
