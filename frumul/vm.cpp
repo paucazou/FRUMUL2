@@ -27,15 +27,15 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
  */
 #define COMPARE(op) \
 	do { \
-	BT::ExprType t{static_cast<BT::ExprType>(*++it)}; \
+	ET::Type t{static_cast<ET::Type>(*++it)}; \
 	switch (t) { \
-		case BT::TEXT: \
+		case ET::TEXT: \
 			       stack.push(pop<bst::str>() op pop<bst::str>()); \
 				break; \
-		case BT::INT: \
+		case ET::INT: \
 			      stack.push(pop<int>() op pop<int>()); \
 				break; \
-		case BT::BOOL: \
+		case ET::BOOL: \
 			       stack.push(pop<bool>() op pop<bool>()); \
 				break; \
 		default: \
@@ -58,7 +58,7 @@ namespace frumul {
 		// resize variables vector
 		variables.resize(bt.getVariableNumber());
 		// set the return value to an empty string if it is a TEXT
-		if (bt.getReturnType() == BT::TEXT)
+		if (bt.getReturnType() == ET::TEXT)
 			variables[0] = bst::str{""};
 		// set an arbitrary number of elements for the stack 
 		// but it can be set above without problem
@@ -145,10 +145,10 @@ namespace frumul {
 		E::any elt{stack.pop()};
 		// find length
 		switch (*++it) {
-			case BT::LIST:
+			case ET::LIST:
 				len = E::any_cast<AnyVector&>(elt).size();
 				break;
-			case BT::TEXT:
+			case ET::TEXT:
 				len = E::any_cast<bst::str&>(elt).uLength();
 				break;
 			default:
@@ -231,8 +231,10 @@ namespace frumul {
 		Symbol& s{pop<RSymbol>().get()};
 		
 		// call and push if not void
-		if (s.getReturnType() != BT::VOID)
+		if (s.getReturnType() != ET::VOID)
 			stack.push(s.any_call(args));
+		else
+			s.any_call(args);
 	}
 	
 	void VM::cast() {
@@ -244,12 +246,12 @@ namespace frumul {
 		 * 	TARGET_TYPE
 		 */
 #pragma message("Do not forget to catch errors at runtime: text->symbol")
-		BT::ExprType source_t {static_cast<BT::ExprType>(*++it)};
-		BT::ExprType target_t {static_cast<BT::ExprType>(*++it)};
+		ET::Type source_t {static_cast<ET::Type>(*++it)};
+		ET::Type target_t {static_cast<ET::Type>(*++it)};
 		switch (source_t) {
-			case BT::TEXT:
+			case ET::TEXT:
 				switch (target_t) {
-					case BT::INT:
+					case ET::INT:
 						{
 						bst::str s{pop<bst::str>()};
 						if (!can_be_cast_to<int>(s))
@@ -258,7 +260,7 @@ namespace frumul {
 						stack.push(static_cast<int>(s));
 						}
 						break;
-					case BT::BOOL:
+					case ET::BOOL:
 						{
 							bst::str s{pop<bst::str>()};	
 							if (s == "1" || s == "true")
@@ -270,8 +272,9 @@ namespace frumul {
 						
 					   	}
 						break;
-					case BT::SYMBOL:
+					case ET::SYMBOL:
 						{
+							// probably problematic, since symbol is not a complete type and we can't verify the exact type
 							bst::str s{pop<bst::str>()};
 							Symbol& parent{bt.getParent()};
 							stack.push(parent.getChildren().find(s,PathFlag::Relative));
@@ -282,12 +285,12 @@ namespace frumul {
 				};
 				break;
 
-			case BT::INT:
+			case ET::INT:
 				switch (target_t) {
-					case BT::TEXT:
+					case ET::TEXT:
 						stack.push(bst::str(pop<int>()));
 						break;
-					case BT::BOOL:
+					case ET::BOOL:
 						{
 						int i{pop<int>()};
 						if (i != 1 && i != 0)
@@ -299,9 +302,9 @@ namespace frumul {
 						assert(false&&"Type unknown");
 					};
 				break;
-			case BT::BOOL:
+			case ET::BOOL:
 				switch(target_t) {
-					case BT::TEXT:
+					case ET::TEXT:
 						{
 						bool b{pop<bool>()};
 						const bst::str True{"true"}, False{"false"};
@@ -311,7 +314,7 @@ namespace frumul {
 							stack.push(False);
 						}
 						break;
-					case BT::INT:
+					case ET::INT:
 						stack.push(static_cast<int>(pop<bool>()));
 						break;
 					default:
@@ -352,8 +355,8 @@ namespace frumul {
 		 * 	pop index_of_char/string
 		 */
 		// get type
-		BT::ExprType t{static_cast<BT::ExprType>(*++it)};
-		if (t & BT::STACK_ELT) {
+		ET::Type t{static_cast<ET::Type>(*++it)};
+		if (t & ET::STACK_ELT) {
 			int i{pop<int>()};
 			bst::str s {pop<bst::str>()};
 			stack.push(s.uAt(negative_index(i,s.uLength(),true)));
@@ -365,7 +368,7 @@ namespace frumul {
 			int data_index { pop<int>() }; 	
 			
 			// get string and push element on the stack
-			if (t & BT::CONSTANT) {
+			if (t & ET::CONSTANT) {
 				const bst::str& s{E::any_cast<const bst::str&>(bt.getConstant(data_nb))};
 				stack.push(s.uAt(negative_index(data_index,s.uLength(),true)));
 			}
@@ -482,10 +485,10 @@ namespace frumul {
 		 * 	TYPE (CONST OR VAR)
 		 * 	INDEX
 		 */
-		BT::ExprType t{static_cast<BT::ExprType>(*++it)};
+		ET::Type t{static_cast<ET::Type>(*++it)};
 		int i{*++it};
 
-		if (t == BT::CONSTANT) {
+		if (t == ET::CONSTANT) {
 			stack.push(bt.getConstant(i));
 		}
 		else {

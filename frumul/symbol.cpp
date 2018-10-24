@@ -151,7 +151,7 @@ namespace frumul {
 
 	// const getters
 
-	BT::ExprType Symbol::getReturnType() const {
+	const ExprType& Symbol::getReturnType() const {
 		/* Get the return type of the value
 		 */
 		return return_type.type;
@@ -199,10 +199,14 @@ namespace frumul {
 		parameters = parms;
 	}
 
-	void Symbol::setReturnType(const Node& node) {
+	void Symbol::setReturnType(const Node& node) { 
 		/* Set the return type.
 		 */
 		assert(node.type() == Node::RETURN_TYPE&&"Node type should be RETURN_TYPE");
+		return_type.type = ExprType(node);
+		return_type.pos = std::make_unique<Position>(node.getPosition());
+		
+		/*
 		std::map<bst::str,BT::ExprType> types {
 			{"int",BT::INT},
 			{"text",BT::TEXT},
@@ -225,6 +229,7 @@ namespace frumul {
 		{
 			throw exc(exc::UnknownOption,"Incorrect return value.",node.getPosition());
 		}
+		*/
 
 	}
 	
@@ -265,7 +270,7 @@ namespace frumul {
 		/* Call the symbol
 		 */
 		// checks
-		if (return_type.type != BT::TEXT)
+		if (return_type.type != ExprType::TEXT)
 			throw BackException(exc::TypeError);
 		if (!value->canExecuteWith(p.getTranspiler().getLang()))
 			throw BackException(exc::LangError);
@@ -297,14 +302,7 @@ namespace frumul {
 		// return type
 		if (return_type.pos) {
 			s += "Return type: ";
-			switch (return_type.type) {
-				case BT::VOID: s += "VOID";break;
-				case BT::TEXT: s += "TEXT";break;
-				case BT::INT:  s += "INT";break;
-				case BT::BOOL: s += "BOOL";break;
-				case BT::SYMBOL:s+= "SYMBOL";break;
-				default: assert(false&&"Return type unknown");
-			};
+			s += return_type.type.toString();
 			s += '\n';
 		}
 

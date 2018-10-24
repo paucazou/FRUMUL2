@@ -14,13 +14,14 @@
 #include "exception.h"
 #include "macros.h"
 #include "position.h"
+#include "vmtypes.h"
 namespace frumul {
 	class VarSymbol{
 		public:
-			VarSymbol(const bst::str& nname,BT::ExprType ntype,int nnb,int nscope, const Position& npos);
+			VarSymbol(const bst::str& nname,const ExprType& ntype,int nnb,int nscope, const Position& npos);
 			// getters
 			const bst::str& getName() const;
-			BT::ExprType getType() const;
+			const ExprType& getType() const;
 			int getIndex() const;
 			const Position& getPosition() const;
 			int getScope() const;
@@ -30,7 +31,7 @@ namespace frumul {
 		private:
 
 			bst::str name;
-			BT::ExprType type;
+			ExprType type;
 			int nb;
 			int scope{0};
 			Position pos;
@@ -45,14 +46,14 @@ namespace frumul {
 			const VarSymbol& getVarSymbol(const bst::str& name,bool current_scope_only=false) const;
 			VarSymbol& getVarSymbol(const bst::str& name,bool current_scope_only=false);
 			int getIndex(const bst::str& name) const;
-			BT::ExprType getType(const bst::str& name) const;
+			const ExprType& getType(const bst::str& name) const;
 			bool contains(const bst::str& name,bool current_scope_only=false) const;
 			const Position& getPosition(const bst::str& name) const;
 			int variableNumber() const;
 			int getCurrentScope() const;
 			// setters
 			VarSymbol& append(const VarSymbol& nsymbol);
-			VarSymbol& append(const bst::str& name, BT::ExprType type, const Position& pos);
+			VarSymbol& append(const bst::str& name, const ExprType& type, const Position& pos);
 			int& operator++();
 			int& operator--();
 			static int next();

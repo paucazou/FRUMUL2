@@ -22,7 +22,7 @@ namespace frumul {
 
 	// __compiler
 
-	__compiler::__compiler (const Node& n, BT::ExprType rt, Symbol& s) :
+	__compiler::__compiler (const Node& n, const ExprType& rt, Symbol& s) :
 		node{n}, return_type{rt}, bytecode{s}, parent{s}
 	{
 	}
@@ -31,7 +31,7 @@ namespace frumul {
 		/* Compile the node into a bytecode
 		 */
 		if (!bytecode) {
-			if (return_type != BT::VOID)
+			if (return_type != ET::VOID)
 				symbol_table->append("",return_type,node.getPosition()); //an empty name is the only one that can't be set by the user
 			visit(node);
 			bytecode.addVariable(symbol_table->variableNumber());
@@ -61,7 +61,7 @@ namespace frumul {
 		/* Append instructions to push constant on stack
 		 * This utility should be called just after added a new constant
 		 */
-		appendInstructions(BT::PUSH,BT::CONSTANT,i);
+		appendInstructions(BT::PUSH,ET::CONSTANT,i);
 	}
 
 	void __compiler::appendAndPushConstAnyVector() {
@@ -96,7 +96,7 @@ namespace frumul {
 		code[source-1] = pair.second;
 	}
 
-	VarSymbol& __compiler::getOrCreateVarSymbol(const Node& var, BT::ExprType type) {
+	VarSymbol& __compiler::getOrCreateVarSymbol(const Node& var, const ExprType& type) {
 		/* Look for a variable. If not found,
 		 * create it
 		 * return a reference to it
@@ -113,7 +113,7 @@ namespace frumul {
 		return symbol_table->append(name,type,var.getPosition());
 	}
 
-	BT::ExprType __compiler::visit(const Node& n) {
+	ExprType __compiler::visit(const Node& n) {
 		/* Dispatch the node following
 		 * its type
 		 * If the function called return void, this one returned the return type expected
@@ -140,10 +140,10 @@ namespace frumul {
 				printl(n);
 				assert(false&&"Node not recognized");
 		};
-		return BT::VOID; // because clang complains
+		return ET::VOID; // because clang complains
 	}
 
-	BT::ExprType __compiler::visit_basic_value(const Node& n,bool add_return) {
+	ExprType __compiler::visit_basic_value(const Node& n,bool add_return) {
 		/* Visit basic value
 		 * if add_return is true, the function add return at the end
 		 * of the call (only for text returning values: that does not affect
@@ -155,10 +155,10 @@ namespace frumul {
 		constexpr int r_index{0}; // return index
 		for (const auto& child : n.getNumberedChildren()) {
 
-			BT::ExprType rt{visit(child)};
+			ExprType rt{visit(child)};
 
-			if (return_type == BT::TEXT) {
-				if (rt == BT::VOID)
+			if (return_type == ET::TEXT) {
+				if (rt == ET::VOID)
 					continue;
 
 				// cast
@@ -166,7 +166,7 @@ namespace frumul {
 					cast(rt,return_type,n,child);
 
 				appendInstructions(
-						BT::PUSH,BT::VARIABLE,r_index, // push returned value on the stack
+						BT::PUSH,ET::VARIABLE,r_index, // push returned value on the stack
 						BT::TEXT_ADD); // add returned to return value
 				appendInstructions(BT::ASSIGN,r_index); // assign back to returned value
 			} else {
@@ -187,55 +187,55 @@ namespace frumul {
 		return return_type;
 	}
 
-	BT::ExprType __compiler::visit_bin_op(const Node& n) {
+	ExprType __compiler::visit_bin_op(const Node& n) {
 		/* Compile an expression x op x
 		 * and return the type
 		 */
-		BT::ExprType right{visit(n.get("right"))};
+		ExprType right{visit(n.get("right"))};
 		switch (right) {
-			case BT::INT:
+			case ET::INT:
 				{
-					BT::ExprType t2{visit(n.get("left"))};
-					if (t2 != BT::INT)
-						throwInconsistentType(BT::INT,t2,n.get("left"),n.get("right"));
+					ExprType t2{visit(n.get("left"))};
+					if (t2 != ET::INT)
+						throwInconsistentType(ET::INT,t2,n.get("left"),n.get("right"));
 
 					static std::map<bst::str,BT::Instruction> types{ {"+",BT::INT_ADD},{"-",BT::INT_SUB}, {"*",BT::INT_MUL},{"/",BT::INT_DIV},{"%",BT::INT_MOD}};
 					code.push_back(types[n.getValue()]);
-					return BT::INT;
+					return ET::INT;
 				}
-			case BT::TEXT:
+			case ET::TEXT:
 				{
-					BT::ExprType t2{visit(n.get("left"))};
+					ExprType t2{visit(n.get("left"))};
 					if (n.getValue() == "+") {
-						if (t2 != BT::TEXT)
-							throwInconsistentType(BT::TEXT,t2,n.get("left"),n.get("right"));
+						if (t2 != ET::TEXT)
+							throwInconsistentType(ET::TEXT,t2,n.get("left"),n.get("right"));
 						code.push_back(BT::TEXT_ADD);
 					}
 					else if (n.getValue() == "*") {
-						if (t2 != BT::INT)
-							throwInconsistentType(BT::TEXT,t2,n.get("left"),n.get("right"));
+						if (t2 != ET::INT)
+							throwInconsistentType(ET::TEXT,t2,n.get("left"),n.get("right"));
 						code.push_back(BT::TEXT_MUL);
 					}
 					else
 						throw exc(exc::InvalidOperator,n.getValue() + " can not be used with type TEXT", n.getPosition());
-					return BT::TEXT;
+					return ET::TEXT;
 				}
-			case BT::BOOL:
+			case ET::BOOL:
 				{
-					BT::ExprType t2{visit(n.get("left"))};
-					if (t2 != BT::BOOL)
-						throwInconsistentType(BT::BOOL,t2,n.get("left"),n.get("right"));
+					ExprType t2{visit(n.get("left"))};
+					if (t2 != ET::BOOL)
+						throwInconsistentType(ET::BOOL,t2,n.get("left"),n.get("right"));
 					static std::map<bst::str,BT::Instruction> types {
 						{"&",BT::BOOL_AND},
 						{"|",BT::BOOL_OR},
 					};
 					code.push_back(types[n.getValue()]);
 
-					return BT::BOOL;
+					return ET::BOOL;
 				}
 			default:
-				if (right >= BT::LIST && n.getValue() == "+") {
-					BT::ExprType t2{visit(n.get("left"))};
+				if (right == ET::LIST && n.getValue() == "+") {
+					ExprType t2{visit(n.get("left"))};
 					// add two lists together
 					if (t2 == right)
 						appendInstructions(BT::LIST_ADD);
@@ -244,10 +244,10 @@ namespace frumul {
 
 				}
 				else
-					throw exc(exc::TypeError,n.getValue() + " can not be used with type " + BT::typeToString(right),n.getPosition());
+					throw exc(exc::TypeError,n.getValue() + " can not be used with type " + right.toString(),n.getPosition());
 
 		};
-		return BT::VOID;
+		return ET::VOID;
 
 	}
 	
@@ -264,9 +264,10 @@ namespace frumul {
 		code.push_back(instructions[n.getValue()]);
 	}
 
-	BT::ExprType __compiler::visit_comparison(const Node& n) {
+	ExprType __compiler::visit_comparison(const Node& n) {
 		/* Compile a comparison
 		 */
+#pragma message "add list and symbol comparison ? "
 		// positions relative to the first operand
 		constexpr int right_operand_pos{2};
 		constexpr int operator_pos{1};
@@ -274,17 +275,17 @@ namespace frumul {
 
 		for (size_t i{0}; i < n.getNumberedChildren().size()-next_left_operand; i+=next_left_operand) {
 			// get right operand
-			BT::ExprType right_rt{visit(n.get(i + right_operand_pos))};
+			ExprType right_rt{visit(n.get(i + right_operand_pos))};
 			// get left operand
-			BT::ExprType left_rt{visit(n.get(i))};
+			ExprType left_rt{visit(n.get(i))};
 
 			// check if types match
 			if (left_rt != right_rt)
 				throwInconsistentType(left_rt,right_rt,n.get(0),n.get(i));
 			// if op is <,>, <= or >=, check if type is INT
 			const Node& op {n.get(i+operator_pos)};
-			if (op.getValue() != "=" && left_rt != BT::INT)
-				throw exc(exc::InvalidOperator,op.getValue() + " can not be used with type " + BT::typeToString(left_rt),op.getPosition());
+			if (op.getValue() != "=" && left_rt != ET::INT)
+				throw exc(exc::InvalidOperator,op.getValue() + " can not be used with type " + left_rt.toString(),op.getPosition());
 
 			// set operator
 			visit_compare_op(op);
@@ -296,18 +297,18 @@ namespace frumul {
 				code.push_back(BT::BOOL_AND);
 
 		}
-		return BT::BOOL;
+		return ET::BOOL;
 	}
 
-	BT::ExprType __compiler::visit_condition(const Node& n) {
+	ExprType __compiler::visit_condition(const Node& n) {
 		/* Compile a conditional statement
 		 * No insertInstructions should be used with that
 		 * function
 		 * Maybe the jump instructions should be set after the whole code
 		 * has been created
 		 */
-		BT::ExprType rt_compar{visit(n.get("comparison"))};
-		if (rt_compar != BT::BOOL)
+		ExprType rt_compar{visit(n.get("comparison"))};
+		if (rt_compar != ET::BOOL)
 			throw exc(exc::TypeError,"If statement must be followed by an expression returning a bool",n.get("comparison").getPosition());
 
 		appendInstructions(BT::JUMP_FALSE,0,0); // the two zeros will be filled with the adress to go
@@ -333,36 +334,36 @@ namespace frumul {
 		setJump(ad_index,last_instruction_index);
 
 
-		return BT::VOID;
+		return ET::VOID;
 	}
 
-	BT::ExprType __compiler::visit_index(const Node& n) {
+	ExprType __compiler::visit_index(const Node& n) {
 		/* compile an index of a text
 		 * Node expected contains the index, but it's not the
 		 * index itself
 		 */
 		// push index on the stack
-		if (visit(n.get(0)) != BT::INT)
+		if (visit(n.get(0)) != ET::INT)
 			throw exc(exc::TypeError,"The index must be an integer",n.get("index").getPosition());
 		// push variable number on the stack
 		// (checks have been done before)
 		if (n.type() == Node::VARIABLE_NAME) {
 			appendAndPushConstant<int>(symbol_table->getIndex(n.getValue()));
-			appendInstructions(BT::TEXT_GET_CHAR,BT::VARIABLE);
+			appendInstructions(BT::TEXT_GET_CHAR,ET::VARIABLE);
 		} else {
 			// litteral text
 			int i {bytecode.addConstant(n.getValue())};
 			appendAndPushConstant<int>(i);
-			appendInstructions(BT::TEXT_GET_CHAR,BT::CONSTANT);
+			appendInstructions(BT::TEXT_GET_CHAR,ET::CONSTANT);
 		}
 		// runtime error handled here (after instructions are set)
 		bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of characters in the text",n.get(0).getPosition()});
 
-		return BT::TEXT;
+		return ET::TEXT;
 
 	}
 	
-	BT::ExprType __compiler::visit_index_assignment(const Node& n) {
+	ExprType __compiler::visit_index_assignment(const Node& n) {
 		/* Visit the assignment of an element of
 		 * a list or a string
 		 * expects a node with numbered children.
@@ -373,50 +374,57 @@ namespace frumul {
 
 		checkVariable(name,n); // variable checks
 		// type of the variable
-		BT::ExprType var_type{symbol_table->getType(name)};
-		BT::ExprType type_expected{BT::VOID};
+		ExprType var_type{symbol_table->getType(name)};
+		ExprType type_expected{ET::VOID};
 
-		if (var_type != BT::TEXT && var_type < BT::LIST)
+		if (var_type != ET::TEXT && !(var_type & ET::LIST))
 			throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
 
 		bool is_char_to_set{false}; // useful for list containing chars to set
 
-		if (var_type == BT::TEXT) {
-			type_expected = BT::TEXT;
+		if (var_type == ET::TEXT) {
+			type_expected = ET::TEXT;
 			if (fields.size() > 2)
 				throw iexc(exc::IndexError,"Number of indices can not exceed one for a text",n.getPosition(),"text defined here: ",symbol_table->getPosition(name));
 		}
-		else if ((var_type & BT::TEXT) && 
-			(var_type % (BT::LIST * (fields.size() - 1)) != BT::TEXT) 
-			){// lists of texts // complicated condition 
-			type_expected = BT::TEXT;
+		/*else if ((var_type & ET::TEXT) && 
+			(var_type % (ET::LIST * (fields.size() - 1)) != BT::TEXT) 
+			){// lists of texts // complicated condition  */
+		else if (var_type.getPrimitive(ET::LIST) == ET::TEXT &&
+			fields.size() -1 > static_cast<unsigned int>(var_type.getDepth())
+			) // case of a list of texts whose last index refers
+			// to a char and not a text
+		{
+			type_expected = ET::TEXT;
 			is_char_to_set = true;
 
-			if (fields.size() - 2 > var_type / BT::LIST)
+			if (fields.size() -2 > static_cast<unsigned int>(var_type.getDepth(ET::LIST))) //(fields.size() - 2 > var_type / ET::LIST)
 				throw iexc(exc::IndexError,"Number of indices exceeds the depth of the list",n.getPosition(),"List defined here: ",symbol_table->getPosition(name));
 		}
 		else {
-			if (fields.size() - 1 > var_type / BT::LIST)
+			if (fields.size() -1 > static_cast<unsigned int>(var_type.getDepth(ET::LIST)))//(fields.size() - 1 > var_type / ET::LIST)
 				throw iexc(exc::IndexError,"Number of indices exceeds the depth of the list",n.getPosition(),"List defined here: ",symbol_table->getPosition(name));
-			type_expected = static_cast<BT::ExprType>(var_type - 
-					(BT::LIST * (fields.size()-1))); // BUG overflow when error
+			/*type_expected = static_cast<ExprType>(var_type - 
+					(ET::LIST * (fields.size()-1))); // BUG overflow when error
+			*/
+			type_expected = var_type.getContained();
 		}
 
 		// push the value first
 		const auto& value {fields[negative_index(-1,fields.size())]};
-		BT::ExprType val_rt {visit(value)};
+		ExprType val_rt {visit(value)};
 		if (val_rt != type_expected)
 			cast(val_rt,type_expected,value,n);
 
 		int indices_nb {0}; // useful for list indices
-		if (var_type == BT::TEXT) {
+		if (var_type == ET::TEXT) {
 			// push the index in second
-			if (visit(fields[0]) != BT::INT)
+			if (visit(fields[0]) != ET::INT)
 				throw exc(exc::TypeError,"Index must be an integer",fields[0].getPosition());
 		} else {
 			// get the indices and increment indices_nb
 			for (size_t i{0}; i < fields.size() -1; ++i, ++indices_nb) {
-				if (visit(fields[i]) != BT::INT)
+				if (visit(fields[i]) != ET::INT)
 					throw exc(exc::TypeError,"Index must be an integer",fields[i].getPosition());
 			}
 		}
@@ -425,7 +433,7 @@ namespace frumul {
 		appendAndPushConstant(symbol_table->getIndex(name));
 
 		// set the instruction
-		if (var_type == BT::TEXT) {
+		if (var_type == ET::TEXT) {
 			appendInstructions(BT::TEXT_SET_CHAR);
 			bytecode.addRuntimeError(exc{exc::ValueError,"The text contains more than one char",value.getPosition()});
 			bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of characters in the text",n.getPosition()});
@@ -439,10 +447,10 @@ namespace frumul {
 		}
 
 
-		return BT::VOID;
+		return ET::VOID;
 	}
 
-	BT::ExprType __compiler::visit_list(const Node& n) {
+	ExprType __compiler::visit_list(const Node& n) {
 		/* Visit a litteral list
 		 * and compile it
 		 * List can not be empty.
@@ -450,7 +458,7 @@ namespace frumul {
 
 		// get the type of the elements
 		appendAndPushConstAnyVector();
-		BT::ExprType elt_type{ visit(n.get(0)) };
+		ExprType elt_type{ visit(n.get(0)) };
 		appendInstructions(BT::LIST_APPEND);
 
 		for (unsigned int i{1}; i < n.size();++i) {
@@ -459,12 +467,13 @@ namespace frumul {
 			appendInstructions(BT::LIST_APPEND);
 		}
 
-		//assert(((elt_type + BT::LIST) < 256 )&& "Maximum list depth is 15 in this implementation"); // clang has a warning for that. Remove it?
+		//assert(((elt_type + ET::LIST) < 256 )&& "Maximum list depth is 15 in this implementation"); // clang has a warning for that. Remove it?
 
-		return static_cast<BT::ExprType>(elt_type + BT::LIST); // set the depth of the list by adding it
+		//return static_cast<ExprType>(elt_type + ET::LIST); // set the depth of the list by adding it
+		return ExprType(ET::LIST,elt_type);
 	}
 
-	BT::ExprType __compiler::visit_list_with_index(const Node& n) {
+	ExprType __compiler::visit_list_with_index(const Node& n) {
 		/* Compile a litteral list followed by an index
 		 */
 		// we iterates over the map to keep the order of insertion (see parser)
@@ -474,22 +483,23 @@ namespace frumul {
 		// load list and get her type
 		auto it{n.getNumberedChildren().begin()};
 		assert((it->type() == Node::LIST || it->type() == Node::VARIABLE_NAME)&&"First node is not a list");
-		BT::ExprType list_type{visit(*it++)}; // we increment AFTER the derefencement
+		ExprType list_type{visit(*it++)}; // we increment AFTER the derefencement
 
 		// iterates over the indices by order
 		for (;it != n.getNumberedChildren().end();++it) {
 			// check that the number of indices is under the depth of the list
-			if (list_type < BT::LIST && list_type != BT::TEXT) {
+			//if (list_type < ET::LIST && list_type != ET::TEXT) {
+			if (list_type.getDepth(ET::LIST) == 0 && list_type != ET::TEXT) {
 			
 				throw exc(exc::IndexError,"Number of indices is too large for the required list",it->getPosition());
 			}
 
 			// push index on the stack
-			if (visit(*it) != BT::INT)
+			if (visit(*it) != ET::INT)
 				throw exc(exc::TypeError,"Index must be an int",it->getPosition());
-			if (list_type == BT::TEXT) {
+			if (list_type == ET::TEXT) {
 				// append instructions to get the character
-				appendInstructions(BT::TEXT_GET_CHAR,BT::STACK_ELT);
+				appendInstructions(BT::TEXT_GET_CHAR,ET::STACK_ELT);
 				// add runtime error
 				bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of characters in the text",it->getPosition()});
 			} else {
@@ -497,7 +507,8 @@ namespace frumul {
 				appendInstructions(BT::LIST_GET_ELT);
 				bytecode.addRuntimeError(exc{exc::IndexError,"Index is over the number of elements in the list",it->getPosition()});
 				
-				list_type = static_cast<BT::ExprType>(list_type - BT::LIST);
+				//list_type = static_cast<ExprType>(list_type - ET::LIST);
+				list_type = list_type.getContained();
 			}
 
 		}
@@ -505,39 +516,40 @@ namespace frumul {
 
 	}
 
-	BT::ExprType __compiler::visit_litbool(const Node& n) {
+	ExprType __compiler::visit_litbool(const Node& n) {
 		/* Return true or false
 		 */
 		static const std::map<bst::str,bool> bools{
 			{"false",false},
 			{"true",true}};
 		appendAndPushConstant<bool>(bools.at(n.getValue()));
-		return BT::BOOL;
+		return ET::BOOL;
 	}
 			
 
-	BT::ExprType __compiler::visit_litint(const Node& n) {
+	ExprType __compiler::visit_litint(const Node& n) {
 		/* Compile a litteral integer
 		 */
 		appendAndPushConstant<int>(
 					static_cast<int>(n.getValue())
 				);
-		return BT::INT;
+		return ET::INT;
 	}
 
-	BT::ExprType __compiler::visit_litsym(const Node& n) {
+	ExprType __compiler::visit_litsym(const Node& n) {
 		/* compile a litteral symbol
 		 */
 		try {
 			RSymbol s{parent.getChildren().find(n.getValue(),PathFlag::Relative)};
 			appendAndPushConstant<RSymbol>(s);
+			return ExprType(ET::SYMBOL,s.get().getReturnType());
+
 		} catch (const bst::str& path) { // if error
 			throw exc(exc::NameError,bst::str("Name not found: ") + n.getValue(),n.getPosition());
 		}
-		return BT::SYMBOL;
 	}
 
-	BT::ExprType __compiler::visit_loop(const Node& n) {
+	ExprType __compiler::visit_loop(const Node& n) {
 		/* Compile a loop
 		 */
 		/* This function uses pointers to elements of vector.
@@ -557,15 +569,15 @@ namespace frumul {
 		// Which kind of expression follows 'loop' keyword ?
 		if (n.getNamedChildren().count("condition") > 0) {
 			switch (visit(n.get("condition"))) {
-				case BT::BOOL:
+				case ET::BOOL:
 					// nothing to do, since it's the basic case
 					break;
-				case BT::INT: {
+				case ET::INT: {
 					has_int_variable = true;
 					// append a zero constant (if necessary)
 					int index_of_zero {bytecode.addConstant(0)};
 					// create a hidden variable
-					 VarSymbol *v_s = &symbol_table->append(SymbolTab::next(),BT::INT,n.get("condition").getPosition());
+					 VarSymbol *v_s = &symbol_table->append(SymbolTab::next(),ET::INT,n.get("condition").getPosition());
 					 hidden_variable_i = v_s->getIndex();
 					 //appendAndPushConstant<int>(v_s->getIndex());
 					 appendInstructions(BT::ASSIGN,hidden_variable_i);
@@ -574,8 +586,8 @@ namespace frumul {
 					 start_of_loop = code.size();
 					 // set the condition
 					 appendPushConstant(index_of_zero);
-					 appendInstructions(BT::PUSH,BT::VARIABLE,hidden_variable_i,// push custom variable on the stack
-							 BT::BOOL_SUPERIOR,BT::INT);
+					 appendInstructions(BT::PUSH,ET::VARIABLE,hidden_variable_i,// push custom variable on the stack
+							 BT::BOOL_SUPERIOR,ET::INT);
 
 					      }
 					break;
@@ -584,11 +596,11 @@ namespace frumul {
 			};
 		}
 		else {
-			BT::ExprType variable_filler {visit(n.get("variable_filler"))}; 
+			ExprType variable_filler {visit(n.get("variable_filler"))}; 
 			switch (variable_filler) {
-				case BT::INT: {
+				case ET::INT: {
 					has_int_variable= true;
-					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),BT::INT);
+					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),ET::INT);
 					hidden_variable_i = v_s->getIndex();
 					appendInstructions(BT::ASSIGN,hidden_variable_i);
 					//v_s->markDefined();
@@ -596,45 +608,46 @@ namespace frumul {
 					int index_of_zero {bytecode.addConstant(0)};
 					start_of_loop = code.size();
 					appendPushConstant(index_of_zero);
-					appendInstructions(BT::PUSH,BT::VARIABLE,hidden_variable_i,
-							BT::BOOL_SUPERIOR,BT::INT);
+					appendInstructions(BT::PUSH,ET::VARIABLE,hidden_variable_i,
+							BT::BOOL_SUPERIOR,ET::INT);
 					      }
 					break;
-				case BT::TEXT:
+				case ET::TEXT:
 					{
 					has_iterable_variable = true;
 					// create variable if necessary
-					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),BT::TEXT);
+					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),ET::TEXT);
 					hidden_variable_i = v_s->getIndex();
 					//v_s->markDefined();
 					// create hidden variable to save the index
-					VarSymbol* hidden_index = &symbol_table->append(SymbolTab::next(),BT::TEXT,n.getPosition());
+					VarSymbol* hidden_index = &symbol_table->append(SymbolTab::next(),ET::TEXT,n.getPosition());
 					hidden_index_i = hidden_index->getIndex();
 					const int index_of_zero{bytecode.addConstant(0)};
 					const size_t steps{
 						insertInstructions(start_of_loop,
-							BT::PUSH,BT::CONSTANT,index_of_zero,
+							BT::PUSH,ET::CONSTANT,index_of_zero,
 							BT::ASSIGN,hidden_index_i)
 					};
 					// change start of loop, set just before the push of the text
 					start_of_loop += steps;
 					// get length of text
-					appendInstructions(BT::LENGTH,BT::TEXT);
+					appendInstructions(BT::LENGTH,ET::TEXT);
 					// get index value
-					appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
+					appendInstructions(BT::PUSH,ET::VARIABLE,hidden_index_i);
 					// set comparison 
-					appendInstructions(BT::BOOL_INFERIOR,BT::INT);
+					appendInstructions(BT::BOOL_INFERIOR,ET::INT);
 
 					}
 					break;
 				default:
-					if (variable_filler < BT::LIST)
+					if (variable_filler != ET::LIST)
 						exc(exc::TypeError,"This type can not be used with a variable",n.get("variable_filler").getPosition());
 					
 					// case of a list
 					// No, I did not copy/paste. I rewrote it by hand. Yes, it's as stupid; maybe even worse. Too lazy to create a function for that.
 					{
-						BT::ExprType elt_type{static_cast<BT::ExprType>(variable_filler - BT::LIST)};
+						//ExprType elt_type{static_cast<ExprType>(variable_filler - ET::LIST)};
+						ExprType& elt_type{variable_filler.getContained()};
 						has_iterable_variable = true;
 						// create variable if necessary
 						VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),elt_type);
@@ -647,17 +660,17 @@ namespace frumul {
 						const int index_of_zero{bytecode.addConstant(0)};
 						const size_t steps{
 							insertInstructions(start_of_loop,
-								BT::PUSH, BT::CONSTANT,index_of_zero,
+								BT::PUSH, ET::CONSTANT,index_of_zero,
 								BT::ASSIGN,hidden_index_i)
 						};
 						// change start of loop, just before the push of the elements
 						start_of_loop += steps;
 						// get length of list
-						appendInstructions(BT::LENGTH,BT::LIST);
+						appendInstructions(BT::LENGTH,ET::LIST);
 						// get index value
-						appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
+						appendInstructions(BT::PUSH,ET::VARIABLE,hidden_index_i);
 						// set comparison
-						appendInstructions(BT::BOOL_INFERIOR,BT::INT);
+						appendInstructions(BT::BOOL_INFERIOR,ET::INT);
 					}
 			};
 		}
@@ -667,18 +680,18 @@ namespace frumul {
 		// manage iterable (list or text) (must be before the body)
 		if (has_iterable_variable) {
 			// push again text 
-			BT::ExprType variable_filler{visit(n.get("variable_filler"))};
+			ExprType variable_filler{visit(n.get("variable_filler"))};
 			// get index
-			appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
+			appendInstructions(BT::PUSH,ET::VARIABLE,hidden_index_i);
 			// push char/list elt on stack and assign it to variable (no runtime error possible here)
-			if (variable_filler == BT::TEXT)
-				appendInstructions(BT::TEXT_GET_CHAR,BT::STACK_ELT,
+			if (variable_filler == ET::TEXT)
+				appendInstructions(BT::TEXT_GET_CHAR,ET::STACK_ELT,
 						BT::ASSIGN,hidden_variable_i);
 			else
 				appendInstructions(BT::LIST_GET_ELT,
 						BT::ASSIGN,hidden_variable_i);
 			// set new index again for next iteration
-			appendInstructions(BT::PUSH,BT::VARIABLE,hidden_index_i);
+			appendInstructions(BT::PUSH,ET::VARIABLE,hidden_index_i);
 			appendAndPushConstant<int>(1);
 			appendInstructions(BT::INT_ADD,
 					BT::ASSIGN,hidden_index_i);
@@ -689,7 +702,7 @@ namespace frumul {
 		// manage hidden variable (must be after the body)
 		if (has_int_variable) {
 			appendAndPushConstant<int>(1);
-			appendInstructions(BT::PUSH,BT::VARIABLE,hidden_variable_i,
+			appendInstructions(BT::PUSH,ET::VARIABLE,hidden_variable_i,
 					BT::INT_SUB);
 			appendInstructions(BT::ASSIGN,hidden_variable_i);
 		}
@@ -699,36 +712,36 @@ namespace frumul {
 		// set the jumps target
 		setJump(condition_pos,second_jump_pos);
 		setJump(second_jump_pos,start_of_loop);
-		return BT::VOID;
+		return ET::VOID;
 	}
 
-	BT::ExprType __compiler::visit_littext(const Node& n) {
+	ExprType __compiler::visit_littext(const Node& n) {
 		/* Compile a litteral text
 		 */
 		if (n.has(0))
 			return visit_index(n);
 		appendAndPushConstant<bst::str>(n.getValue());
-		return BT::TEXT;
+		return ET::TEXT;
 	}
 
-	void __compiler::throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Position& n1, const Position& n2) {
+	void __compiler::throwInconsistentType(const ExprType& t1, const ExprType& t2, const Position& n1, const Position& n2) {
 		/* Throw an inconsistent error
 		 */
-		bst::str msg1 {BT::typeToString(t1) + " can not be used with " + BT::typeToString(t2)};
-		bst::str msg2 {BT::typeToString(t2) + " defined here: "};
+		bst::str msg1 {t1.toString() + " can not be used with " + t2.toString()};
+		bst::str msg2 {t2.toString() + " defined here: "};
 		throw iexc(exc::InconsistantType,msg1,n1, msg2, n2);
 	}
 
-	void __compiler::throwInconsistentType(BT::ExprType t1, BT::ExprType t2, const Node& n1, const Node& n2) {
+	void __compiler::throwInconsistentType(const ExprType& t1, const ExprType& t2, const Node& n1, const Node& n2) {
 		/* overloaded function
 		 */
 		throwInconsistentType(t1,t2,n1.getPosition(),n2.getPosition());
 	}
 
-	BT::ExprType __compiler::visit_unary_op(const Node& n) {
+	ExprType __compiler::visit_unary_op(const Node& n) {
 		/* Compile a unary expression: -,+,!
 		 */
-		BT::ExprType rt{visit(n.get("expr"))};
+		ExprType rt{visit(n.get("expr"))};
 		static const std::map<bst::str,BT::Instruction> instructions {
 			{"+",BT::INT_POS},
 			{"-",BT::INT_NEG},
@@ -736,38 +749,38 @@ namespace frumul {
 		};
 		BT::Instruction ins{instructions.at(n.getValue())};
 		// check compatibility
-		if ((ins == BT::INT_POS || ins == BT::INT_NEG) && rt != BT::INT)
+		if ((ins == BT::INT_POS || ins == BT::INT_NEG) && rt != ET::INT)
 			throw exc(exc::InconsistantType,"Unary operator +/- must be used with integers only",n.getPosition());
-		else if (ins == BT::BOOL_NOT && rt != BT::BOOL)
+		else if (ins == BT::BOOL_NOT && rt != ET::BOOL)
 			throw exc(exc::InconsistantType,"Unary operator ! must be used with booleans only",n.getPosition());
 
 		code.push_back(ins);
 		return rt;
 	}
 
-	BT::ExprType __compiler::visit_val_text(const Node& n) {
+	ExprType __compiler::visit_val_text(const Node& n) {
 		/* Append text to the return value
 		 */
 		constants.push_back(n.getValue());
-		appendInstructions(BT::PUSH,BT::CONSTANT,constants.size()-1);
-		return BT::TEXT;
+		appendInstructions(BT::PUSH,ET::CONSTANT,constants.size()-1);
+		return ET::TEXT;
 	}
 
-	BT::ExprType __compiler::visit_variable_assignment(const Node& n) {
+	ExprType __compiler::visit_variable_assignment(const Node& n) {
 		/* Assign a value to a variable
 		 */
 		const bst::str& name {n.get("name").getValue()};
 		if (!symbol_table->contains(name))
 			throw exc(exc::NameError,"Name not defined",n.get("name").getPosition());
 
-		BT::ExprType rt{visit(n.get("value"))};
-		const BT::ExprType s_type {symbol_table->getType(name)};
+		ExprType rt{visit(n.get("value"))};
+		const ExprType s_type {symbol_table->getType(name)};
 		if (rt != s_type) {
 			// cast if possible
 			cast(rt,s_type,n,n.get("value"));
 			/*
-			if (rt == BT::SYMBOL ||
-				(s_type == BT::SYMBOL && rt != BT::TEXT)
+			if (rt == ET::SYMBOL ||
+				(s_type == ET::SYMBOL && rt != ET::TEXT)
 			   )
 				throwInconsistentType(rt,s_type,n.get("value"),n.get("name"));
 			else
@@ -777,12 +790,12 @@ namespace frumul {
 		//appendAndPushConstant<int>(symbol_table->getIndex(name));
 		appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
 		//symbol_table->markDefined(name);
-		return BT::VOID;
+		return ET::VOID;
 	}
 
-	BT::ExprType __compiler::visit_variable_declaration(const Node& n) {
+	ExprType __compiler::visit_variable_declaration(const Node& n) {
 		/* Declare a variable
-		 * and (optionnaly) set it
+		 * and set it
 		 */
 		const bst::str& name{n.get("name").getValue()};
 		bst::str type{n.get("type").getValue()};
@@ -791,20 +804,22 @@ namespace frumul {
 			throw iexc(exc::NameAlreadyDefined,"This name has already been defined here:",symbol_table->getPosition(name),"Name defined another time here: ",n.getPosition());
 
 		// find type
-		static const std::map<bst::str,BT::ExprType> types{
-			{"text",BT::TEXT},
-			{"int",BT::INT},
-			{"bool",BT::BOOL},
-			{"symbol",BT::SYMBOL},
-			{"list",BT::LIST},
+		ExprType type_{ExprType(n.get("type"))};
+		/* DEPRECATED
+		static const std::map<bst::str,ExprType> types{
+			{"text",ET::TEXT},
+			{"int",ET::INT},
+			{"bool",ET::BOOL},
+			{"symbol",ET::SYMBOL},
+			{"list",ET::LIST},
 		};
 		type.tolower();
-		BT::ExprType type_{BT::VOID};
+		ExprType type_{ET::VOID};
 		bst::str type_key{"type"}; // useful for the catch beyond
 		try {
 			type_ = types.at(type);
 			// manages list
-			if (type_ == BT::LIST) {
+			if (type_ == ET::LIST) {
 				type_key = "primitive_type";
 				bst::str primitive_type{n.get(type_key).getValue()};
 				primitive_type.tolower();
@@ -815,12 +830,13 @@ namespace frumul {
 		} catch (const std::out_of_range& oor){
 			throw exc(exc::UnknownType,"Invalid type declared",n.get(type_key).getPosition());
 		}
+		*/
 
 		// set symbol
 		symbol_table->append(name,type_,n.getPosition());
 		// optional: set value 
 		if (n.getNamedChildren().count("value")) {
-			BT::ExprType value_rt {visit(n.get("value"))};
+			ExprType value_rt {visit(n.get("value"))};
 			if (value_rt != type_)
 				cast(value_rt,type_,n,n.get("value"));
 
@@ -829,25 +845,27 @@ namespace frumul {
 			//symbol_table->markDefined(name);
 
 		}
-		return BT::VOID;
+		return ET::VOID;
 	}
 
-	BT::ExprType __compiler::visit_list_type_declaration(const Node& n,BT::ExprType primitive) {
+	ExprType __compiler::visit_list_type_declaration(const Node& n,const ExprType& primitive) {
 		/* Return the right type of a list
+		 * DEPRECATED
 		 */
-		BT::ExprType l_type{primitive};
+		ExprType l_type{primitive};
 		if (n.has("list_depth") && n.get("list_depth").getValue() != "1") 
-			l_type = static_cast<BT::ExprType>(
-					l_type +  static_cast<int>(n.get("list_depth").getValue()) * BT::LIST
+			l_type = static_cast<ExprType>(ET::VOID // just for compilation
+					//l_type +  static_cast<int>(n.get("list_depth").getValue()) * ET::LIST
 					);
 		else
-			l_type = static_cast<BT::ExprType>(l_type + BT::LIST);
+			l_type = ET::VOID; // just for compilation
+			//l_type = static_cast<ExprType>(l_type + ET::LIST);
 
 		return l_type;
 
 	}
 
-	BT::ExprType __compiler::visit_variable_name(const Node& n) {
+	ExprType __compiler::visit_variable_name(const Node& n) {
 		/* compile a call to a variable
 		 */
 		const bst::str& name {n.getValue()};
@@ -855,9 +873,9 @@ namespace frumul {
 		checkVariable(name,n);
 		// with index
 		if (n.has(0)) {
-			if (symbol_table->getType(name) == BT::TEXT)
+			if (symbol_table->getType(name) == ET::TEXT)
 				return visit_index(n);
-			else if (symbol_table->getType(name) >= BT::LIST) {
+			else if (symbol_table->getType(name) >= ET::LIST) {
 				// modify the node to match with node expected
 				// by visit_list_with_index
 				NodeVector fields;
@@ -871,29 +889,29 @@ namespace frumul {
 				throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
 		}
 		// with no index
-		appendInstructions(BT::PUSH,BT::VARIABLE,symbol_table->getIndex(name));
+		appendInstructions(BT::PUSH,ET::VARIABLE,symbol_table->getIndex(name));
 		
 		return symbol_table->getType(name);
 	}
 
-	void __compiler::cast(BT::ExprType source, BT::ExprType target, const Node& source_node, const Node& target_node) {
+	void __compiler::cast(const ExprType& source, const ExprType& target, const Node& source_node, const Node& target_node) {
 		/* Compiles a cast if possible between source and target
 		 * Cast can be compiled only in assignment, declaration and addition
 		 * to the return value if its type is text
 		 */
 
 		if (
-				source == BT::SYMBOL ||
-				(target == BT::SYMBOL && source != BT::TEXT) ||
-				source == BT::VOID ||
-				source >= BT::LIST ||
-				target >= BT::LIST
+				source == ET::SYMBOL ||
+				(target == ET::SYMBOL && source != ET::TEXT) ||
+				source == ET::VOID ||
+				source == ET::LIST ||
+				target == ET::LIST
 		   )
 			throwInconsistentType(target,source,target_node,source_node);
 
 		appendInstructions(BT::CAST,source,target);
 		// add a runtime error
-		if (target != BT::TEXT && source != BT::BOOL) {
+		if (target != ET::TEXT && source != ET::BOOL) {
 			bytecode.addRuntimeError(exc(exc::CastError,"Impossible to cast value",source_node.getPosition()));
 		}
 	}

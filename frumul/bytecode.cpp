@@ -36,7 +36,7 @@ namespace frumul {
 		return v_nb;
 	}
 
-	ByteCode::ExprType ByteCode::getReturnType() const {
+	const ExprType& ByteCode::getReturnType() const {
 		/* Return return type
 		 */
 		return return_type;
@@ -64,9 +64,9 @@ namespace frumul {
 		return code;
 	}
 
-	bst::str ByteCode::typeToString(BT::ExprType e) {
-		/* Return a string representation of type
-		 */
+	/*bst::str ByteCode::typeToString(BT::ExprType e) {
+		* Return a string representation of type
+		 *
 		switch (e) {
 			case INT:	return "INT";
 			case TEXT:	return "TEXT";
@@ -85,8 +85,8 @@ namespace frumul {
 	}
 
 	bst::str ByteCode::listToString(ExprType e) {
-		/* String representation of a list
-		 */
+		/ String representation of a list
+		 *
 		bst::str s{"LIST "};
 		// depth
 		int depth{0};
@@ -98,7 +98,7 @@ namespace frumul {
 		// type
 		s += typeToString(e);
 		return s;
-	}
+	}*/
 
 	void ByteCode::addVariable(int i) {
 		/* Increment the number of variables to allow

@@ -16,6 +16,7 @@
 #include "exception.h"
 #include "functions.inl"
 #include "macros.h"
+#include "vmtypes.h"
 
 
 namespace E = std::experimental;
@@ -23,6 +24,7 @@ namespace E = std::experimental;
 namespace frumul {
 	class Symbol;
 
+	using byte = uint_fast8_t;
 	constexpr unsigned int MAX_VARIABLES{sizeof(byte)};
 
 	class ByteCode {
@@ -30,10 +32,11 @@ namespace frumul {
 		 * of the values
 		 */
 		public:
+			/* DEPRECATED
 			enum ExprType : byte {
-				/* Type of the variables, constants
+				* Type of the variables, constants
 				 * and other expressions
-				 */
+				 *
 				VOID		= 0 << 0,
 				INT 		= 1 << 0,
 				TEXT 		= 1 << 1,
@@ -47,6 +50,7 @@ namespace frumul {
 				STACK_ELT	= 1 << 6,
 				MAX_EXPR_TYPE,
 			};
+			*/
 
 
 			enum Instruction {
@@ -102,14 +106,14 @@ namespace frumul {
 			std::vector<byte>::iterator getBegin();
 			std::vector<byte>::iterator getEnd();
 			int getVariableNumber() const;
-			ExprType getReturnType() const;
+			const ExprType& getReturnType() const;
 			Symbol& getParent() ;
 			
 			const E::any& getConstant(size_t) const;
 			std::vector<E::any>& getConstants();
 			std::vector<byte>& getCode();
-			static bst::str typeToString(ExprType);
-			static bst::str listToString(ExprType);
+			//static bst::str typeToString(ExprType);
+			//static bst::str listToString(ExprType);
 
 			void addVariable(int i=1);
 			void addRuntimeError(const BaseException&);
@@ -142,7 +146,7 @@ namespace frumul {
 				}
 
 		private:
-			ExprType return_type{TEXT};
+			ExprType return_type{ET::TEXT};
 			Symbol& parent;
 			std::vector<byte> code;
 			// constants

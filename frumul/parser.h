@@ -1,6 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <functional>
 #include <map>
 #include <memory>
 #include "hinterpreter.h"
@@ -59,7 +60,7 @@ namespace frumul {
 
 			Node variable_declaration ();
 			Node variable_assignment ();
-			StrNodeMap types ();
+			Node types ();
 			Node comparison ();
 			Node expr (); // DEPRECATED
 			Node term (); // DEPRECATED
@@ -81,7 +82,7 @@ namespace frumul {
 			Node long_name ();
 
 			Node options ();
-			Node simple_option(Token::Type, Node::Type);
+			Node simple_option(Token::Type, Node::Type,std::function<Node(Parser&)> f=std::function<Node(Parser&)>());
 			std::map<bst::str,Node> lang_option ();
 			std::vector<Node> param_option ();
 			Node param_value ();
@@ -103,6 +104,8 @@ namespace frumul {
 			Node bin_op(std::initializer_list<Token::Type> ops);
 
 	};
+
+	using ParserFunction = std::function<Node(Parser&)>;
 }// namespace
 
 

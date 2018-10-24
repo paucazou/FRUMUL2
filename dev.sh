@@ -34,6 +34,7 @@ compile () {
 		frumul/util.cpp\
 		frumul/value.cpp\
 		frumul/vm.cpp\
+		frumul/vmtypes.cpp\
 		frumul/warning.cpp\
 		-o out\
 		$odir/token.o\

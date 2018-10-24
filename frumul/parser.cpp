@@ -76,7 +76,7 @@ namespace frumul {
 		 * delete current_token and set a new one
 		 * return false if type does not match.
 		 */
-#if DEBUG
+#if DEBUG && 0
 		if (current_token->getType() != Token::EOFILE)
 			std::cout << *current_token << std::endl;
 #endif
@@ -326,9 +326,11 @@ namespace frumul {
 			eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
 
 			// get type
-			for (const auto& p : types()) {
+			/*for (const auto& p : types()) {
 				assign_node.addChild(p.first,p.second);
 			}
+			*/
+			assign_node.addChild("type",types());
 
 			int start{assign_node.getPosition().getStart()};
 			int end{current_token->getPosition().getEnd()};
@@ -340,14 +342,26 @@ namespace frumul {
 
 	}
 
-	StrNodeMap Parser::types () {
+	Node Parser::types () {
 		/* Manages the types of a declaration
-		 * Return a StrNodeMap with at least one field
-		 * and max three which are named:
-		 * 	- type
-		 * 	- list_depth (optional)
-		 * 	- type_primitive (optional, required if type is a list
+		 * Return a RETURN_TYPE Node with numbered
+		 * children and no value
 		 */
+
+		int start{getTokenStart()};
+		NodeVector fields;
+
+		while (current_token->getType() == Token::VARIABLE || current_token->getType() == Token::NUMBER) {
+			Node::Type t{ (current_token->getType() == Token::VARIABLE ? 
+					Node::VARIABLE_TYPE : Node::LITINT) };
+			fields.emplace_back(t,current_token->getPosition(),current_token->getValue());
+			eat(current_token->getType(),Token::MAX_TYPES_VALUES); // eat type and go on
+		}
+
+		int end {getTokenStart() -1};
+		return Node(Node::RETURN_TYPE,Position(start,end,filepath,source),fields);
+
+		/* DEPRECATED
 		StrNodeMap fields;
 
 		// main type
@@ -366,6 +380,7 @@ namespace frumul {
 			eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat primitive type
 		}
 		return fields;
+		*/
 	}
 
 	Node Parser::variable_declaration () { // DEPRECATED since initialization is now required
@@ -387,8 +402,8 @@ namespace frumul {
 		eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
 
 		// get the type
-		StrNodeMap types_fields{types()};
-		fields.insert(types_fields.begin(),types_fields.end());
+		//StrNodeMap types_fields{types()};
+		//fields.insert(types_fields.begin(),types_fields.end());
 
 		int end{current_token->getPosition().getEnd()};
 		return Node(Node::VARIABLE_DECLARATION,Position(start,end,filepath,source),fields);
@@ -903,7 +918,7 @@ namespace frumul {
 				}
 				
 				else if (current_token->getValue() == "return") {
-					fields.push_back(simple_option(Token::VARIABLE,Node::RETURN_TYPE));
+					fields.push_back(simple_option(Token::VARIABLE,Node::RETURN_TYPE,&Parser::types));
 					optionsnames[3] = "";
 				}
 
@@ -917,17 +932,23 @@ namespace frumul {
 		return Node(Node::OPTIONS,Position(start,end,filepath,source),fields);
 	}
 
-	Node Parser::simple_option (Token::Type tok_type, Node::Type node_type) {
+	Node Parser::simple_option (Token::Type tok_type, Node::Type node_type,ParserFunction f) {
 		/* Manages a simple option with only one
 		 * element inside
 		 * tok_type is the type expected,
 		 * node_type the type of the node returned
+		 * f is a function to which, if not empty,
+		 * manages the content of the option
 		 * Return a node with a value
 		 * but no children
 		 */
 		int start {getTokenStart()};
 		eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // consume "mark"/"return"
 		eat(Token::LAQUOTE,tok_type,Token::MAX_TYPES_VALUES); // consume «
+
+		if (f)
+			return f(*this);
+
 		bst::str value { current_token->getValue()};
 		eat(tok_type,Token::RAQUOTE,Token::MAX_TYPES_HEADER); // consume number/return type name
 		int end {current_token->getPosition().getEnd()};

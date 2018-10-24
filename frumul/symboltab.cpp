@@ -8,7 +8,7 @@
 
 namespace frumul {
 	// VarSymbol
-	VarSymbol::VarSymbol(const bst::str& nname, BT::ExprType ntype, int nnb, int nscope, const Position& npos) :
+	VarSymbol::VarSymbol(const bst::str& nname, const ExprType& ntype, int nnb, int nscope, const Position& npos) :
 		name{nname}, type{ntype}, nb{nnb}, scope{nscope}, pos{npos}
 	{
 	}
@@ -17,7 +17,7 @@ namespace frumul {
 		return name;
 	}
 
-	BT::ExprType VarSymbol::getType() const {
+	const ExprType& VarSymbol::getType() const {
 		return type;
 	}
 
@@ -36,7 +36,7 @@ namespace frumul {
 	bst::str VarSymbol::toString() const {
 		bst::str s{"<VarSymbol|"};
 		s += name + bst::str(" - ");
-		s += BT::typeToString(type) + ">\n";
+		s += type.toString();
 		s += "Index: " + bst::str(nb) + '\n';
 		s += pos.toString();
 		return s;
@@ -77,7 +77,7 @@ namespace frumul {
 		return getVarSymbol(name).getIndex();
 	}
 
-	BT::ExprType SymbolTab::getType(const bst::str& name) const {
+	const ExprType& SymbolTab::getType(const bst::str& name) const {
 		/* Return the type matching with name
 		 */
 		return getVarSymbol(name).getType();
@@ -121,7 +121,7 @@ namespace frumul {
 		return content.back();
 	}
 
-	VarSymbol& SymbolTab::append(const bst::str& name, BT::ExprType type, const Position& pos) {
+	VarSymbol& SymbolTab::append(const bst::str& name, const ExprType& type, const Position& pos) {
 		/* Create a new symbol and install it
 		 * Please call contains before
 		 */

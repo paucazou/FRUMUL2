@@ -19,7 +19,7 @@
 #include "position.h"
 #include "schildren.h"
 #include "value.h"
-//#include "header.h"
+#include "vmtypes.h"
 
 namespace frumul {
 
@@ -67,7 +67,7 @@ namespace frumul {
 			Parameters& getParameters();
 			std::vector<bst::str> getChildrenNames();
 			// const getters
-			BT::ExprType getReturnType() const;
+			const ExprType& getReturnType() const;
 			const Position& getReturnTypePos() const;
 			const Name& getName() const;
 			const Alias& getAlias() const;
@@ -101,7 +101,7 @@ namespace frumul {
 
 		protected:
 			struct {
-				BT::ExprType type{BT::TEXT};
+				ExprType type{ExprType::TEXT};
 				std::unique_ptr<Position> pos;
 			} return_type;
 			Name name {};
