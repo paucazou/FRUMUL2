@@ -138,7 +138,7 @@ namespace frumul {
 
 			// tail
 			if (intokl(Token::TAIL,expected)) {
-				while (! (iswspace(raw_current_char) || current_char != unbreakable_space || current_char != "")) {
+				while ( !iswspace(raw_current_char) && current_char != unbreakable_space && current_char != "") {
 					val += current_char;
 					advanceBy();
 				}
