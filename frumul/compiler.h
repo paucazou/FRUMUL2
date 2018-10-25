@@ -84,6 +84,7 @@ namespace frumul {
 			ExprType visit_litsym(const Node& n);
 			ExprType visit_littext(const Node& n);
 			ExprType visit_loop(const Node& n);
+			ExprType visit_symcall(const Node& n);
 			ExprType visit_unary_op(const Node& n);
 			ExprType visit_val_text(const Node& n);
 			ExprType visit_variable_assignment(const Node& n);

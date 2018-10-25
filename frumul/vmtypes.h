@@ -37,6 +37,7 @@ namespace frumul {
 		public:
 			ENUM(Type,EXPR_TYPES)
 			// constructors
+
 			ExprType(ExprType::Type);
 			ExprType(const ExprType&);
 			ExprType(const Node&);
@@ -46,6 +47,8 @@ namespace frumul {
 			// assignment
 			ExprType& operator = (ExprType::Type);
 			ExprType& operator = (const ExprType&);
+			// setters
+			ExprType& setContained(ExprType::Type);
 			// bools
 			bool operator == (const ExprType&)const;
 			bool operator == (const ExprType::Type)const;

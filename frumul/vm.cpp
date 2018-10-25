@@ -244,8 +244,15 @@ namespace frumul {
 		 * 	CAST
 		 * 	SOURCE_TYPE
 		 * 	TARGET_TYPE
+		 * for the symbols, the syntax is slightly
+		 * different, in order to check the real type:
+		 * syntax:
+		 * 	CAST
+		 * 	SOURCE_TYPE (must be TEXT)
+		 * 	TARGET_TYPE (must bet SYMBOL)
+		 * 	types...
+		 * 	PRIMITIVE_TYPE
 		 */
-#pragma message("Do not forget to catch errors at runtime: text->symbol")
 		ET::Type source_t {static_cast<ET::Type>(*++it)};
 		ET::Type target_t {static_cast<ET::Type>(*++it)};
 		switch (source_t) {
@@ -274,10 +281,25 @@ namespace frumul {
 						break;
 					case ET::SYMBOL:
 						{
-							// probably problematic, since symbol is not a complete type and we can't verify the exact type
+							// get the string
 							bst::str s{pop<bst::str>()};
 							Symbol& parent{bt.getParent()};
-							stack.push(parent.getChildren().find(s,PathFlag::Relative));
+							// get the real type
+							auto type_expected { std::make_unique<ExprType>(static_cast<ExprType::Type>(*++it)) };
+							ExprType* tmp_t {type_expected.get()};
+							for (;*it > ET::MAX_PRIMITIVE;++it) {
+								tmp_t = &tmp_t->setContained(static_cast<ExprType::Type>(*it));
+							}
+							
+							try {
+							RSymbol child = parent.getChildren().find(s,PathFlag::Relative);
+							stack.push(s);
+							if (child.get().getReturnType() != *type_expected)
+								throw BackException(exc::TypeError);
+							} catch (bst::str& e) {
+								throw BackException(exc::NameError);
+							}
+							
 						}
 						break;
 					default:

@@ -78,6 +78,16 @@ namespace frumul {
 		return *this;
 	}
 
+	ExprType& ExprType::setContained(ExprType::Type t) {
+		/* Set the contained value, even if it is
+		 * already set, so be careful.
+		 * return a reference to the contained value
+		 */
+		contained = std::make_unique<ExprType>(t);
+		return *contained;
+	}
+
+
 	bool ExprType::operator == (const ExprType& other) const{
 		/* true if other is exactly the same
 		 * type as *this

@@ -131,6 +131,7 @@ namespace frumul {
 			case Node::LITSYM:		return visit_litsym(n);
 			case Node::LITTEXT:		return visit_littext(n);
 			case Node::LOOP:		return visit_loop(n);
+			case Node::SYMCALL:		return visit_symcall(n);
 			case Node::UNARY_OP:		return visit_unary_op(n);
 			case Node::VAL_TEXT:		return visit_val_text(n);
 			case Node::VARIABLE_ASSIGNMENT:	return visit_variable_assignment(n);
@@ -902,7 +903,7 @@ namespace frumul {
 
 		if (
 				source == ET::SYMBOL ||
-				(target == ET::SYMBOL && source != ET::TEXT) ||
+				(target & ET::SYMBOL && source != ET::TEXT) || // &: because we consider beyond the real type of the target if it is a symbol
 				source == ET::VOID ||
 				source == ET::LIST ||
 				target == ET::LIST
@@ -910,8 +911,22 @@ namespace frumul {
 			throwInconsistentType(target,source,target_node,source_node);
 
 		appendInstructions(BT::CAST,source,target);
+		// special case of symbol: we add the types in order to check at runtime that
+		// the types match
+		if (target & ET::SYMBOL) {
+			const ExprType* temp_type{&target.getContained()};
+			do {
+				appendInstructions(*temp_type);
+				temp_type = &temp_type->getContained();
+			} while (temp_type);
+			
+			// add runtime errors
+			bytecode.addRuntimeError(exc(exc::TypeError,"Symbol return type does'nt match with the type expected",source_node.getPosition()));
+			bytecode.addRuntimeError(exc(exc::NameError,"Impossible cast: name not recognized",source_node.getPosition()));
+		}
+
 		// add a runtime error
-		if (target != ET::TEXT && source != ET::BOOL) {
+		else if (target != ET::TEXT && source != ET::BOOL) {
 			bytecode.addRuntimeError(exc(exc::CastError,"Impossible to cast value",source_node.getPosition()));
 		}
 	}
