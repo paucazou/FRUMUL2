@@ -61,7 +61,7 @@ namespace std {
 }
 
 #ifdef DEBUG
-#define printl(elt) std::cout << ( elt ) << std::endl
+#define printl(elt) std::cout <<  elt << std::endl
 #else
 #define printl(elt) 
 #endif

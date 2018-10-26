@@ -739,6 +739,27 @@ namespace frumul {
 		throwInconsistentType(t1,t2,n1.getPosition(),n2.getPosition());
 	}
 
+	ExprType __compiler::visit_symcall(const Node& n) {
+		/* Compile the call to a symbol
+		 */
+		// visit the name, litteral or reference, and get the type expected
+		ExprType symbol_type {visit(n.get("name"))};
+
+		// manage the arguments
+		const Node& arguments {n.get("arguments")};
+		printl("Arguments size");
+		printl(arguments.getNumberedChildren().size());
+
+		appendInstructions(BT::CALL,arguments.getNumberedChildren().size());
+
+
+		// add runtime errors
+		// Arguments number
+		bytecode.addRuntimeError(exc(exc::ArgumentNBError,"Arguments number does not match the number required",arguments.getPosition()));
+
+		return symbol_type.getContained();
+	}
+
 	ExprType __compiler::visit_unary_op(const Node& n) {
 		/* Compile a unary expression: -,+,!
 		 */
@@ -917,7 +938,10 @@ namespace frumul {
 			const ExprType* temp_type{&target.getContained()};
 			do {
 				appendInstructions(*temp_type);
-				temp_type = &temp_type->getContained();
+				if (temp_type->isContainer())
+					temp_type = &temp_type->getContained();
+				else
+					temp_type = nullptr;
 			} while (temp_type);
 			
 			// add runtime errors

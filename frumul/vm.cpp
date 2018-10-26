@@ -231,10 +231,10 @@ namespace frumul {
 		Symbol& s{pop<RSymbol>().get()};
 		
 		// call and push if not void
+		E::any returned {s.any_call(args,lang)};
+
 		if (s.getReturnType() != ET::VOID)
-			stack.push(s.any_call(args));
-		else
-			s.any_call(args);
+			stack.push(returned);
 	}
 	
 	void VM::cast() {

@@ -69,7 +69,7 @@ namespace frumul {
 			Node index ();
 
 			Node symbol_call_or_litteral();
-			NodeVector call_arguments();
+			Node call_arguments();
 
 			Node loop ();
 			Node condition ();

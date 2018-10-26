@@ -87,14 +87,7 @@ namespace frumul {
 			bool hasValue() const;
 			// use
 			bst::str call(Parser& p);
-			template <typename T>
-				T call(const std::vector<E::any>& args) {
-#pragma message "call not ready"
-#pragma message "check return type is equal to T"
-					return T();
-				}
-
-			E::any any_call(const std::vector<E::any>& args);
+			E::any any_call(const std::vector<E::any>& args, const bst::str& lang);
 			// display
 			bst::str toString() const;
 			STDOUT(Symbol)
@@ -111,6 +104,10 @@ namespace frumul {
 			Alias alias;
 			std::unique_ptr<Value> value = std::make_unique<Value>(*this);
 			Parameters parameters;
+
+			// functions
+			void checkCall(const bst::str& lang); // UNFINISHED TODO arguments must be check
+
 
 	};
 

@@ -156,10 +156,11 @@ namespace frumul {
 			bt = _bt;
 			is_byte_code_compiled = true;
 		}
-#if 0
+#if 1
 		printl("Bytecode:");
+		int i{0};
 		for (const auto& byte : bt->getCode())
-			printl(static_cast<int>(byte));
+			printl(++i << ' ' << static_cast<int>(byte));
 		printl("Bytecode - end");
 #endif
 		VM vm{*bt,lang};

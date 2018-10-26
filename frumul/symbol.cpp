@@ -272,8 +272,7 @@ namespace frumul {
 		// checks
 		if (return_type.type != ExprType::TEXT)
 			throw BackException(exc::TypeError);
-		if (!value->canExecuteWith(p.getTranspiler().getLang()))
-			throw BackException(exc::LangError);
+		checkCall(p.getTranspiler().getLang());
 
 		// get the args and eat tokens
 		// execution
@@ -281,9 +280,26 @@ namespace frumul {
 		return E::any_cast<bst::str>(r);
 	}
 	
-	E::any Symbol::any_call(const std::vector<E::any>& args) {
-#pragma message("Function any_call not ready")
-		return E::any();
+	E::any Symbol::any_call(const std::vector<E::any>& args, const bst::str& lang) {
+		/* Calls the symbol
+		 * and return an any value
+		 * Return type check should have be done before
+		 */
+		// checks
+		checkCall(lang);
+		if (args.size() == 0 && !parameters.empty())
+			throw BackException(exc::ArgumentNBError);
+
+		return value->execute(lang);
+	}
+
+	void Symbol::checkCall(const bst::str& lang) {
+		/* Does the checks for a call
+		 * Does not the return type check
+		 */
+		// check language
+		if (!value->canExecuteWith(lang))
+			throw BackException(exc::LangError);
 	}
 
 

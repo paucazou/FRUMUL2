@@ -614,16 +614,17 @@ namespace frumul {
 		int end {current_token->getPosition().getEnd()};
 
 		bst::str variable_name {current_token->getValue()};
+		Node variable {Node::VARIABLE_NAME,Position(start,end,filepath,source),variable_name};
 
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES);
 		// is this a symbol call ?
 		if (current_token->getType() == Token::LPAREN) {
 
 			eat(Token::LPAREN,Token::MAX_TYPES_VALUES); // eat (
-			NodeVector arguments {call_arguments()}; // get the arguments
+			Node arguments {call_arguments()}; // get the arguments
 			int end{current_token->getPosition().getEnd()};
 			eat(Token::RPAREN,Token::MAX_TYPES_VALUES); // eat )
-			return Node(Node::SYMCALL,Position(start,end,filepath,source),arguments,variable_name);
+			return Node(Node::SYMCALL,Position(start,end,filepath,source),{{"arguments",arguments},{"name",variable}});
 		}
 
 		// is this an list/text extraction ?
@@ -648,7 +649,8 @@ namespace frumul {
 			return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),fields,variable_name};
 		}
 
-		return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),variable_name};
+		return variable;
+
 	}
 
 	Node Parser::index () {
@@ -671,27 +673,28 @@ namespace frumul {
 		 */
 		Token name{*current_token};
 		eat(Token::SYMBOL,Token::MAX_TYPES_VALUES); // eat § and get the following token
+		Node nod_name(Node::LITSYM,name.getPosition(),name.getValue());
 
 		// is this a symbol call ?
 		if (current_token->getType() == Token::LPAREN) {
 			int start{name.getPosition().getStart()};
 
 			eat(Token::LPAREN,Token::MAX_TYPES_VALUES); // eat (
-			NodeVector arguments {call_arguments()}; // get the arguments
+			Node arguments {call_arguments()}; // get the arguments
 			int end{current_token->getPosition().getEnd()};
 			eat(Token::RPAREN,Token::MAX_TYPES_VALUES); // eat )
-			return Node(Node::SYMCALL,Position(start,end,filepath,source),arguments,name.getValue());
+			return Node(Node::SYMCALL,Position(start,end,filepath,source),{{"arguments",arguments},{"name",nod_name}});
 		}
 
-		return Node(Node::LITSYM,name.getPosition(),name.getValue());
-
+		return nod_name;
 	}
 
-	NodeVector Parser::call_arguments() {
+	Node Parser::call_arguments() {
 		/* Manages the arguments of a call
 		 * if the arguments of the call are named,
 		 * push a NAMED_ARG node in arguments list
 		 */
+		int start{getTokenStart()};
 		NodeVector arguments;
 		while (current_token->getType() != Token::RPAREN) {
 			// is it a named parameter ?
@@ -713,7 +716,8 @@ namespace frumul {
 			if (current_token->getType() == Token::COMMA)
 				eat(Token::COMMA,Token::MAX_TYPES_VALUES);
 		}
-		return arguments;
+		int end{getTokenStart() -1};
+		return Node(Node::ARGUMENTS,Position(start,end,filepath,source),arguments);
 	}
 
 	Node Parser::loop () {
