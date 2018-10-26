@@ -293,7 +293,7 @@ namespace frumul {
 							
 							try {
 							RSymbol child = parent.getChildren().find(s,PathFlag::Relative);
-							stack.push(s);
+							stack.push(child);
 							if (child.get().getReturnType() != *type_expected)
 								throw BackException(exc::TypeError);
 							} catch (bst::str& e) {
