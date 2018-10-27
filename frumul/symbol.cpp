@@ -280,7 +280,7 @@ namespace frumul {
 		return E::any_cast<bst::str>(r);
 	}
 	
-	E::any Symbol::any_call(const std::vector<E::any>& args, const bst::str& lang) {
+	E::any Symbol::any_call(const std::vector<Arg>& args, const bst::str& lang) {
 		/* Calls the symbol
 		 * and return an any value
 		 * Return type check should have be done before

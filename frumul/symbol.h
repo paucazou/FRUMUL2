@@ -8,6 +8,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <tuple>
 #include "bytecode.h"
 #include "exception.h"
 #include "macros.h"
@@ -27,6 +28,8 @@ namespace frumul {
 	class Schildren;
 	class Symbol;
 	class Value;
+
+	using Arg = std::tuple<ExprType,bst::str,E::any>; // see vm.h for more info
 
 	class Alias {
 		/* Simple class which handles
@@ -87,7 +90,7 @@ namespace frumul {
 			bool hasValue() const;
 			// use
 			bst::str call(Parser& p);
-			E::any any_call(const std::vector<E::any>& args, const bst::str& lang);
+			E::any any_call(const std::vector<Arg>& args, const bst::str& lang);
 			// display
 			bst::str toString() const;
 			STDOUT(Symbol)

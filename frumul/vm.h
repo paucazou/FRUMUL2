@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <experimental/any>
+#include <tuple>
 #include "bstrlib/bstrwrap.h"
 #include "bytecode.h"
 #include "exception.h"
@@ -28,8 +29,8 @@ namespace frumul {
 		 * and checked before
 		 */
 		public:
-			VM(ByteCode&,const bst::str& nlang);
-			template <typename T>
+			VM(ByteCode&,const bst::str& nlang,const std::vector<E::any>& args);
+			template <typename T> // probably useless
 				T run() {
 					/* Run the VM and return T
 					 */
@@ -53,6 +54,7 @@ namespace frumul {
 			void text_set_char();
 			void push();
 			void assign();
+			ExprType getRealType();
 			template <typename T>
 				T pop() {
 					/* pops the last elements of the stack
@@ -74,5 +76,6 @@ namespace frumul {
 			std::vector<E::any> variables; // index 0 represents the return value
 			const bst::str& lang;
 	};
+	using Arg = std::tuple<ExprType,bst::str,E::any>; // <type,name(if necessary),value>
 }
 #endif

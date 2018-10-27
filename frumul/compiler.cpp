@@ -747,8 +747,6 @@ namespace frumul {
 
 		// manage the arguments
 		const Node& arguments {n.get("arguments")};
-		printl("Arguments size");
-		printl(arguments.getNumberedChildren().size());
 
 		appendInstructions(BT::CALL,arguments.getNumberedChildren().size());
 

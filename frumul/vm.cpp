@@ -52,11 +52,16 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 	} while (false)
 	
 namespace frumul {
-	VM::VM(ByteCode& nbt,const bst::str& nlang) :
+	VM::VM(ByteCode& nbt,const bst::str& nlang,const std::vector<E::any>& args) :
 		bt{nbt}, it{nbt.getBegin()}, lang{nlang}
 	{
 		// resize variables vector
 		variables.resize(bt.getVariableNumber());
+		// fill the variables with the arguments
+		// Absolutely no check is done
+		// the variables are filled in the order of the args
+		for (size_t i{0};i<args.size();++i)
+			variables[i] = args[i];
 		// set the return value to an empty string if it is a TEXT
 		if (bt.getReturnType() == ET::TEXT)
 			variables[0] = bst::str{""};
@@ -219,13 +224,25 @@ namespace frumul {
 		 * Syntax:
 		 * 	CALL
 		 * 	ARG_NUMBER
+		 * 	type_of_each_arg (multiple bytes may be necessary)
+		 * 	NAMED_ARG_OR_NOT
 		 */
+		// get the ARG_NUMBER
+		int arg_byte_nb{*++it};
 		// create the list to return
-		std::vector<E::any> args;
+		std::vector<Arg> args;
+		args.reserve(arg_byte_nb);
 
 		// iterate to get the arguments
-		for (int arg_byte_nb{*++it};arg_byte_nb > 0;++arg_byte_nb)
-			args.push_back(stack.pop());
+		for (;arg_byte_nb > 0;--arg_byte_nb) {
+			// get the type
+			ExprType type{getRealType()};
+			// get the name (if necessary)
+			bst::str name{ (*++it ? pop<bst::str>() : "") };
+			// get the value
+			E::any value{stack.pop()};
+			args.emplace_back(type,name,value);
+		}
 
 		// get the symbol to call
 		Symbol& s{pop<RSymbol>().get()};
@@ -285,16 +302,12 @@ namespace frumul {
 							bst::str s{pop<bst::str>()};
 							Symbol& parent{bt.getParent()};
 							// get the real type
-							auto type_expected { std::make_unique<ExprType>(static_cast<ExprType::Type>(*++it)) };
-							ExprType* tmp_t {type_expected.get()};
-							for (;*it > ET::MAX_PRIMITIVE;++it) {
-								tmp_t = &tmp_t->setContained(static_cast<ExprType::Type>(*it));
-							}
 							
 							try {
 							RSymbol child = parent.getChildren().find(s,PathFlag::Relative);
+							ExprType type_expected{getRealType()};
 							stack.push(child);
-							if (child.get().getReturnType() != *type_expected)
+							if (child.get().getReturnType() != type_expected)
 								throw BackException(exc::TypeError);
 							} catch (bst::str& e) {
 								throw BackException(exc::NameError);
@@ -527,6 +540,19 @@ namespace frumul {
 		 * 	pop value
 		 */
 		variables[*++it] = stack.pop();
+	}
+
+	
+	ExprType VM::getRealType() {
+		/* Get an ExprType by following the bytecode
+		 * until it finds a primitive
+		 */
+		auto type{ std::make_unique<ExprType>(static_cast<ExprType::Type>(*++it)) };
+		ExprType* tmp_t {type.get()};
+		for (;*it > ET::MAX_PRIMITIVE;++it) {
+			tmp_t = &tmp_t->setContained(static_cast<ExprType::Type>(*it));
+		}
+		return *type;
 	}
 
 }

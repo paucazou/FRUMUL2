@@ -4,12 +4,14 @@
 namespace frumul {
 
 	Parameter::Parameter(const Node& node) :
+		type{node.get("variable").get("type")},
 		name{node.get("variable").get("name").getValue()}
 	{
 		/* Constructs the base of the parameter
 		 */
 		assert (node.type() == Node::PARAM&&"Node is not a parameter");
 		//type
+		/*
 		const bst::str& t{node.get("variable").get("type").getValue()};
 		if (t == "text")
 			type = Text;
@@ -21,6 +23,7 @@ namespace frumul {
 			type = Symbol;
 		else
 			throw exc(exc::UnknownType,"Unknown type",node.get("variable").get("type").getPosition());
+		*/
 		const StrNodeMap& fields{node.getNamedChildren()};
 		// arg number
 		setMinMax(fields);
@@ -163,7 +166,7 @@ namespace frumul {
 		return *choices;
 	}
 
-	Parameter::Type Parameter::getType() const {
+	const ExprType& Parameter::getType() const {
 		return type;
 	}
 
@@ -224,7 +227,7 @@ namespace frumul {
 		 * by overloads of this function
 		 */
 		bst::str s{"<Parameter|"};
-		s += typeToString(type) + ">\n";
+		s += type.toString(true) + ">\n"; // true: to avoid unnecessary details
 		s += "Name: " + name + "\n";
 		if (def)
 			s += "Has default value\n";
@@ -348,6 +351,13 @@ namespace frumul {
 	}
 
 	void Parameters::push_back(const Parameter& np) {
+		/* Add a new parameter
+		 */
+		// check name collision
+		for (const auto& p : parms)
+			if (p == np.getName())
+				throw iexc(exc::NameError,"Name already taken by another parameter",np.getPositions(),"Name already defined here: ",p.getPositions());
+
 		parms.push_back(np);
 	}
 

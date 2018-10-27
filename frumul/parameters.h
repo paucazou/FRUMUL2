@@ -16,22 +16,15 @@
 #include "macros.h"
 #include "node.h"
 #include "position.h"
+#include "vmtypes.h"
 
 //#include "header.h"
-
-#define FPARAMETER(F)\
-	F(Text)\
-	F(Int)\
-	F(Bool)\
-	F(Symbol)\
-	F(MAX_TYPES)\
 
 namespace frumul {
 	class Parameter {
 		/* One parameter of the values
 		 */
 		public:
-			ENUM(Type,FPARAMETER)
 			Parameter(const Node& node);
 			Parameter(const Parameter&);
 			~Parameter();
@@ -46,7 +39,7 @@ namespace frumul {
 			bool operator != (const Parameter& other) const;
 			const Node& getDefault() const;
 			const Node& getChoices() const;
-			Type getType() const;
+			const ExprType& getType() const;
 			const bst::str& getName() const;
 			// // min/max
 			int getMin() const;
@@ -94,7 +87,7 @@ namespace frumul {
 			};
 
 			Comparison comparisonValue(const bst::str&)const;
-			Type type;
+			ExprType type;
 			bst::str name;
 			Limit* limit1{nullptr};
 			Limit* limit2{nullptr};

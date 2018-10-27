@@ -383,7 +383,7 @@ namespace frumul {
 		*/
 	}
 
-	Node Parser::variable_declaration () { // DEPRECATED since initialization is now required
+	Node Parser::variable_declaration () { // used only for parameters
 		/* Manages every variable declaration
 		 * Return a node with
 		 * three fields:
@@ -402,8 +402,8 @@ namespace frumul {
 		eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
 
 		// get the type
-		//StrNodeMap types_fields{types()};
 		//fields.insert(types_fields.begin(),types_fields.end());
+		fields.insert({"type",types()});
 
 		int end{current_token->getPosition().getEnd()};
 		return Node(Node::VARIABLE_DECLARATION,Position(start,end,filepath,source),fields);
