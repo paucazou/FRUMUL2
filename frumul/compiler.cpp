@@ -22,8 +22,8 @@ namespace frumul {
 
 	// __compiler
 
-	__compiler::__compiler (const Node& n, const ExprType& rt, Symbol& s) :
-		node{n}, return_type{rt}, bytecode{s}, parent{s}
+	__compiler::__compiler (const Node& n, const ExprType& rt, Symbol& s,const bst::str& nlang) :
+		node{n}, return_type{rt}, bytecode{s}, parent{s}, lang{nlang}
 	{
 	}
 
@@ -33,6 +33,7 @@ namespace frumul {
 		if (!bytecode) {
 			if (return_type != ET::VOID)
 				symbol_table->append("",return_type,node.getPosition()); //an empty name is the only one that can't be set by the user
+			visitParameters();
 			visit(node);
 			bytecode.addVariable(symbol_table->variableNumber());
 		}
@@ -202,6 +203,10 @@ namespace frumul {
 
 					static std::map<bst::str,BT::Instruction> types{ {"+",BT::INT_ADD},{"-",BT::INT_SUB}, {"*",BT::INT_MUL},{"/",BT::INT_DIV},{"%",BT::INT_MOD}};
 					code.push_back(types[n.getValue()]);
+					// handling division by zero
+					if (n.getValue() == "/" || n.getValue() == "%")
+						bytecode.addRuntimeError(exc(exc::DivisionByZero,"It is impossible to divide by zero",n.get("left").getPosition()));
+
 					return ET::INT;
 				}
 			case ET::TEXT:
@@ -541,7 +546,7 @@ namespace frumul {
 		/* compile a litteral symbol
 		 */
 		try {
-			RSymbol s{parent.getChildren().find(n.getValue(),PathFlag::Relative)};
+			RSymbol s{parent.getChildren().find(n.getValue(),Schildren::Relative)};
 			appendAndPushConstant<RSymbol>(s);
 			return ExprType(ET::SYMBOL,s.get().getReturnType());
 
@@ -747,6 +752,9 @@ namespace frumul {
 
 		// manage the arguments
 		const Node& arguments {n.get("arguments")};
+		constexpr unsigned int max_arguments_possible{256};
+		if (arguments.size() > max_arguments_possible)
+			throw exc(exc::ArgumentNBError,bst::str("Max number of arguments is ") + max_arguments_possible,arguments.getPosition());
 
 		appendInstructions(BT::CALL,arguments.getNumberedChildren().size());
 
@@ -962,6 +970,40 @@ namespace frumul {
 		/*if (!symbol_table->isDefined(name)) // DEPRECATED, as variables are always defined at declaration
 			throw exc(exc::ValueError,"Variable contains no value",n.getPosition());
 			*/
+	}
+
+	void __compiler::visitParameters() {
+		/* Compiles the parameters
+		 */
+		constexpr int global_scope {0};
+		for (const auto& parm : parent.getParameters()) {
+
+			symbol_table->append(parm.getName(),
+					(parm.getMax(lang) == 1 ? parm.getType() : ExprType(ET::LIST,parm.getType())),
+					parm.getPositions()[0], // we store only the first position
+					global_scope);
+
+
+		}
+	}
+
+	ByteCode MonoExprCompiler::compile() {
+		/* Compiles the node
+		 * and return the bytecode
+		 */
+		if (!bytecode) {
+			// add returned value
+			symbol_table->append(symbol_table->next(),return_type,node.getPosition());
+			constexpr int r_index{0}; // return index
+			// compile the expression
+			visit(node);
+			// affect the value returned by expression to 
+			// the returned value
+			appendInstructions(BT::ASSIGN,r_index,BT::RETURN);
+			// set the number of variables
+			bytecode.addVariable(symbol_table->variableNumber());
+		}
+		return bytecode;
 	}
 
 }

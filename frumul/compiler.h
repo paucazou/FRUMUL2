@@ -11,6 +11,7 @@
 #include <utility>
 #include "bytecode.h"
 #include "node.h"
+#include "parameters.h"
 #include "symbol.h"
 #include "symboltab.h"
 #include "util.h"
@@ -30,14 +31,15 @@ namespace frumul {
 		/* Class that compiles effectively
 		 */
 		public:
-			__compiler (const Node& n,const ExprType& rt, Symbol& s);
+			__compiler (const Node& n,const ExprType& rt, Symbol& s,const bst::str& nlang);
 			ByteCode compile();
-		private:
+		protected:
 			// attributes
 			const Node& node;
 			ExprType return_type{ET::TEXT};
 			ByteCode bytecode;
 			Symbol& parent;
+			const bst::str& lang;
 			std::vector<E::any>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
 			std::unique_ptr<SymbolTab> symbol_table{std::make_unique<SymbolTab>()};
@@ -96,6 +98,8 @@ namespace frumul {
 			void throwInconsistentType(const ExprType& t1, const ExprType& t2,const Node& n1, const Node& n2);
 			void throwInconsistentType(const ExprType& t1, const ExprType& t2, const Position& n1, const Position& n2);
 
+			void visitParameters();
+
 	};
 
 	class ValueCompiler : public __compiler {
@@ -108,7 +112,18 @@ namespace frumul {
 			assert(v.getValue().type() == Node::BASIC_VALUE&&"Node should be a basic value");
 		}
 	};
+
+	class MonoExprCompiler : public __compiler {
+		/* Compiles an only expression
+		 */
+		public:
+			MonoExprCompiler(const Node& n, const ExprType& et, Symbol& p):
+				__compiler(n,et,p)
+			{}
+
+			ByteCode compile();
+	};
+
 #pragma message "verify type cast if constant"
-#pragma message "verify call to functions that exist"
 }
 #endif

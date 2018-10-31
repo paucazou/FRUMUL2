@@ -37,6 +37,7 @@
 	E(IndexError)\
 	E(CastError)\
 	E(ArgumentNBError)\
+	E(DivisionByZero)\
 	E(MAX_TYPES)\
 
 namespace frumul {
