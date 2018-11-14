@@ -7,25 +7,42 @@
  * 	- Parameters
  */
 
+
 #include <cassert>
+#include <experimental/any>
 #include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 #include "bstrlib/bstrwrap.h"
+#include "bytecode.h"
+//#include "compiler.h"
 #include "exception.h"
 #include "functions.inl"
 #include "macros.h"
 #include "node.h"
 #include "position.h"
+//#include "symbol.h"
+//#include "vm.h"
 #include "vmtypes.h"
 
-//#include "header.h"
+namespace E = std::experimental;
 
 namespace frumul {
+	class ByteCode;
+	class MonoExprCompiler;
+	class Symbol;
+	class VM;
+	struct Arg;
+
+	//using Arg = std::tuple<ExprType,bst::str,E::any>; // see vm.h for more
+
 	class Parameter {
 		/* One parameter of the values
 		 */
 		public:
-			Parameter(const Node& node);
+			Parameter(const Node& node,Symbol* np=nullptr);
+			Parameter(const Node& node, Symbol& np);
 			Parameter(const Parameter&);
 			~Parameter();
 			// setters
@@ -33,6 +50,7 @@ namespace frumul {
 			void setMinMax(const StrNodeMap& fields);
 			void evaluate();
 			void reset();
+			void setParent(Symbol&);
 
 			// getters
 			bool operator == (const Parameter& other) const;
@@ -42,8 +60,8 @@ namespace frumul {
 			const ExprType& getType() const;
 			const bst::str& getName() const;
 			// // min/max
-			int getMin() const;
-			int getMax() const;
+			int getMin(const bst::str&) const;
+			int getMax(const bst::str&) const;
 			const PosVect& getPositions() const;
 			bool operator == (int nb) const;
 			bool operator > (int nb) const;
@@ -55,14 +73,22 @@ namespace frumul {
 			bst::str toString() const;
 			STDOUT(Parameter)
 		protected:
-			enum Comparison {
-				EQUAL,
-				SUPERIOR,
-				INFERIOR,
-				SEQUAL,
-				IEQUAL,
-			};
 			class Limit {
+				public:
+					enum Comparison {
+						EQUAL,
+						SUPERIOR,
+						INFERIOR,
+						SEQUAL,
+						IEQUAL,
+					};
+					Limit (const Node& n, Comparison c);
+					Limit (int ni, Comparison c);
+					~Limit();
+					int getLimit(const bst::str& lang,Symbol&) ;
+					Comparison getComparison() const;
+					bool isConform(int x,const bst::str&,Symbol&) ;
+					const Position& getPosition() const;
 				private:
 					Comparison comparison{EQUAL};
 					bool isNode{true};
@@ -70,12 +96,7 @@ namespace frumul {
 						Node* node;
 						int i;
 					};
-				public:
-					Limit (const Node& n, Comparison c);
-					Limit (int ni, Comparison c);
-					~Limit();
-					int getLimit() const;
-					bool isConform(int x) const;
+					Position pos;
 			};
 			struct Temp {
 				int min;
@@ -86,15 +107,19 @@ namespace frumul {
 #pragma message("Default and choices are not yet set in Temp struct")
 			};
 
-			Comparison comparisonValue(const bst::str&)const;
 			ExprType type;
 			bst::str name;
-			Limit* limit1{nullptr};
-			Limit* limit2{nullptr};
+			std::unique_ptr<Limit> limit1{nullptr};
+			std::unique_ptr<Limit> limit2{nullptr};
 			uNode def;
 			uNode choices;
 			Temp* temporary{nullptr};
 			std::vector<Position> pos;
+			Symbol* parent;
+			// private functions
+			Limit::Comparison comparisonValue(const bst::str&)const;
+			std::pair<int,int> calculateMinMax(const bst::str&)const;
+			std::pair<int,int> calculateMinMaxWithOneLimit(int,Limit::Comparison) const;
 
 	};
 
@@ -102,7 +127,8 @@ namespace frumul {
 		/* Container of the parameters
 		 */
 		public:
-			Parameters ();
+			Parameters (Symbol&);
+			Parameters();
 			Parameters& operator=(const Parameters&);
 			bool contains(const bst::str& name)const;
 			bool operator == (const Parameters& others) const;
@@ -110,10 +136,32 @@ namespace frumul {
 			void push_back(const Parameter& np);
 			bool empty()const;
 			const std::vector<Parameter>& getList()const;
+			void setParent(Symbol&);
 			std::vector<Parameter>& getList();
+			std::vector<Parameter>::iterator begin();
+			std::vector<Parameter>::iterator end();
+			// use
+			std::vector<E::any> formatArgs(const std::vector<Arg>&,const bst::str&);
 		private:
 			std::vector<Parameter> parms;
+			Symbol* parent;
 	};
 
+	using CRParameter = std::reference_wrapper<const Parameter>;
+	bool operator == (CRParameter&,CRParameter&);
+
+}
+namespace std {
+	// hash specialization for Parameter
+	template <>
+		class hash<frumul::CRParameter> {
+			public:
+				size_t operator() (const frumul::CRParameter& p) const {
+					// we simply return the adress, as
+					// we are sure each address refers
+					// to only one object
+					return reinterpret_cast<size_t>(&p.get());
+				}
+		};
 }
 #endif

@@ -50,9 +50,12 @@ namespace frumul {
 	VarSymbol& SymbolTab::getVarSymbol(const bst::str& name, bool current_scope_only) {
 		/* return symbol requested
 		 */
+		if (current_scope < 0)
+			throw BackException(exc::VarSymbolUnknown);
+
 		int floor_scope {(current_scope_only ? current_scope : 0)};
 
-		for (int scope{current_scope}; scope >= floor_scope; scope = scopes[scope])
+		for (int scope{current_scope}; scope >= floor_scope; scope = scopes.at(scope))
 			for (auto& s : content)
 				if (s.getName() == name && s.getScope() == scope)
 					return s;
@@ -61,6 +64,9 @@ namespace frumul {
 	}
 
 	const VarSymbol& SymbolTab::getVarSymbol(const bst::str& name,bool current_scope_only) const{
+		if (current_scope < 0)
+			throw BackException(exc::VarSymbolUnknown);
+
 		int floor_scope {(current_scope_only ? current_scope : 0)};
 
 		for (int scope{current_scope}; scope >= floor_scope; scope = scopes.at(scope))
@@ -122,11 +128,24 @@ namespace frumul {
 	}
 
 	VarSymbol& SymbolTab::append(const bst::str& name, const ExprType& type, const Position& pos) {
+		/* Create a new symbol in current scope
+		 */
+		return append(name,type,pos,current_scope);
+	}
+
+	VarSymbol& SymbolTab::append(const bst::str& name, const ExprType& type, const Position& pos, int scope) {
 		/* Create a new symbol and install it
 		 * Please call contains before
+		 * Note that this should not be done, except for a special reason.
+		 * You should instead call the overloaded function
+		 * with automatic management of the scope.
 		 */
+		/* Why check the content size? Because when adding
+		 * the return symbol, the scope is equal to -1, which causes a problem
+		 */
+		assert((content.size() == 0 || !contains(name,true)) && "Name seems to be already used");
 		int nb {static_cast<int>(content.size())}; // new element has the same index as the size of the vector before inserting it
-		content.emplace_back(name,type,nb,current_scope,pos);
+		content.emplace_back(name,type,nb,scope,pos);
 		return content.back();
 	}
 
@@ -145,6 +164,7 @@ namespace frumul {
 		current_scope = scopes[current_scope]; // get the parent scope
 		return current_scope;
 	}
+
 
 	int SymbolTab::next() {
 		/* This function return an int

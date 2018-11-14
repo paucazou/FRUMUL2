@@ -8,6 +8,7 @@
 #include <memory>
 #include <sstream>
 #include <stack>
+#include "bstrlib/bstrwrap.h"
 
 namespace std {
 	template <typename T>
@@ -66,6 +67,42 @@ namespace frumul {
 			T tmp;
 			return (iss >> tmp) && (iss.eof());
 		}
+
+	template <typename T,typename U, typename V>
+		V defaultValue(T& elt,U key, V def) {
+			/* return value matching key
+			   if key exists, else def
+		   	*/	   
+			try {
+				return elt.at(key);
+			} catch (std::out_of_range& e) {
+				return def;
+			}
+		}
+
+	template <typename T, typename U>
+		U defaultValue(T& elt, int index, U def) {
+			/* Same as previous one, but with an
+			 * index known to be an int
+			 */
+			return defaultValue<T,int,U>(elt,index,def);
+		}
+
+	template <typename T, typename U, typename V>
+		V defaultSet(T& elt, U key, V def) {
+			/* Similar to defaultValue,
+			 * but if key is not found,
+			 * set elt.at(key) to def
+			 * and return def
+			 */
+			try {
+				return elt.at(key);
+			} catch (std::out_of_range& e) {
+				elt.insert({key,def});
+				return elt.at(key);
+			}
+		}
+
 
 	template <typename T, typename Container=std::deque<T>>
 		class RandomStack : public std::stack<T,Container> {

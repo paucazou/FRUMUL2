@@ -61,6 +61,7 @@ namespace frumul {
 			ExprType& getContained() ;
 			Type getPrimitive () const;
 			Type getPrimitive(Type) const;
+			Type getType() const;
 			int getDepth() const;
 			int getDepth(Type) const;
 			// cast

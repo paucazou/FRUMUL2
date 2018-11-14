@@ -14,20 +14,20 @@
 namespace frumul {
 	// forward declaration. Symbol is included in symbol.h
 	class Symbol;
-	enum PathFlag {
-		/* Used when looking for a path
-		 */
-		No = 1 << 0, 		// basic: no option
-		Relative = 1 << 1, 	// allows '§'
-		Privileged = 1 << 2,	// with privileged parameter
-		Parameter = 1 << 3,	// with parameter name
-	};
 
 	class Schildren {
 		/* Table of Symbol children
 		 * of a Symbol
 		 */
 		public:
+			enum PathFlag {
+				/* Used when looking for a path
+				 */
+				No = 1 << 0, 		// basic: no option
+				Relative = 1 << 1, 	// allows '§'
+				Privileged = 1 << 2,	// with privileged parameter
+				Parameter = 1 << 3,	// with parameter name WARNING there's a class in frumul namespace which is named Parameter too
+			};
 			Schildren ();
 			Schildren (Symbol& np);
 			// getters-setters

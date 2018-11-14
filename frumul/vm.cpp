@@ -5,19 +5,28 @@
 constexpr int address_size = 2; // should be used everywhere an address is required
 #define ASSERT_ADDRESS_SIZE static_assert(address_size == 2,"Address size is supposed to be 2")
 
-#define BINARY_OP(op,T,U) \
+#define _BINARY_OP(op,T,U,DIVISION_CHECK) \
 		do { \
 			auto a {pop<T>()};\
 			auto b {pop<U>()};\
+			DIVISION_CHECK \
 			stack.push(a op b);\
 		} while(false) // to allow the semi colon
+
+#define BINARY_OP(op,T,U) \
+	_BINARY_OP(op,T,U,)
 
 #define UNARY_OP(op,T) \
 	stack.push(op pop<T>())
 
-#define BINARY_OP_SAME_TYPE(op,T) BINARY_OP(op,T,T)
+#define BINARY_OP_SAME_TYPE(op,T) _BINARY_OP(op,T,T,)
 #define BINARY_OP_INT(op) BINARY_OP_SAME_TYPE(op,int)
 #define BINARY_OP_BOOL(op) BINARY_OP_SAME_TYPE(op,bool)
+#define BINARY_OP_INT_DIVISION(op) \
+	_BINARY_OP(op,int,int, \
+			if (b == 0) \
+			throw BackException(exc::DivisionByZero);\
+			)
 
 #define LIST_PUSH(T) E::any_cast<std::vector<T>>(list).push_back(pop<T>())
 
@@ -60,8 +69,10 @@ namespace frumul {
 		// fill the variables with the arguments
 		// Absolutely no check is done
 		// the variables are filled in the order of the args
-		for (size_t i{0};i<args.size();++i)
-			variables[i] = args[i];
+		for (size_t i{0};i<args.size();++i) {
+			// i+1: because 0 is reserved to the returned value
+			variables[i+1] = args[i];
+		}
 		// set the return value to an empty string if it is a TEXT
 		if (bt.getReturnType() == ET::TEXT)
 			variables[0] = bst::str{""};
@@ -96,9 +107,9 @@ namespace frumul {
 				// Syntax is limited to the instruction
 				case BT::INT_ADD:	BINARY_OP_INT(+); break;
 				case BT::INT_MUL:	BINARY_OP_INT(*); break;
-				case BT::INT_DIV:	BINARY_OP_INT(/); break;
+				case BT::INT_DIV:	BINARY_OP_INT_DIVISION(/); break;
 				case BT::INT_SUB:	BINARY_OP_INT(-); break;
-				case BT::INT_MOD:	BINARY_OP_INT(%); break;
+				case BT::INT_MOD:	BINARY_OP_INT_DIVISION(%); break;
 				case BT::INT_NEG:	UNARY_OP(-,int); break;
 				case BT::INT_POS:	UNARY_OP(+,int); break;
 				case BT::TEXT_ADD:	BINARY_OP_SAME_TYPE(+,bst::str);break;
@@ -224,8 +235,8 @@ namespace frumul {
 		 * Syntax:
 		 * 	CALL
 		 * 	ARG_NUMBER
-		 * 	type_of_each_arg (multiple bytes may be necessary)
-		 * 	NAMED_ARG_OR_NOT
+		 * 	(type_of_each_arg (multiple bytes may be necessary)
+		 * 	NAMED_ARG_OR_NOT) * ARG_NUMBER
 		 */
 		// get the ARG_NUMBER
 		int arg_byte_nb{*++it};
@@ -237,11 +248,16 @@ namespace frumul {
 		for (;arg_byte_nb > 0;--arg_byte_nb) {
 			// get the type
 			ExprType type{getRealType()};
+
 			// get the name (if necessary)
 			bst::str name{ (*++it ? pop<bst::str>() : "") };
+
+			// get the position
+			const Position& pos{bt.getEltPosition(std::distance(bt.getBegin(),it))};
 			// get the value
 			E::any value{stack.pop()};
-			args.emplace_back(type,name,value);
+
+			args.push_back({type,name,value,pos});
 		}
 
 		// get the symbol to call
@@ -304,7 +320,7 @@ namespace frumul {
 							// get the real type
 							
 							try {
-							RSymbol child = parent.getChildren().find(s,PathFlag::Relative);
+							RSymbol child = parent.getChildren().find(s,Schildren::Relative);
 							ExprType type_expected{getRealType()};
 							stack.push(child);
 							if (child.get().getReturnType() != type_expected)

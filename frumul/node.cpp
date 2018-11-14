@@ -1,6 +1,11 @@
 #include <cassert>
 #include "node.h"
 
+#define ASSERT_CHILDREN_NAMED \
+	assert(childrenNamed&&"Children are not named")
+#define ASSERT_CHILDREN_NUMBERED \
+	assert(!childrenNamed&&"Children are not numbered")
+
 namespace frumul {
 	Node::Node (const Node::Type ntype, const Position& npos, const std::map<bst::str,Node>& nchildren, const bst::str& nvalue) :
 		node_type{ntype}, pos{npos}, named_children{nchildren}, value{nvalue}, childrenNamed{true}
@@ -152,6 +157,28 @@ namespace frumul {
 			return named_children.size();
 		else
 			return numbered_children.size();
+	}
+
+	std::map<bst::str,Node>::reverse_iterator Node::rbegin(bool named) {
+		ASSERT_CHILDREN_NAMED;
+		assert(named&&"not named");
+		return named_children.rbegin();
+	}
+
+	std::vector<Node>::const_reverse_iterator Node::rbegin() const {
+		ASSERT_CHILDREN_NUMBERED;
+		return numbered_children.rbegin();
+	}
+
+	std::map<bst::str,Node>::reverse_iterator Node::rend(bool named) {
+		ASSERT_CHILDREN_NAMED;
+		assert(named&&"not named");
+		return named_children.rend();
+	}
+
+	std::vector<Node>::const_reverse_iterator Node::rend() const {
+		ASSERT_CHILDREN_NUMBERED;
+		return numbered_children.rend();
 	}
 
 	void Node::addChild(const bst::str& name, const Node& child) {

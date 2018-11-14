@@ -144,7 +144,7 @@ namespace frumul {
 		/* Manages the declaration node
 		 * TODO not yet alias, 
 		 */
-		if (forward_declaration) {// we must check if the name has been declared beforeode
+		if (forward_declaration) {// we must check if the name has been declared before
 			forward_declaration.match(node.get("name"));
 		}
 
@@ -221,7 +221,7 @@ namespace frumul {
 		 * set the symbol with parent values
 		 */
 		std::vector<Lang> langs; 
-		Parameters parms;
+		Parameters parms{sym};
 		// check if parameters have already been set for this symbol
 		if (!sym.getParameters().empty()) {
 			for (const auto& n : node.getNumberedChildren())
@@ -247,7 +247,7 @@ namespace frumul {
 				langs.emplace_back(elt.getValue(),elt.getPosition());
 			}
 			else if (elt.type() == Node::PARAM) {
-				parms.push_back(elt);
+				parms.push_back(Parameter{elt,sym});
 			}
 			else if (elt.type() == Node::RETURN_TYPE) {
 				sym.setReturnType(elt);
@@ -372,7 +372,7 @@ namespace frumul {
 			Alias& alias {symbol_alias.getAlias()};
 			// set the alias
 			try {
-				alias.setVal(children.find(alias.getPath(),PathFlag::Relative));
+				alias.setVal(children.find(alias.getPath(),Schildren::Relative));
 			} catch (bst::str& e) {
 				throw exc(exc::SymbolNotFound,bst::str("No symbol found for this path: ") + e,alias.getPosition());
 			}

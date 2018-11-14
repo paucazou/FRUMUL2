@@ -54,6 +54,7 @@ namespace frumul {
 			// setters
 			VarSymbol& append(const VarSymbol& nsymbol);
 			VarSymbol& append(const bst::str& name, const ExprType& type, const Position& pos);
+			VarSymbol& append(const bst::str& name, const ExprType& type, const Position& pos, int scope);
 			int& operator++();
 			int& operator--();
 			static int next();

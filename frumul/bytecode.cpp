@@ -127,6 +127,22 @@ namespace frumul {
 		throw runtime_errors.at(IntExcPair(i,t));
 	}
 
+	const Position& ByteCode::getEltPosition(unsigned int i) const {
+		/* Return the position linked to i
+		 */
+		return element_positions.at(i);
+	}
+
+	void ByteCode::setEltPosition(const Position& npos) {
+		/* Set a position matching with the current
+		 * code position
+		 */
+		element_positions.insert({
+				code.size() - 1,
+				npos
+				});
+	}
+
 	ByteCode::operator bool () const {
 		/* false if bytecode has
 		 * not been yet set

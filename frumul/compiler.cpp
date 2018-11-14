@@ -47,6 +47,15 @@ namespace frumul {
 			code.push_back(i);
 	}
 
+	void __compiler::appendInstructions(const ExprType& t) {
+		/* Decompose the ExprType into
+		 * byte types
+		 */ 
+		code.push_back(t.getType());
+		if (t.isContainer())
+			appendInstructions(t.getContained());
+	}
+
 	size_t __compiler::insertInstructions(int i, std::initializer_list<byte> instructions) {
 		/* insert instructions after i position
 		 * of bytecode 
@@ -747,16 +756,60 @@ namespace frumul {
 	ExprType __compiler::visit_symcall(const Node& n) {
 		/* Compile the call to a symbol
 		 */
-		// visit the name, litteral or reference, and get the type expected
+		struct TypeBool {
+			/* This a very special struct
+			 * used only inside this function
+			 * after compiling an argument, it saves
+			 * its type and wether or not the arg
+			 * is named
+			 * it is later used when setting the code
+			 * The position is also given here
+			 */
+			ExprType type;
+			bool named;
+			const Position& pos;
+		};
+
+		// push elements on stack
+		// // visit the name, litteral or reference, and get the type expected
 		ExprType symbol_type {visit(n.get("name"))};
 
-		// manage the arguments
+		// // manage the arguments
+		// // // checks
 		const Node& arguments {n.get("arguments")};
+		std::vector<TypeBool> arg_keepsake;
+
 		constexpr unsigned int max_arguments_possible{256};
 		if (arguments.size() > max_arguments_possible)
 			throw exc(exc::ArgumentNBError,bst::str("Max number of arguments is ") + max_arguments_possible,arguments.getPosition());
 
+		for (auto it{arguments.rbegin()}; it != arguments.rend(); ++it) {
+			const bool is_arg_named{ it->type() == Node::NAMED_ARG};
+			// push value and get the type
+			ExprType type { 
+				is_arg_named ? visit(it->get("value")) : visit(*it) 
+				};
+			// push name on stack if necessary
+			if (is_arg_named)
+				appendAndPushConstant<bst::str>(it->get("name").getValue());
+
+			arg_keepsake.push_back({type,is_arg_named,it->getPosition()});
+		}
+
+		// set the code
+
 		appendInstructions(BT::CALL,arguments.getNumberedChildren().size());
+		// iterate over arguments
+		for (const auto& elt : arg_keepsake) {
+			// set type
+			appendInstructions(elt.type);
+			// set name instruction
+			appendInstructions(static_cast<byte>(elt.named));
+			// get the position
+			bytecode.setEltPosition(elt.pos);
+
+
+		}
 
 
 		// add runtime errors

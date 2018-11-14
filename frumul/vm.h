@@ -76,6 +76,16 @@ namespace frumul {
 			std::vector<E::any> variables; // index 0 represents the return value
 			const bst::str& lang;
 	};
-	using Arg = std::tuple<ExprType,bst::str,E::any>; // <type,name(if necessary),value>
+	//using Arg = std::tuple<ExprType,bst::str,E::any>; // <type,name(if necessary),value>
+	struct Arg {
+		/* This struct is used to share
+		 * the arguments of a value
+		 * inside values
+		 */
+		ExprType type;
+		bst::str name;
+		E::any value;
+		Position pos;
+	};
 }
 #endif

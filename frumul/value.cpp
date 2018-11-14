@@ -145,25 +145,25 @@ namespace frumul {
 
 	// use
 
-	E::any OneValue::execute(const bst::str& lang) {
+	E::any OneValue::execute(const bst::str& lang,const std::vector<E::any>& args) {
 		/* Execute value
 		 */
 		// compile if necessary
 		if (!is_byte_code_compiled) {
-			std::unique_ptr<ValueCompiler> compiler {std::make_unique<ValueCompiler>(*this)};
+			std::unique_ptr<ValueCompiler> compiler {std::make_unique<ValueCompiler>(*this,lang)};
 			ByteCode* _bt { new ByteCode(compiler->compile()) };
 			delete value;
 			bt = _bt;
 			is_byte_code_compiled = true;
 		}
-#if 1
+#if DEBUG && 1
 		printl("Bytecode:");
 		int i{0};
 		for (const auto& byte : bt->getCode())
 			printl(++i << ' ' << static_cast<int>(byte));
 		printl("Bytecode - end");
 #endif
-		VM vm{*bt,lang};
+		VM vm{*bt,lang,args};
 		return vm.run();
 	}
 
@@ -199,12 +199,12 @@ namespace frumul {
 #pragma message "Parent points to garbage, but when ?"
 	}
 
-	E::any Value::execute(const bst::str& lang) {
+	E::any Value::execute(const bst::str& lang, const std::vector<E::any>& args) {
 		/* Execute requested value
 		 * and return its return value
 		 */
 		OneValue& val{getValue(lang)};
-		return val.execute(lang);
+		return val.execute(lang,args);
 	}
 
 	Value::operator bool() const {

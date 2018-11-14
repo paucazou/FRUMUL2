@@ -55,6 +55,7 @@ namespace frumul {
 					return insertInstructions(i,{static_cast<byte>(instructions)...});
 				}
 			void appendInstructions(std::initializer_list<byte> instructions);
+			void appendInstructions(const ExprType&);
 			size_t insertInstructions(int i, std::initializer_list<byte> instructions);
 
 			void appendPushConstant(int i);
@@ -106,8 +107,8 @@ namespace frumul {
 		/* Compiles one value
 		 */
 		public:
-			ValueCompiler(OneValue& v):
-				__compiler(v.getValue(),v.getParent().getReturnType(),v.getParent())
+			ValueCompiler(OneValue& v,const bst::str& nlang):
+				__compiler(v.getValue(),v.getParent().getReturnType(),v.getParent(),nlang)
 		{
 			assert(v.getValue().type() == Node::BASIC_VALUE&&"Node should be a basic value");
 		}
@@ -117,8 +118,8 @@ namespace frumul {
 		/* Compiles an only expression
 		 */
 		public:
-			MonoExprCompiler(const Node& n, const ExprType& et, Symbol& p):
-				__compiler(n,et,p)
+			MonoExprCompiler(const Node& n, const ExprType& et, Symbol& p, const bst::str& nlang):
+				__compiler(n,et,p,nlang)
 			{}
 
 			ByteCode compile();

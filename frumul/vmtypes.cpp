@@ -153,6 +153,10 @@ namespace frumul {
 		return type;
 	}
 
+	ExprType::Type ExprType::getType() const {
+		return type;
+	}
+
 	int ExprType::getDepth() const {
 		/* Get the number of containers
 		 * necessary to find 

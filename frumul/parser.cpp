@@ -698,8 +698,6 @@ namespace frumul {
 		NodeVector arguments;
 		while (current_token->getType() != Token::RPAREN) {
 			// is it a named parameter ?
-			printl("in call");
-			printl(lex.peekToken(0,Token::MAX_TYPES_VALUES));
 			if (lex.peekToken(0,Token::MAX_TYPES_VALUES).getType() == Token::ASSIGN) {
 				StrNodeMap fields;
 				int start{getTokenStart()};

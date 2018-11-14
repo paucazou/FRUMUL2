@@ -28,8 +28,7 @@ namespace frumul {
 	class Schildren;
 	class Symbol;
 	class Value;
-
-	using Arg = std::tuple<ExprType,bst::str,E::any>; // see vm.h for more info
+	struct Arg;
 
 	class Alias {
 		/* Simple class which handles
@@ -77,6 +76,7 @@ namespace frumul {
 			const Schildren& getChildren() const;
 			const Symbol& getParent() const;
 			const Value& getValue() const;
+			const Parameters& getParameters() const;
 
 			// setters
 			void setParent(Symbol& nparent);
@@ -106,7 +106,7 @@ namespace frumul {
 			Symbol* parent {nullptr};
 			Alias alias;
 			std::unique_ptr<Value> value = std::make_unique<Value>(*this);
-			Parameters parameters;
+			Parameters parameters{*this};
 
 			// functions
 			void checkCall(const bst::str& lang); // UNFINISHED TODO arguments must be check

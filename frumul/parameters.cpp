@@ -1,11 +1,22 @@
+#include <climits>
+#include <unordered_map>
+#include "functions.inl"
 #include "parameters.h"
+#include "compiler.h"
+#include "symbol.h"
+#include "vm.h"
 #define TEMPASSERT assert(temporary&&"Temporary does not exist")
 
 namespace frumul {
 
-	Parameter::Parameter(const Node& node) :
+
+	Parameter::Parameter(const Node& node, Symbol& np) :
+		Parameter(node,&np)
+	{}
+	Parameter::Parameter(const Node& node,Symbol* np) : 
 		type{node.get("variable").get("type")},
-		name{node.get("variable").get("name").getValue()}
+		name{node.get("variable").get("name").getValue()},
+		parent{np}
 	{
 		/* Constructs the base of the parameter
 		 */
@@ -53,19 +64,21 @@ namespace frumul {
 		 * Temporary is not copied
 		 */
 		if (other.limit1)
-			limit1 = new Limit(*other.limit1);
+			limit1 = std::make_unique<Limit>(*other.limit1);
 		if (other.limit2)
-			limit2 = new Limit(*other.limit2);
+			limit2 = std::make_unique<Limit>(*other.limit2);
 
 	}
 
 	Parameter::~Parameter () {
 		/* Destructor.
 		 */
+		/*
 		if (limit1)
 			delete limit1;
 		if (limit2)
 			delete limit2;
+			*/
 		if (temporary)
 			delete temporary;
 	}
@@ -85,21 +98,43 @@ namespace frumul {
 		if (fields.count("argnb0")) {
 			// at least one parameter
 			const Node& arg {fields.at("argnb0")};
-			Comparison c{comparisonValue(arg.getValue())};
-			limit1 = new Limit{
-					arg.getNumberedChildren()[0],
-					c};
-			if (fields.count("argnb1")) {
-				const Node& arg {fields.at("argnb1")};
-				Comparison c{comparisonValue(arg.getValue())};
-				limit2 = new Limit(
+			Limit::Comparison c{comparisonValue(arg.getValue())};
+			limit1 = std::make_unique<Limit>(
 					arg.getNumberedChildren()[0],
 					c);
+			if (fields.count("argnb1")) {
+				const Node& arg {fields.at("argnb1")};
+				Limit::Comparison c{comparisonValue(arg.getValue())};
+				limit2 = std::make_unique<Limit>(
+					arg.getNumberedChildren()[0],
+					c);
+
+				// check consistency
+				switch(limit1->getComparison()) {
+					case Limit::SUPERIOR:
+					case Limit::SEQUAL:
+					case Limit::EQUAL:
+						break;
+					case Limit::IEQUAL:
+					case Limit::INFERIOR:
+						throw exc(exc::ArgumentNBError,"When setting two limits, the only comparison symbols allowed for the first one are >,>= and =",limit1->getPosition());
+				};
+
+				switch (limit2->getComparison()) {
+					case Limit::IEQUAL:
+					case Limit::INFERIOR:
+					case Limit::EQUAL:
+						break;
+					case Limit::SEQUAL:
+					case Limit::SUPERIOR:
+						throw exc(exc::ArgumentNBError,"When setting two limits, the only comparison symbols allowed for the second one are <,<= and =",limit1->getPosition());
+
+				}
 			}
 		}
 		else {
 			// implicit: =1
-			limit1 = new Limit(1,EQUAL);
+			limit1 = std::make_unique<Limit>(Limit(1,Limit::EQUAL));
 		}
 
 
@@ -107,7 +142,7 @@ namespace frumul {
 
 	void Parameter::evaluate() {
 		/* evaluate temporary values
-		 * min/max, default and choices
+		 * default and choices
 		 * TODO
 		 */
 
@@ -124,20 +159,26 @@ namespace frumul {
 		temporary = nullptr;
 	}
 
-	Parameter::Comparison Parameter::comparisonValue(const bst::str& val) const{
+	void Parameter::setParent(Symbol& np) {
+		/* Set a new parent
+		 */
+		parent = &np;
+	}
+
+	Parameter::Limit::Comparison Parameter::comparisonValue(const bst::str& val) const{
 		/* Return an enum
 		 * matching with val
 		 */
 		if (val == "=")
-			return EQUAL;
+			return Limit::EQUAL;
 		else if (val == ">")
-			return SUPERIOR;
+			return Limit::SUPERIOR;
 		else if (val == "<")
-			return INFERIOR;
+			return Limit::INFERIOR;
 		else if (val == ">=")
-			return SEQUAL;
+			return Limit::SEQUAL;
 		else if (val == "<=")
-			return IEQUAL;
+			return Limit::IEQUAL;
 		else
 			assert(false&&"Unknown binary operator");
 	}
@@ -174,14 +215,72 @@ namespace frumul {
 		return name;
 	}
 
-	int Parameter::getMin() const {
-		TEMPASSERT;
-		return temporary->min;
+	int Parameter::getMin(const bst::str& lang) const {
+		return calculateMinMax(lang).first;
 	}
 
-	int Parameter::getMax() const {
-		TEMPASSERT;
-		return temporary->max;
+	int Parameter::getMax(const bst::str& lang) const {
+		return calculateMinMax(lang).second;
+	}
+
+	std::pair<int,int> Parameter::calculateMinMax(const bst::str& lang) const {
+		/* Calculate min and max
+		 * and returns it, min as first,
+		 * and max as second
+		 * checks the error (impossible to do this before)
+		 */
+		assert(parent&&"Parameter: parent is not set");
+		if (limit2) { 
+			int min { limit1->getLimit(lang,*parent) };
+			int max{limit2->getLimit(lang,*parent) };
+
+			// limits are equal
+			if (min == max) {
+				if (limit1->getComparison() != limit2->getComparison())
+					throw iexc(exc::ArgumentNBError,"Limits given to the parameter have the same value but not the same sign. Limit 1:",limit1->getPosition(),"Limit 2:",limit2->getPosition());
+
+				return calculateMinMaxWithOneLimit(min,limit1->getComparison());
+
+			}
+			else if (min > max)
+				throw iexc(exc::ArgumentNBError,"Min is over max. Min: ",limit1->getPosition(),"Max: ",limit2->getPosition());
+
+			// get real value
+			if (limit1->getComparison() == Limit::SUPERIOR)
+				++min;
+			if (limit2->getComparison() == Limit::INFERIOR)
+				--max;
+
+			// last checks
+			if (min < 0)
+				throw exc(exc::ValueError,"Limit given is under zero",limit1->getPosition());
+			return {min,max};
+
+		}
+
+		return calculateMinMaxWithOneLimit(limit1->getLimit(lang,*parent),limit1->getComparison());
+	}
+
+	std::pair<int,int> Parameter::calculateMinMaxWithOneLimit(int limit, Limit::Comparison c) const {
+		constexpr int absolute_min {0};
+		// check errors
+		if (limit<0)
+			throw exc(exc::ValueError,"Limit given is under zero",limit1->getPosition());
+
+		switch (c) {
+			case Limit::EQUAL:
+				return {limit,limit};
+			case Limit::SUPERIOR:
+				return {limit+1,INT_MAX};
+			case Limit::INFERIOR:
+				return {absolute_min,limit-1};
+			case Limit::SEQUAL:
+				return {limit,INT_MAX};
+			case Limit::IEQUAL:
+				return {absolute_min,limit};
+
+		};
+		return {-1,-1}; // -Wreturn-type
 	}
 
 	const PosVect& Parameter::getPositions() const {
@@ -249,16 +348,16 @@ namespace frumul {
 
 	// Parameter::Limit
 
-	Parameter::Limit::Limit(const Node& n, Comparison c) :
-		comparison{c}, isNode{true}, node{ new Node(n)}
+	Parameter::Limit::Limit(const Node& n, Limit::Comparison c) :
+		comparison{c}, isNode{true}, node{ new Node(n)}, pos{n.getPosition()}
 	{
 		/* Constructs with a node
 		 * yet to be evaluated
 		 */
 	}
 
-	Parameter::Limit::Limit (int ni, Comparison c) :
-		comparison{c}, isNode{false}, i{ni}
+	Parameter::Limit::Limit (int ni, Limit::Comparison c) :
+		comparison{c}, isNode{false}, i{ni}, pos{-1,-1,"",""}
 	{
 		/* Constructs directly an int
 		 */
@@ -266,27 +365,39 @@ namespace frumul {
 
 	Parameter::Limit::~Limit() {
 		/*Destructor
-		 * TODO is int deleted ?
 		 */
 		if (isNode)
 			delete node;
 	}
 
-	int Parameter::Limit::getLimit() const {
+	int Parameter::Limit::getLimit(const bst::str& lang,Symbol& parent) {
 		/* Return the limit as an int.
 		 * Evaluates the node (if there is a node)
 		 * or return the int
-		 * TODO
+		 * the int returned should be compared with the comparison field
 		 */
-		if (isNode)
-			assert(false&&"Node evaluation not yet ready");
+		if (isNode) {
+			auto compiler {MonoExprCompiler(*node, ET::INT, parent,lang)};
+			auto bt {compiler.compile()};
+			auto vm {VM(bt, lang, std::vector<E::any>())};
+			delete node;
+			i = E::any_cast<int>(vm.run());
+		}
 		return i;
 	}
 
-	bool Parameter::Limit::isConform(int x) const {
+	Parameter::Limit::Comparison Parameter::Limit::getComparison() const {
+		return comparison;
+	}
+
+	const Position& Parameter::Limit::getPosition() const {
+		return pos;
+	}
+
+	bool Parameter::Limit::isConform(int x,const bst::str& lang,Symbol& parent) {
 		/* true if x respects the limit
 		 */
-		int limit {getLimit()};
+		int limit {getLimit(lang,parent)};
 		switch (comparison) {
 			case EQUAL:
 				return x == limit;
@@ -299,13 +410,18 @@ namespace frumul {
 			case IEQUAL:
 				return limit <= x;
 			default:
-				assert(false&&"Comparison operator not correctly set");
+				assert(false&&"Limit::Comparison operator not correctly set");
 		};
 		return false;
 	}
 
 	// Parameters
 	Parameters::Parameters()
+	{
+	}
+
+	Parameters::Parameters(Symbol& np) :
+		parent{&np}
 	{
 	}
 
@@ -369,8 +485,61 @@ namespace frumul {
 		return parms;
 	}
 
+	void Parameters::setParent(Symbol& np) {
+		/*Set parent and the parent
+		 * of every Parameter
+		 */
+		parent = &np;
+		for (auto& elt : parms)
+			elt.setParent(np);
+	}
+
 	std::vector<Parameter>& Parameters::getList(){
 		return parms;
+	}
+
+	std::vector<Parameter>::iterator Parameters::begin() {
+		return parms.begin();
+	}
+
+	std::vector<Parameter>::iterator Parameters::end() {
+		return parms.end();
+	}
+
+	std::vector<E::any> Parameters::formatArgs(const std::vector<Arg>& args, const bst::str& lang) {
+		/*Check the arguments and format them
+		 */
+		std::vector<E::any> formatted;
+		// maps that saves the number of times a parameter
+		// has been called
+		std::unordered_map<CRParameter,unsigned int> call_number;
+		const auto defaultSetMap { &defaultSet<std::unordered_map<CRParameter,unsigned int>,CRParameter,unsigned int> };
+
+		size_t i{0};
+		for (; i < args.size(); ++i) {
+			const Arg& arg{args[i]};
+			const Parameter& parm{parms[i]};
+			CRParameter crparm{parm};
+			// check type TODO vérifier si un argument est seulemnet un membre de liste
+			if (arg.type != parm.getType())
+				throw iexc(exc::TypeError,"Argument entered does not match the type of the parameter. Argument: ",arg.pos,"Parameter set here: ",parm.getPositions());
+			// check number
+			unsigned int call_nb { defaultSetMap(call_number,crparm,0) };
+			if (call_nb > static_cast<unsigned int>(parm.getMax(lang)))
+				throw iexc(exc::ArgumentNBError,"Too many arguments entered for the required parameter",arg.pos,"Parameter defined here: ",parm.getPositions());
+			// check choice TODO
+			// append to formatted
+			formatted.push_back(arg.value);
+
+		}
+		// check if every parameter has been checked TODO or args match the minimum required
+		return formatted;
+	}
+
+	bool operator == (CRParameter& f, CRParameter& s) {
+		/* true if f and s points to the same object
+		 */
+		return &f.get() == & s.get();
 	}
 
 }

@@ -100,6 +100,13 @@ namespace frumul {
 			const std::vector<Node>& getNumberedChildren() const;
 
 			unsigned int size() const;
+
+			// iterators
+			std::map<bst::str,Node>::reverse_iterator rbegin(bool);
+			std::vector<Node>::const_reverse_iterator rbegin() const;
+
+			std::map<bst::str,Node>::reverse_iterator rend(bool);
+			std::vector<Node>::const_reverse_iterator rend()const;
 			
 			//setters
 			void addChild(const bst::str& name, const Node& child);
@@ -118,7 +125,7 @@ namespace frumul {
 		private:
 			const Type node_type;
 			const Position pos;
-#pragma message "Please use std::variant if possible"
+//#pragma message "Please use std::variant if possible" //TODO
 			union {
 				std::map<bst::str,Node> named_children;
 				std::vector<Node> numbered_children;
