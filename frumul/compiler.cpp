@@ -167,10 +167,10 @@ namespace frumul {
 		for (const auto& child : n.getNumberedChildren()) {
 
 			ExprType rt{visit(child)};
+			if (rt == ET::VOID)
+				continue;
 
 			if (return_type == ET::TEXT) {
-				if (rt == ET::VOID)
-					continue;
 
 				// cast
 				if (rt != return_type)
@@ -182,11 +182,12 @@ namespace frumul {
 				appendInstructions(BT::ASSIGN,r_index); // assign back to returned value
 			} else {
 
-			if (rt != return_type)
-				throwInconsistentType(return_type,rt,n,child);
+				if (rt != return_type)
+					throwInconsistentType(return_type,rt,n,child);
 
-			// set returned value
-			appendInstructions(BT::ASSIGN,r_index,BT::RETURN); // assign last elt of stack to return value and return
+				// set returned value
+				appendInstructions(BT::ASSIGN,r_index,BT::RETURN); // assign last elt of stack to return value and return
+				// the RETURN instruction must be kept to end the execution of the value at that position
 			}
 
 		}
@@ -815,6 +816,8 @@ namespace frumul {
 		// add runtime errors
 		// Arguments number
 		bytecode.addRuntimeError(exc(exc::ArgumentNBError,"Arguments number does not match the number required",arguments.getPosition()));
+		// return value check
+		bytecode.addRuntimeError(exc(exc::NoReturnedValue,"Value call has not returned any value",n.getPosition()));
 
 		return symbol_type.getContained();
 	}
@@ -842,6 +845,10 @@ namespace frumul {
 	ExprType __compiler::visit_val_text(const Node& n) {
 		/* Append text to the return value
 		 */
+		// if the value is empty, skip it
+		if (!n.getValue())
+			return ET::VOID;
+
 		constants.push_back(n.getValue());
 		appendInstructions(BT::PUSH,ET::CONSTANT,constants.size()-1);
 		return ET::TEXT;

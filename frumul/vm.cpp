@@ -69,9 +69,12 @@ namespace frumul {
 		// fill the variables with the arguments
 		// Absolutely no check is done
 		// the variables are filled in the order of the args
+		// // here we save the number of variables already registered
+		// // (mainly the returned value)
+		const size_t ret_val_nb { bt.getReturnType() == ET::VOID ? 0UL : 1UL};
+		// // iteration
 		for (size_t i{0};i<args.size();++i) {
-			// i+1: because 0 is reserved to the returned value
-			variables[i+1] = args[i];
+			variables[i+ret_val_nb] = args[i];
 		}
 		// set the return value to an empty string if it is a TEXT
 		if (bt.getReturnType() == ET::TEXT)
@@ -266,8 +269,15 @@ namespace frumul {
 		// call and push if not void
 		E::any returned {s.any_call(args,lang)};
 
-		if (s.getReturnType() != ET::VOID)
+		if (s.getReturnType() != ET::VOID) {
+			// check that value has actually been passed
+#pragma message "Impossible to use has_value with clang 3.8.1-24 and even 6.0"
+#if 0
+			if (!returned.has_value())
+				throw BackException(exc::NoReturnedValue);
+#endif
 			stack.push(returned);
+		}
 	}
 	
 	void VM::cast() {

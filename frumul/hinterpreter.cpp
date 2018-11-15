@@ -354,9 +354,8 @@ namespace frumul {
 	void Hinterpreter::visit_basic_value(const Node& node, OneValue& val) {
 		/* Fill val
 		 * with node
-		 * TODO check the node
 		 */
-#pragma message("Check the node")
+		assert(node.type() == Node::BASIC_VALUE&&"Node is not a basic value");
 		val.setNode(node);
 	}
 

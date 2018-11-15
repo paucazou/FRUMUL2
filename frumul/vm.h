@@ -59,7 +59,7 @@ namespace frumul {
 				T pop() {
 					/* pops the last elements of the stack
 					 */
-#if 1
+#if DEBUG && 0
 					printl("Position: ");
 					printl(std::distance(bt.getBegin(),it));
 					printl("Top of stack:");

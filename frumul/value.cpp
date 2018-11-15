@@ -156,7 +156,7 @@ namespace frumul {
 			bt = _bt;
 			is_byte_code_compiled = true;
 		}
-#if DEBUG && 1
+#if DEBUG && 0
 		printl("Bytecode:");
 		int i{0};
 		for (const auto& byte : bt->getCode())
