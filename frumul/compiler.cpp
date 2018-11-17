@@ -331,7 +331,7 @@ namespace frumul {
 		// we now keep the size of the code, first to find how many instructions
 		// will be jumped if code is false,
 		// second to replace the 0 by the 'adress'
-		// we don't -1, because it's easier (see beyond)
+		// we don't -1, because it's easier (see below)
 		auto ad_index{code.size()};
 		// compile the body of the statement
 		visit_basic_value(n.get("text"),false);
