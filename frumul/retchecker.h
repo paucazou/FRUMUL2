@@ -8,17 +8,28 @@ namespace frumul {
 		 * to check that a value
 		 * has returned something
 		 * or not
+		 * How to use:
+		 * at the start of each level (block),
+		 * operator ++ should be called,
+		 * and operator -- at the end of the block.
+		 * last value should be popped later to handle
+		 * the information.
 		 */
 		public:
+			explicit RetChecker(int level = 1, bool activated=true);
 			operator bool() const;
 			
-			void push(bool);
-			//void set(bool);
+			void deactivate();
+			void set(bool);
 			bool pop();
+			unsigned int operator++();
+			unsigned int operator--();
+			unsigned int getCurrentLevel() const;
 			
 		private:
 			bool return_certified{false};
-			rstack<bool> block_return{{false}};
+			unsigned int level{0};
+			rstack<bool> block_return;
 	};
 }
 #endif

@@ -12,6 +12,7 @@
 #include "bytecode.h"
 #include "node.h"
 #include "parameters.h"
+#include "retchecker.h"
 #include "symbol.h"
 #include "symboltab.h"
 #include "util.h"
@@ -38,6 +39,7 @@ namespace frumul {
 			const Node& node;
 			ExprType return_type{ET::TEXT};
 			ByteCode bytecode;
+			RetChecker rtc;
 			Symbol& parent;
 			const bst::str& lang;
 			std::vector<E::any>& constants{bytecode.getConstants()};
