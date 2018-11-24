@@ -3,7 +3,7 @@
 
 namespace frumul {
 
-	RetChecker::RetChecker(int level,bool activated) :
+	RetChecker::RetChecker(bool activated, int level) :
 	return_certified{!activated}
 	{
 		for (;level > 0; --level) {
@@ -36,11 +36,11 @@ namespace frumul {
 		 * has been certified.
 		 */
 		if (!return_certified) {
-			if (block_return.empty() && b) {
+			if (block_return.size() == 1 && b) {
 				// in this case, the return statement is certified
 				return_certified = true;
 			} else
-				block_return.at(level) = b;
+				block_return.at(level-1) = b;
 		}
 	}
 

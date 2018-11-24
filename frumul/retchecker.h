@@ -16,7 +16,7 @@ namespace frumul {
 		 * the information.
 		 */
 		public:
-			explicit RetChecker(int level = 1, bool activated=true);
+			explicit RetChecker(bool activated=true, int level = 0);
 			operator bool() const;
 			
 			void deactivate();

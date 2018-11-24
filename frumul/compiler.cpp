@@ -23,7 +23,7 @@ namespace frumul {
 	// __compiler
 
 	__compiler::__compiler (const Node& n, const ExprType& rt, Symbol& s,const bst::str& nlang) :
-		node{n}, return_type{rt}, bytecode{s}, parent{s}, lang{nlang}
+		node{n}, return_type{rt}, bytecode{s}, rtc{rt != ET::TEXT}, parent{s}, lang{nlang}
 	{
 	}
 
@@ -36,6 +36,9 @@ namespace frumul {
 			visitParameters();
 			visit(node);
 			bytecode.addVariable(symbol_table->variableNumber());
+			if (!rtc) 
+				// no value seems to be returned
+				throw exc(exc::NoReturnedValue,"Compiler can not be sure that a value will be return.",node.getPosition());
 		}
 		return bytecode;
 	}
@@ -162,6 +165,7 @@ namespace frumul {
 		 */
 		// enter new scope
 		++*symbol_table;
+		++rtc;
 
 		constexpr int r_index{0}; // return index
 		for (const auto& child : n.getNumberedChildren()) {
@@ -188,6 +192,8 @@ namespace frumul {
 				// set returned value
 				appendInstructions(BT::ASSIGN,r_index,BT::RETURN); // assign last elt of stack to return value and return
 				// the RETURN instruction must be kept to end the execution of the value at that position
+				// certifies that this scope returns a value
+				rtc.set(true);
 			}
 
 		}
@@ -196,6 +202,7 @@ namespace frumul {
 
 		// return to parent scope
 		--*symbol_table;
+		--rtc;
 		return return_type;
 	}
 
@@ -337,12 +344,21 @@ namespace frumul {
 		visit_basic_value(n.get("text"),false);
 		// else part
 		if (n.getNamedChildren().count("else_text") > 0) {
+			// get the last return value
+			bool does_if_return{rtc.pop()};
 			appendInstructions(BT::JUMP,0,0);
 			auto last_instruction_index{code.size()};
 			setJump(ad_index,last_instruction_index);
 			// we prepare the last jump
 			ad_index = last_instruction_index;
 			visit_basic_value(n.get("else_text"),false);
+			// set the current return value check
+			bool does_else_return{rtc.pop()};
+			rtc.set(does_if_return && does_else_return);
+		}
+		else {
+			// pop out last check of return value
+			rtc.pop();
 		}
 		// get the size of the code for the second/third time.
 		auto last_instruction_index{code.size()};
@@ -728,6 +744,9 @@ namespace frumul {
 		// set the jumps target
 		setJump(condition_pos,second_jump_pos);
 		setJump(second_jump_pos,start_of_loop);
+		// return value check has been set,
+		// so we need to pop it now
+		rtc.pop();
 		return ET::VOID;
 	}
 

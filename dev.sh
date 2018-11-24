@@ -27,6 +27,7 @@ compile () {
 		frumul/parameters.cpp\
 		frumul/parser.cpp\
 		frumul/position.cpp\
+		frumul/retchecker.cpp\
 		frumul/schildren.cpp\
 		frumul/symbol.cpp\
 		frumul/symboltab.cpp\
