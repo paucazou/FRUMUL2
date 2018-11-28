@@ -25,6 +25,7 @@ compile () {
 		frumul/name.cpp\
 		frumul/node.cpp\
 		frumul/parameters.cpp\
+		frumul/parmqueuer.cpp\
 		frumul/parser.cpp\
 		frumul/position.cpp\
 		frumul/retchecker.cpp\

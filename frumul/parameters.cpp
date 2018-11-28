@@ -515,10 +515,12 @@ namespace frumul {
 		std::unordered_map<CRParameter,unsigned int> call_number;
 		const auto defaultSetMap { &defaultSet<std::unordered_map<CRParameter,unsigned int>,CRParameter,unsigned int> };
 
-		size_t i{0};
-		for (; i < args.size(); ++i) {
-			const Arg& arg{args[i]};
-			const Parameter& parm{parms[i]};
+		size_t arg_idx{0};
+		for (; arg_idx < args.size(); ++arg_idx) {
+			// get the argument
+			const Arg& arg{args[arg_idx]};
+			// get matching parameter
+			const Parameter& parm{parms[arg_idx]};
 			CRParameter crparm{parm};
 			// check type TODO vérifier si un argument est seulemnet un membre de liste
 			if (arg.type != parm.getType())

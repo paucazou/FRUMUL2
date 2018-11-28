@@ -152,7 +152,7 @@ namespace frumul {
 
 }
 namespace std {
-	// hash specialization for Parameter
+	// hash specialization for CRParameter
 	template <>
 		class hash<frumul::CRParameter> {
 			public:
