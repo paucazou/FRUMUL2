@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include "functions.inl"
 #include "parameters.h"
+#include "parmqueuer.h"
 #include "compiler.h"
 #include "symbol.h"
 #include "vm.h"
@@ -510,25 +511,30 @@ namespace frumul {
 		/*Check the arguments and format them
 		 */
 		std::vector<E::any> formatted;
+		auto queue { ParmQueuer(parms,lang) };
+		/*
 		// maps that saves the number of times a parameter
 		// has been called
 		std::unordered_map<CRParameter,unsigned int> call_number;
 		const auto defaultSetMap { &defaultSet<std::unordered_map<CRParameter,unsigned int>,CRParameter,unsigned int> };
+		*/
 
 		size_t arg_idx{0};
 		for (; arg_idx < args.size(); ++arg_idx) {
 			// get the argument
 			const Arg& arg{args[arg_idx]};
 			// get matching parameter
-			const Parameter& parm{parms[arg_idx]};
-			CRParameter crparm{parm};
+			const Parameter& parm{queue(arg)};
+			//CRParameter crparm{parm};
 			// check type TODO vérifier si un argument est seulemnet un membre de liste
 			if (arg.type != parm.getType())
 				throw iexc(exc::TypeError,"Argument entered does not match the type of the parameter. Argument: ",arg.pos,"Parameter set here: ",parm.getPositions());
+			/*
 			// check number
 			unsigned int call_nb { defaultSetMap(call_number,crparm,0) };
 			if (call_nb > static_cast<unsigned int>(parm.getMax(lang)))
 				throw iexc(exc::ArgumentNBError,"Too many arguments entered for the required parameter",arg.pos,"Parameter defined here: ",parm.getPositions());
+				*/
 			// check choice TODO
 			// append to formatted
 			formatted.push_back(arg.value);

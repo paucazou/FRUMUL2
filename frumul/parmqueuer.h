@@ -17,11 +17,14 @@ namespace frumul {
 			explicit ParmQueuer(CParmVect&, const bst::str& lang);
 			const Parameter& operator () (const Arg&);
 		private:
+			// attributes
 			unsigned int pos{0};
 			CParmVect& parms;
 			std::vector<bool> checked;
 			const bst::str& lang;
 			std::unordered_map<CRParameter,unsigned int> call_number;
+			// functions
+			const Parameter& select_parm(const Arg&);
 			
 
 	};
