@@ -835,8 +835,6 @@ namespace frumul {
 		// add runtime errors
 		// Arguments number
 		bytecode.addRuntimeError(exc(exc::ArgumentNBError,"Arguments number does not match the number required",arguments.getPosition()));
-		// return value check
-		bytecode.addRuntimeError(exc(exc::NoReturnedValue,"Value call has not returned any value",n.getPosition()));
 
 		return symbol_type.getContained();
 	}

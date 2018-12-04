@@ -271,11 +271,6 @@ namespace frumul {
 
 		if (s.getReturnType() != ET::VOID) {
 			// check that value has actually been passed
-#pragma message "Impossible to use any::has_value with clang 3.8.1-24 and even 6.0"
-#if 0
-			if (!returned.has_value())
-				throw BackException(exc::NoReturnedValue);
-#endif
 			stack.push(returned);
 		}
 	}
