@@ -10,6 +10,7 @@
 #include <memory>
 #include <utility>
 #include "bytecode.h"
+#include "functions.inl"
 #include "node.h"
 #include "parameters.h"
 #include "retchecker.h"

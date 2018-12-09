@@ -4,6 +4,7 @@
 #include "functions.inl"
 #include "macros.h"
 #include "vm.h"
+#include "vmtypes.h"
 
 namespace frumul {
 	ParmQueuer::ParmQueuer (CParmVect& p, const bst::str& nlang) :
@@ -14,6 +15,18 @@ namespace frumul {
 		for (size_t i{0}; i < parms.size(); ++i)
 			checked.push_back(false);
 
+	}
+
+	const Parameter& ParmQueuer::operator() (const bst::str& val, const Position& pos, const bst::str& name) {
+		/* This overloaded function
+		 * is a simple wrapper.
+		 * It creates a temporary Arg
+		 * with the parameters entered
+		 * but with a void type,
+		 * and call operator() (const Arg&)
+		 */
+		Arg fake_arg {ExprType::VOID,name,val,pos};
+		return this->operator() (fake_arg);
 	}
 
 	const Parameter& ParmQueuer::operator() (const Arg& arg) {
@@ -64,6 +77,16 @@ namespace frumul {
 		// check the parameter
 		checked.at(pos);
 		return parms.at(pos++);
+	}
+
+	bool ParmQueuer::areParametersFilled() const {
+		/* true if all parameters have been checked
+		 */
+		for (const auto& b : checked)
+			if (b)
+				return false;
+		return true;
+
 	}
 
 

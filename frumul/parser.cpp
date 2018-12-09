@@ -2,6 +2,7 @@
 #include <experimental/filesystem>
 #include <system_error>
 #include "parser.h"
+#include "argcollector.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -1138,7 +1139,7 @@ namespace frumul {
 					eat(Token::SIMPLE_TEXT,Token::MAX_TYPES_TEXT);
 					break;
 				case Token::TAG:
-					tag();
+					transpiler->append(tag().getValue());
 					break;
 				default:
 					throw BaseException(BaseException::UnexpectedToken,"Token expected:\n" + Token::typeToString(Token::SIMPLE_TEXT) + "\n" + Token::typeToString(Token::TAG) + "\n",Position(current_token->getPosition()));
@@ -1157,9 +1158,12 @@ namespace frumul {
 		return text;
 	}
 
-	void Parser::tag() {
+	Node Parser::tag() {
 		/* Manages the Tag token
 		 */
+		int start { getTokenStart() };
+		bst::str value;
+
 		// keep the tag
 		std::unique_ptr<Position> pos{std::make_unique<Position>(current_token->getPosition())};
 		bst::str tag{current_token->getValue()};
@@ -1172,9 +1176,15 @@ namespace frumul {
 		}
 		// get the symbol
 		Symbol& s{header_symbol->getChildren().find(tag)};
+		// get the args
+		auto collector { ArgCollector(s,transpiler->getLang()) };
+		while (collector.expectsArgs()) {
+			collector << arg();
+		}
+		int end {getTokenStart()};
 		// call
 		try {
-		transpiler->append(s.call(*this));
+			value = s.call(collector.getArgs(),transpiler->getLang());
 		} catch (const BackException& e) {
 			// return type error
 			switch (e.type) {
@@ -1186,6 +1196,43 @@ namespace frumul {
 					assert(false&&"Error unknown");
 			};
 		}
+		return Node(Node::SIMPLE_TEXT,Position(start,end,filepath,source),value);
+	}
+
+	Node Parser::arg() {
+		/* Manages an argument of a call to a value
+		 * Return a TEXTUAL_ARGUMENT Node
+		 */
+		constexpr int not_yet_set{-1};
+		int start {getTokenStart()};
+		int end{not_yet_set};
+		bst::str value;
+
+		while (current_token->getType() != Token::EOFILE) {
+			switch (current_token->getType()) {
+				case Token::SIMPLE_TEXT:
+					value += current_token->getValue();
+					eat(Token::SIMPLE_TEXT,Token::MAX_TYPES_TEXT);
+					break;
+				case Token::TAG:
+					if (lex.peekToken(0,Token::TAIL,Token::MAX_TYPES_TEXT).getType() == Token::TAIL)
+					{
+						// call to another symbol as part of an arg
+#pragma message "Check that the tail does not match the name of a named parameter"
+						value += tag().getValue();
+					} else {
+						// end of an arg
+						eat(Token::TAG,Token::MAX_TYPES_TEXT);
+						end = getTokenStart();
+					}
+					break;
+				default:
+					assert(false&&"Unexpected token");
+			};
+		}
+		assert(end != not_yet_set&&"End has not been set");
+
+		return Node(Node::TEXTUAL_ARGUMENT,Position(start,end,filepath,source),value);
 	}
 
 

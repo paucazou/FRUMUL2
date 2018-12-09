@@ -5,10 +5,12 @@
  */
 #include <deque>
 #include <functional>
+#include <map>
 #include <memory>
 #include <sstream>
 #include <stack>
 #include "bstrlib/bstrwrap.h"
+#include "exception.h"
 
 namespace std {
 	template <typename T>
@@ -103,7 +105,13 @@ namespace frumul {
 			}
 		}
 
-
+	// overloaded functions: from text to T
+	template <typename T>
+		T text_to(const bst::str& s) {
+			return T(s);
+		}
+	
+	// Random access Stack
 	template <typename T, typename Container=std::deque<T>>
 		class RandomStack : public std::stack<T,Container> {
 			/* Stack wich give access

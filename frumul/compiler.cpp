@@ -562,6 +562,7 @@ namespace frumul {
 	ExprType __compiler::visit_litint(const Node& n) {
 		/* Compile a litteral integer
 		 */
+#pragma message "use text_to<int> template function"
 		appendAndPushConstant<int>(
 					static_cast<int>(n.getValue())
 				);

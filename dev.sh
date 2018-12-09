@@ -10,7 +10,9 @@ compile () {
 	fi
 	$compiler -std=c++14\
 		-Wextra -Wall -pedantic\
+		-pedantic-errors\
 		-Wfatal-errors\
+		-Wsign-conversion\
 		-D DEBUG\
 		-g\
 		tests/astbrowser.cpp\
@@ -52,7 +54,10 @@ objectify () {
 	cd $odir
 	g++ -std=c++14\
 		-Wextra -Wall -pedantic\
+		-pedantic-errors\
+		-Wsign-conversion\
 		-D DEBUG\
+		-g\
 		-c ../$1
 	popd
 }

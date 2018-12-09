@@ -271,18 +271,17 @@ namespace frumul {
 	}
 
 	// use
-	bst::str Symbol::call(Parser& p) {
+	bst::str Symbol::call(const std::vector<E::any>& args, const bst::str& lang) {
 		/* Call the symbol
+		 * The args must be formatted first
 		 */
 		// checks
 		if (return_type.type != ExprType::TEXT)
 			throw BackException(exc::TypeError);
-		checkCall(p.getTranspiler().getLang());
+		checkCall(lang);
 
-		// get the args and eat tokens
-		std::vector<E::any> args; // TODO 
 		// execution
-		E::any r{value->execute(p.getTranspiler().getLang(),args)};
+		E::any r{value->execute(lang,args)};
 		return E::any_cast<bst::str>(r);
 	}
 	
