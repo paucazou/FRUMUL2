@@ -75,7 +75,7 @@ namespace frumul {
 			throw exc(exc::ArgumentNBError,"Too many arguments were entered",arg.pos);
 		}
 		// check the parameter
-		checked.at(pos);
+		checked.at(pos) = true;
 		return parms.at(pos++);
 	}
 
@@ -83,7 +83,7 @@ namespace frumul {
 		/* true if all parameters have been checked
 		 */
 		for (const auto& b : checked)
-			if (b)
+			if (!b)
 				return false;
 		return true;
 

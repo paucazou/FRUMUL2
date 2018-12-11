@@ -1203,12 +1203,13 @@ namespace frumul {
 		/* Manages an argument of a call to a value
 		 * Return a TEXTUAL_ARGUMENT Node
 		 */
+
 		constexpr int not_yet_set{-1};
 		int start {getTokenStart()};
 		int end{not_yet_set};
 		bst::str value;
 
-		while (current_token->getType() != Token::EOFILE) {
+		while (end == -1 && current_token->getType() != Token::EOFILE) {
 			switch (current_token->getType()) {
 				case Token::SIMPLE_TEXT:
 					value += current_token->getValue();

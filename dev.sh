@@ -17,6 +17,7 @@ compile () {
 		-g\
 		tests/astbrowser.cpp\
 		tests/tests.cpp\
+		frumul/argcollector.cpp\
 		frumul/bytecode.cpp\
 		frumul/compiler.cpp\
 		frumul/exception.cpp\
@@ -34,6 +35,7 @@ compile () {
 		frumul/schildren.cpp\
 		frumul/symbol.cpp\
 		frumul/symboltab.cpp\
+		frumul/textto.cpp\
 		frumul/transpiler.cpp\
 		frumul/util.cpp\
 		frumul/value.cpp\
