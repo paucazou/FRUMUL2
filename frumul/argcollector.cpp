@@ -2,6 +2,7 @@
 #include "argcollector.h"
 #include "textto.h"
 #include "node.h"
+#include "util.h"
 
 namespace frumul {
 	ArgCollector::ArgCollector(Symbol& s, const bst::str& l):
@@ -47,12 +48,18 @@ namespace frumul {
 		/* Try to cast the value of the node
 		 * into the type expected
 		 */
+		printl(n.getValue());
+
 		const ExprType type { parm.getType()};
 		try {
-			if (type == ExprType::INT)
-				return text_to<int>(n.getValue());
-			if (type == ExprType::BOOL)
-				return text_to<bool>(n.getValue());
+			if (type == ExprType::INT) {
+				const bst::str v { remove_trailing_whitespaces(n.getValue()) };
+				return text_to<int>(v);
+				}
+			if (type == ExprType::BOOL) {
+				const bst::str v { remove_trailing_whitespaces(n.getValue()) };
+				return text_to<bool>(v);
+				}
 			if (type != ExprType::TEXT)
 				throw BackException(exc::TypeError);
 

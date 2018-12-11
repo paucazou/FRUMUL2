@@ -17,5 +17,7 @@ namespace frumul {
 	std::pair<byte,byte> splitShort(int_fast16_t);
 	unsigned int negative_index(int index,unsigned int length);
 	unsigned int negative_index(int index,unsigned int length,bool check);
+	bool is_whitespace (const bst::str&);
+	bst::str remove_trailing_whitespaces(const bst::str&);
 } // namespace 
 #endif

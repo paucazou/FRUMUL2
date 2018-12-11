@@ -39,6 +39,7 @@
 	E(ArgumentNBError)\
 	E(DivisionByZero)\
 	E(NoReturnedValue)\
+	E(EarlyEOF)\
 	E(MAX_TYPES)\
 
 namespace frumul {

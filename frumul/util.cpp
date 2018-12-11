@@ -1,3 +1,5 @@
+#include <cassert>
+#include <cwctype>
 #include <ios>
 #include <iostream>
 #include <system_error>
@@ -52,4 +54,29 @@ namespace frumul {
 				throw BackException(exc::IndexError);
 		return negative_index(index,length);
 	}
+
+	bool is_whitespace(const bst::str& s) {
+		/* true if s is a whitespace
+		 */
+		static const bst::str unbreakable_space { L'\u00A0' };
+		assert(s.uLength() == 1&&"String entered is not a single character");
+		const auto raw_char { static_cast<unsigned int>(s.uRawAt(0)) };
+		return std::iswspace(raw_char) || s == unbreakable_space;
+	}
+
+	bst::str remove_trailing_whitespaces(const bst::str& s) {
+		/* Remove the trailing whitespace
+		 */
+		for (int i{s.uLength()-1}; i >= 0; --i) {
+			if (!is_whitespace(s.uAt(i))) {
+				return s.uRange(0,i);
+			}
+		}
+		return "";
+			
+
+
+		
+	}
+
 } // namespace 

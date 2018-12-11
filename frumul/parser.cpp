@@ -1179,7 +1179,13 @@ namespace frumul {
 		// get the args
 		auto collector { ArgCollector(s,transpiler->getLang()) };
 		while (collector.expectsArgs()) {
-			collector << arg();
+			Token last_tok {*current_token};
+			try {
+				collector << arg();
+			} catch (BackException& e) {
+				if (e.type == exc::EarlyEOF)
+					throw exc(exc::ArgumentNBError,"End of file reached before the args were filled",last_tok.getPosition());
+			}
 		}
 		int end {getTokenStart()};
 		// call
@@ -1231,7 +1237,8 @@ namespace frumul {
 					assert(false&&"Unexpected token");
 			};
 		}
-		assert(end != not_yet_set&&"End has not been set");
+		if (end == not_yet_set)// we know we're at the end of the file, but we didn't meet a closing tag
+			throw BackException(exc::EarlyEOF);
 
 		return Node(Node::TEXTUAL_ARGUMENT,Position(start,end,filepath,source),value);
 	}
