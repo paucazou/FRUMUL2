@@ -33,7 +33,7 @@ namespace frumul {
 		/* Return the next parameter
 		 * matching the arg
 		 */
-		assert(pos < parms.size()&&"Pos is too large");
+		assert(pos <= parms.size()&&"Pos is too large");
 		// get the parameter
 
 		const Parameter& parm { select_parm(arg) };
