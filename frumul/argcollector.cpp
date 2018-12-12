@@ -48,7 +48,6 @@ namespace frumul {
 		/* Try to cast the value of the node
 		 * into the type expected
 		 */
-		printl(n.getValue());
 
 		const ExprType type { parm.getType()};
 		try {

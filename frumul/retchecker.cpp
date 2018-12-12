@@ -27,6 +27,7 @@ namespace frumul {
 		 * statement has been found
 		 */
 		return_certified = true;
+		level = -1;
 	}
 
 	void RetChecker::set(bool b) {
@@ -38,7 +39,7 @@ namespace frumul {
 		if (!return_certified) {
 			if (block_return.size() == 1 && b) {
 				// in this case, the return statement is certified
-				return_certified = true;
+				deactivate();
 			} else
 				block_return.at(level-1) = b;
 		}
@@ -58,9 +59,11 @@ namespace frumul {
 		 * and push a false in the stack
 		 * return current level
 		 */
-		++level;
-		block_return.push(false);
-		assert(level == block_return.size() && "Level and stack size don't match");
+		if (!return_certified) {
+			++level;
+			block_return.push(false);
+			assert(level == block_return.size() && "Level and stack size don't match");
+		}
 		return level;
 	}
 
@@ -70,8 +73,10 @@ namespace frumul {
 		 * Be careful.
 		 * return current level
 		 */
-		assert(level > 0 && "Level is under zero");
-		--level;
+		if (!return_certified) {
+			assert(level > 0 && "Level is under zero");
+			--level;
+		}
 		return level;
 	}
 
