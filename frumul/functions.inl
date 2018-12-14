@@ -105,6 +105,18 @@ namespace frumul {
 			}
 		}
 
+	template <typename T>
+		T modulus(T x, T m) {
+			/* Return the real modulus,
+			 * even for negative numbers
+			 * T is supposed to be an integer type
+			 */
+			//https://stackoverflow.com/questions/1082917/mod-of-negative-number-is-melting-my-brain
+			return (x % m + m) % m;
+		}
+
+
+
 	// overloaded functions: from text to T
 	template <typename T>
 		T text_to(const bst::str& s) {
