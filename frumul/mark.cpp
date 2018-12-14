@@ -69,6 +69,17 @@ namespace frumul {
 		return val;
 	}
 
+	int Mark::afterArgsNumber() const {
+		/* Return the number of tags expected after each arg.
+		 * It is equal to the number of arguments expected
+		 */
+		return val - 1;
+	}
+
+	const PosVect& Mark::getPositions() const {
+		return positions;
+	}
+
 	bst::str Mark::toString() const {
 		/* Representation of the Mark
 		 */

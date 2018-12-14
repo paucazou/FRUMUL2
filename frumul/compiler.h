@@ -43,6 +43,7 @@ namespace frumul {
 			RetChecker rtc;
 			Symbol& parent;
 			const bst::str& lang;
+			int unsafe_args_remainder;
 			std::vector<E::any>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
 			std::unique_ptr<SymbolTab> symbol_table{std::make_unique<SymbolTab>()};
@@ -92,6 +93,7 @@ namespace frumul {
 			ExprType visit_loop(const Node& n);
 			ExprType visit_symcall(const Node& n);
 			ExprType visit_unary_op(const Node& n);
+			ExprType visit_unsafe_arg(const Node& n);
 			ExprType visit_val_text(const Node& n);
 			ExprType visit_variable_assignment(const Node& n);
 			ExprType visit_variable_declaration(const Node& n);

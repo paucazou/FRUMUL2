@@ -292,7 +292,8 @@ namespace frumul {
 		 * Node returned may be of various types.
 		 */
 		if (current_token->getType() == Token::RBRACE)
-			return Node{Node::EMPTY,current_token->getPosition()};
+			// we know it is the placeholder for a unsafe arg
+			return Node{Node::UNSAFE_ARG,current_token->getPosition()};
 
 		if (current_token->getType() != Token::VARIABLE) // we know it is not a statement
 			return bin_op(Token::OR); 

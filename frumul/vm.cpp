@@ -33,6 +33,7 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 /* COMPARE syntax
  * 	COMPARISON_TYPE (BOOL_EQUAL,BOOL_INFERIOR,etc.)
  * 	TYPE (TEXT,INT, BOOL, etc.)
+ * 	For Symbols, it's true if the two symbols refers to the same object.
  */
 #define COMPARE(op) \
 	do { \
@@ -46,6 +47,9 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 				break; \
 		case ET::BOOL: \
 			       stack.push(pop<bool>() op pop<bool>()); \
+				break; \
+		case ET::SYMBOL: \
+				 stack.push(&pop<RSymbol&>() op &pop<RSymbol&>()); \
 				break; \
 		default: \
 			 assert(false&&"Type unknown"); \

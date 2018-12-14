@@ -27,7 +27,9 @@ namespace frumul {
 			// get the value
 			int get () const;
 			int operator ()() const;
+			int afterArgsNumber() const;
 			// representation
+			const PosVect& getPositions() const;
 			bst::str toString() const;
 			friend std::ostream& operator<<(std::ostream& out,const Mark& m);
 		private:

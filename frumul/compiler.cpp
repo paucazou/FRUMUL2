@@ -2,6 +2,7 @@
 // Note: do not forget that what is at right should be push in the stack first
 
 namespace frumul {
+	const bst::str unsafe_name { "0_unsafe_args_" };
 
 	/*
 	Compiler::Compiler(Symbol& s, const bst::str& lang) :
@@ -23,7 +24,7 @@ namespace frumul {
 	// __compiler
 
 	__compiler::__compiler (const Node& n, const ExprType& rt, Symbol& s,const bst::str& nlang) :
-		node{n}, return_type{rt}, bytecode{s}, rtc{rt != ET::TEXT}, parent{s}, lang{nlang}
+		node{n}, return_type{rt}, bytecode{s}, rtc{rt != ET::TEXT}, parent{s}, lang{nlang}, unsafe_args_remainder{s.getMark().afterArgsNumber()}
 	{
 	}
 
@@ -33,6 +34,10 @@ namespace frumul {
 		if (!bytecode) {
 			if (return_type != ET::VOID)
 				symbol_table->append("",return_type,node.getPosition()); //an empty name is the only one that can't be set by the user
+			// manages, if necessary, the unsafe args
+			if (unsafe_args_remainder)
+				symbol_table->append(unsafe_name,ET::TEXT,node.getPosition()); // an name starting by a digit cannot be used by the user
+				
 			visitParameters();
 			visit(node);
 			bytecode.addVariable(symbol_table->variableNumber());
@@ -146,6 +151,7 @@ namespace frumul {
 			case Node::LOOP:		return visit_loop(n);
 			case Node::SYMCALL:		return visit_symcall(n);
 			case Node::UNARY_OP:		return visit_unary_op(n);
+			case Node::UNSAFE_ARG:		return visit_unsafe_arg(n);
 			case Node::VAL_TEXT:		return visit_val_text(n);
 			case Node::VARIABLE_ASSIGNMENT:	return visit_variable_assignment(n);
 			case Node::VARIABLE_DECLARATION:return visit_variable_declaration(n); 
@@ -290,7 +296,7 @@ namespace frumul {
 	ExprType __compiler::visit_comparison(const Node& n) {
 		/* Compile a comparison
 		 */
-#pragma message "add list and symbol comparison ? "
+#pragma message "add list comparison "
 		// positions relative to the first operand
 		constexpr int right_operand_pos{2};
 		constexpr int operator_pos{1};
@@ -494,8 +500,8 @@ namespace frumul {
 		appendInstructions(BT::LIST_APPEND);
 
 		for (unsigned int i{1}; i < n.size();++i) {
-			if (visit(n.get(i)) != elt_type)
-				throw iexc(exc::InconsistantType,bst::str(i) + " element is of different type than the previous elements of the list. First element: ",n.get(0).getPosition(),"Element of other type",n.get(i).getPosition());
+			if (visit(n.get(static_cast<int>(i))) != elt_type)
+				throw iexc(exc::InconsistantType,bst::str(i) + " element is of different type than the previous elements of the list. First element: ",n.get(0).getPosition(),"Element of other type",n.get(static_cast<int>(i)).getPosition());
 			appendInstructions(BT::LIST_APPEND);
 		}
 
@@ -611,7 +617,7 @@ namespace frumul {
 					int index_of_zero {bytecode.addConstant(0)};
 					// create a hidden variable
 					 VarSymbol *v_s = &symbol_table->append(SymbolTab::next(),ET::INT,n.get("condition").getPosition());
-					 hidden_variable_i = v_s->getIndex();
+					 hidden_variable_i = static_cast<unsigned int>(v_s->getIndex());
 					 //appendAndPushConstant<int>(v_s->getIndex());
 					 appendInstructions(BT::ASSIGN,hidden_variable_i);
 					 //v_s->markDefined();
@@ -634,7 +640,7 @@ namespace frumul {
 				case ET::INT: {
 					has_int_variable= true;
 					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),ET::INT);
-					hidden_variable_i = v_s->getIndex();
+					hidden_variable_i = static_cast<unsigned int>(v_s->getIndex());
 					appendInstructions(BT::ASSIGN,hidden_variable_i);
 					//v_s->markDefined();
 
@@ -650,11 +656,11 @@ namespace frumul {
 					has_iterable_variable = true;
 					// create variable if necessary
 					VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),ET::TEXT);
-					hidden_variable_i = v_s->getIndex();
+					hidden_variable_i = static_cast<unsigned int>(v_s->getIndex());
 					//v_s->markDefined();
 					// create hidden variable to save the index
 					VarSymbol* hidden_index = &symbol_table->append(SymbolTab::next(),ET::TEXT,n.getPosition());
-					hidden_index_i = hidden_index->getIndex();
+					hidden_index_i = static_cast<unsigned int>(hidden_index->getIndex());
 					const int index_of_zero{bytecode.addConstant(0)};
 					const size_t steps{
 						insertInstructions(start_of_loop,
@@ -684,12 +690,12 @@ namespace frumul {
 						has_iterable_variable = true;
 						// create variable if necessary
 						VarSymbol* v_s = &getOrCreateVarSymbol(n.get("variable"),elt_type);
-						hidden_variable_i = v_s->getIndex();
+						hidden_variable_i = static_cast<unsigned int>(v_s->getIndex());
 						//v_s->markDefined();
 						// create hidden variable to save the index
 						VarSymbol* hidden_index = &symbol_table->append(SymbolTab::next(),elt_type,n.getPosition());
 
-						hidden_index_i = hidden_index->getIndex();
+						hidden_index_i = static_cast<unsigned int>(hidden_index->getIndex());
 						const int index_of_zero{bytecode.addConstant(0)};
 						const size_t steps{
 							insertInstructions(start_of_loop,
@@ -860,6 +866,22 @@ namespace frumul {
 		return rt;
 	}
 
+	ExprType __compiler::visit_unsafe_arg(const Node& n) {
+		/* Compile an unsafe argument
+		 */
+		if (unsafe_args_remainder <= 0)
+			throw iexc(exc::ArgumentNBError,"Too many calls of unsafe arguments. Call in excess: ",n.getPosition(),"Number defined here: ", parent.getMark().getPositions());
+
+		int index = parent.getMark().afterArgsNumber() - unsafe_args_remainder;
+		--unsafe_args_remainder;
+
+		appendInstructions(BT::PUSH,ET::VARIABLE,symbol_table->getIndex(unsafe_name));
+		appendAndPushConstant<int>(index);
+		appendInstructions(BT::LIST_GET_ELT);
+
+		return ET::TEXT;
+	}
+
 	ExprType __compiler::visit_val_text(const Node& n) {
 		/* Append text to the return value
 		 */
@@ -981,7 +1003,7 @@ namespace frumul {
 		if (n.has(0)) {
 			if (symbol_table->getType(name) == ET::TEXT)
 				return visit_index(n);
-			else if (symbol_table->getType(name) >= ET::LIST) {
+			else if (symbol_table->getType(name) & ET::LIST) {
 				// modify the node to match with node expected
 				// by visit_list_with_index
 				NodeVector fields;
