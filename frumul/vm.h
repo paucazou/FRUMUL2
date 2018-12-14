@@ -47,6 +47,7 @@ namespace frumul {
 			void jump_false();
 			void call();
 			void cast();
+			void modulo();
 			void list_append();
 			void list_get_elt();
 			void list_set_elt();

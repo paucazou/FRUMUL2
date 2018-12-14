@@ -116,7 +116,7 @@ namespace frumul {
 				case BT::INT_MUL:	BINARY_OP_INT(*); break;
 				case BT::INT_DIV:	BINARY_OP_INT_DIVISION(/); break;
 				case BT::INT_SUB:	BINARY_OP_INT(-); break;
-				case BT::INT_MOD:	BINARY_OP_INT_DIVISION(%); break;
+				case BT::INT_MOD:	modulo();break;
 				case BT::INT_NEG:	UNARY_OP(-,int); break;
 				case BT::INT_POS:	UNARY_OP(+,int); break;
 				case BT::TEXT_ADD:	BINARY_OP_SAME_TYPE(+,bst::str);break;
@@ -180,6 +180,16 @@ namespace frumul {
 		// push elements on stack
 		stack.push(len);
 
+	}
+
+	void VM::modulo() {
+		/* give the modulus
+		 */
+		auto a {pop<int>()};
+		auto b {pop<int>()};
+		if (b == 0)
+			throw BackException(exc::DivisionByZero);
+		stack.push(modulus<int>(a,b));
 	}
 
 	void VM::jump_true() {
@@ -525,7 +535,7 @@ namespace frumul {
 		 * 	LIST_GET_ELT
 		 * 	pop(index)
 		 * 	pop(list)
-		 * 	push(list)
+		 * 	push(elt)
 		 */
 		
 		// get index
