@@ -528,11 +528,6 @@ namespace frumul {
 		// save the right list in a temporary variable
 		VarSymbol& right_id {symbol_table->append(SymbolTab::next(),right_rt,right.getPosition())};
 		appendInstructions(BT::ASSIGN,right_id.getIndex());
-		// check that the lens match.
-		// if they don't match, the comparison fails.
-		// length of right list
-		appendInstructions(BT::PUSH,ET::VARIABLE,right_id.getIndex(),
-				BT::LENGTH,ET::LIST);
 		// compile the left list
 		ExprType left_rt {visit(left)};
 		// save the left list in a temporary variable
@@ -541,7 +536,21 @@ namespace frumul {
 		// check if types match
 		if (left_rt != right_rt)
 			throwInconsistentType(left_rt,right_rt,left,right);
-		const ExprType& type{ right_rt};
+
+		compare_lists(right_id,left_id);
+		
+		return ET::BOOL;
+	}
+
+	ExprType __compiler::compare_lists(VarSymbol& right_id, VarSymbol& left_id) {
+		/* Compare two lists saved in right_id and left_id.
+		 * Return a vector of sources to jump to the same target
+		 */
+		const ExprType& type{ right_id.getType()};
+		// length of right list
+		appendInstructions(BT::PUSH,ET::VARIABLE,right_id.getIndex(),
+				BT::LENGTH,ET::LIST);
+
 		// length of the left list + comparison of the lengths
 		appendInstructions(BT::PUSH,ET::VARIABLE,left_id.getIndex(),
 				BT::LENGTH,ET::LIST,
@@ -550,7 +559,7 @@ namespace frumul {
 		auto jump_after_len_pos{code.size()};
 
 		// get the length (bis repetita placent)
-		VarSymbol& step { symbol_table->append(SymbolTab::next(),ET::INT,right.getPosition()) };
+		VarSymbol& step { symbol_table->append(SymbolTab::next(),ET::INT,right_id.getPosition()) };
 		appendAndPushConstant<int>(1);
 		appendInstructions(BT::PUSH,ET::VARIABLE,right_id.getIndex(),
 				BT::LENGTH,ET::LIST,
@@ -563,16 +572,33 @@ namespace frumul {
 				BT::BOOL_INFERIOR,ET::INT,
 				BT::JUMP_TRUE,0,0); // if index == 0, we jump to the end of the loop
 		auto jump_after_condition{code.size()};
-		// push each element on the stack
-		appendInstructions(BT::PUSH,ET::VARIABLE,right_id.getIndex(),
-				BT::PUSH,ET::VARIABLE,step.getIndex(),
-				BT::LIST_GET_ELT);
-		appendInstructions(BT::PUSH,ET::VARIABLE,left_id.getIndex(),
-				BT::PUSH,ET::VARIABLE,step.getIndex(),
-				BT::LIST_GET_ELT);
-		// compare each element
-		appendInstructions(BT::BOOL_EQUAL,type.getContained(),
-				BT::JUMP_FALSE,0,0);
+
+		if (type.getContained() & ET::LIST) {
+			VarSymbol& nright_id { symbol_table->append(SymbolTab::next(),type.getContained(),right_id.getPosition()) };
+			VarSymbol& nleft_id { symbol_table->append(SymbolTab::next(),type.getContained(),left_id.getPosition()) };
+			// push each element on the stack
+			appendInstructions(BT::PUSH,ET::VARIABLE,right_id.getIndex(),
+					BT::PUSH,ET::VARIABLE,step.getIndex(),
+					BT::LIST_GET_ELT,
+					BT::ASSIGN,nright_id.getIndex(),
+
+					BT::PUSH,ET::VARIABLE,left_id.getIndex(),
+					BT::PUSH,ET::VARIABLE,step.getIndex(),
+					BT::LIST_GET_ELT,
+					BT::ASSIGN,nleft_id.getIndex());
+			compare_lists(nright_id,nleft_id);
+		} else {
+			// push each element on the stack
+			appendInstructions(BT::PUSH,ET::VARIABLE,right_id.getIndex(),
+					BT::PUSH,ET::VARIABLE,step.getIndex(),
+					BT::LIST_GET_ELT);
+			appendInstructions(BT::PUSH,ET::VARIABLE,left_id.getIndex(),
+					BT::PUSH,ET::VARIABLE,step.getIndex(),
+					BT::LIST_GET_ELT);
+			// compare each element
+			appendInstructions(BT::BOOL_EQUAL,type.getContained());
+		}
+		appendInstructions(BT::JUMP_FALSE,0,0);
 		auto jump_after_comparison{code.size()};
 		// jump to the start of the loop
 		appendAndPushConstant<int>(1);
@@ -591,7 +617,6 @@ namespace frumul {
 		setJump(jump_after_condition,code.size());
 		appendAndPushConstant<bool>(true);
 		setJump(jump_after_false_case,code.size());
-		
 		return ET::BOOL;
 	}
 
