@@ -303,23 +303,31 @@ namespace frumul {
 		constexpr int next_left_operand{2};
 
 		for (size_t i{0}; i < n.getNumberedChildren().size()-next_left_operand; i+=next_left_operand) {
+			const Node& right {n.get(i + right_operand_pos) };
+			const Node& left {n.get(i) };
 			// get right operand
-			ExprType right_rt{visit(n.get(i + right_operand_pos))};
-			// get left operand
-			ExprType left_rt{visit(n.get(i))};
-
-			// check if types match
-			if (left_rt != right_rt)
-				throwInconsistentType(left_rt,right_rt,n.get(0),n.get(i));
-			// if op is <,>, <= or >=, check if type is INT
+			ExprType right_rt{visit(right)};
+			// get the op
 			const Node& op {n.get(i+operator_pos)};
-			if (op.getValue() != "=" && left_rt != ET::INT)
-				throw exc(exc::InvalidOperator,op.getValue() + " can not be used with type " + left_rt.toString(),op.getPosition());
+			// if op is <,>, <= or >=, check if type is INT
+			if (op.getValue() != "=" && right_rt != ET::INT)
+				throw exc(exc::InvalidOperator,op.getValue() + " can not be used with type " + right_rt.toString(),op.getPosition());
 
-			// set operator
-			visit_compare_op(op);
-			// set type of values compared
-			code.push_back(left_rt); // we know left_rt match with right_rt
+			if (right_rt & ET::LIST)
+				visit_list_comparison(right,left,right_rt);
+			else {
+				// get left operand
+				ExprType left_rt{visit(left)};
+
+				// check if types match
+				if (left_rt != right_rt)
+					throwInconsistentType(left_rt,right_rt,n.get(0),n.get(i));
+
+				// set operator
+				visit_compare_op(op);
+				// set type of values compared
+				code.push_back(left_rt); // we know left_rt match with right_rt
+			}
 
 			// if multiple comparison
 			if (i) 
@@ -509,6 +517,82 @@ namespace frumul {
 
 		//return static_cast<ExprType>(elt_type + ET::LIST); // set the depth of the list by adding it
 		return ExprType(ET::LIST,elt_type);
+	}
+
+	ExprType __compiler::visit_list_comparison(const Node& right,const Node& left, const ExprType& right_rt) {
+		/* Manages the comparison between two lists, right and left.
+		 * The right list must have been compiled before entering
+		 * this function
+		 * The sign is supposed to be '='.
+		 */
+		// save the right list in a temporary variable
+		VarSymbol& right_id {symbol_table->append(SymbolTab::next(),right_rt,right.getPosition())};
+		appendInstructions(BT::ASSIGN,right_id.getIndex());
+		// check that the lens match.
+		// if they don't match, the comparison fails.
+		// length of right list
+		appendInstructions(BT::PUSH,ET::VARIABLE,right_id.getIndex(),
+				BT::LENGTH,ET::LIST);
+		// compile the left list
+		ExprType left_rt {visit(left)};
+		// save the left list in a temporary variable
+		VarSymbol& left_id { symbol_table->append(SymbolTab::next(),left_rt,left.getPosition())};
+		appendInstructions(BT::ASSIGN,left_id.getIndex());
+		// check if types match
+		if (left_rt != right_rt)
+			throwInconsistentType(left_rt,right_rt,left,right);
+		const ExprType& type{ right_rt};
+		// length of the left list + comparison of the lengths
+		appendInstructions(BT::PUSH,ET::VARIABLE,left_id.getIndex(),
+				BT::LENGTH,ET::LIST,
+				BT::BOOL_EQUAL,ET::INT,
+				BT::JUMP_FALSE,0,0);
+		auto jump_after_len_pos{code.size()};
+
+		// get the length (bis repetita placent)
+		VarSymbol& step { symbol_table->append(SymbolTab::next(),ET::INT,right.getPosition()) };
+		appendAndPushConstant<int>(1);
+		appendInstructions(BT::PUSH,ET::VARIABLE,right_id.getIndex(),
+				BT::LENGTH,ET::LIST,
+				BT::INT_SUB, // length -1
+				BT::ASSIGN,step.getIndex());
+		// set the loop
+		auto pos_before_condition{code.size()};
+		appendAndPushConstant<int>(0);	
+		appendInstructions(BT::PUSH,ET::VARIABLE,step.getIndex(),
+				BT::BOOL_INFERIOR,ET::INT,
+				BT::JUMP_TRUE,0,0); // if index == 0, we jump to the end of the loop
+		auto jump_after_condition{code.size()};
+		// push each element on the stack
+		appendInstructions(BT::PUSH,ET::VARIABLE,right_id.getIndex(),
+				BT::PUSH,ET::VARIABLE,step.getIndex(),
+				BT::LIST_GET_ELT);
+		appendInstructions(BT::PUSH,ET::VARIABLE,left_id.getIndex(),
+				BT::PUSH,ET::VARIABLE,step.getIndex(),
+				BT::LIST_GET_ELT);
+		// compare each element
+		appendInstructions(BT::BOOL_EQUAL,type.getContained(),
+				BT::JUMP_FALSE,0,0);
+		auto jump_after_comparison{code.size()};
+		// jump to the start of the loop
+		appendAndPushConstant<int>(1);
+		appendInstructions(BT::PUSH,ET::VARIABLE,step.getIndex(),
+				BT::INT_SUB,
+				BT::ASSIGN,step.getIndex(),
+				BT::JUMP,0,0);
+		setJump(code.size(),pos_before_condition);
+		setJump(jump_after_len_pos,code.size());
+		setJump(jump_after_comparison,code.size());
+		// set the false case
+		appendAndPushConstant<bool>(false);
+		appendInstructions(BT::JUMP,0,0); // jump after the true case
+		auto jump_after_false_case{ code.size() };
+		// set the true case
+		setJump(jump_after_condition,code.size());
+		appendAndPushConstant<bool>(true);
+		setJump(jump_after_false_case,code.size());
+		
+		return ET::BOOL;
 	}
 
 	ExprType __compiler::visit_list_with_index(const Node& n) {

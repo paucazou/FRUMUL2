@@ -6,10 +6,10 @@
  */
 
 #include <cassert>
+#include <list>
 #include <map>
 #include <stdexcept>
 #include <unordered_map>
-#include <vector>
 #include "bytecode.h"
 #include "exception.h"
 #include "macros.h"
@@ -32,7 +32,7 @@ namespace frumul {
 
 			bst::str name;
 			ExprType type;
-			int nb;
+			const int nb;
 			int scope{0};
 			Position pos;
 	};
@@ -60,7 +60,7 @@ namespace frumul {
 			static int next();
 
 		private:
-			std::vector<VarSymbol> content;
+			std::list<VarSymbol> content;
 			int current_scope{-1};
 			int last_scope{-1}; // start at -1 because first one is 0
 			std::unordered_map<int,int> scopes; // <child,parent>

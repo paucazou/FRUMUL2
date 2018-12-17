@@ -84,6 +84,7 @@ namespace frumul {
 			ExprType visit_index(const Node& n);
 			ExprType visit_index_assignment(const Node& n);
 			ExprType visit_list(const Node& n);
+			ExprType visit_list_comparison (const Node&, const Node&,const ExprType&) ;
 			ExprType visit_list_with_index(const Node& n);
 			ExprType visit_list_type_declaration(const Node& n,const ExprType& primitive);
 			ExprType visit_litbool(const Node& n);
