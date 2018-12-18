@@ -296,7 +296,6 @@ namespace frumul {
 	ExprType __compiler::visit_comparison(const Node& n) {
 		/* Compile a comparison
 		 */
-#pragma message "add list comparison "
 		// positions relative to the first operand
 		constexpr int right_operand_pos{2};
 		constexpr int operator_pos{1};

@@ -69,7 +69,7 @@ namespace frumul {
 		bt{nbt}, it{nbt.getBegin()}, lang{nlang}
 	{
 		// resize variables vector
-		variables.resize(bt.getVariableNumber());
+		variables.resize(static_cast<unsigned long>(bt.getVariableNumber()));
 		// fill the variables with the arguments
 		// Absolutely no check is done
 		// the variables are filled in the order of the args
@@ -260,7 +260,7 @@ namespace frumul {
 		int arg_byte_nb{*++it};
 		// create the list to return
 		std::vector<Arg> args;
-		args.reserve(arg_byte_nb);
+		args.reserve(static_cast<unsigned long>(arg_byte_nb));
 
 		// iterate to get the arguments
 		for (;arg_byte_nb > 0;--arg_byte_nb) {
@@ -430,23 +430,29 @@ namespace frumul {
 		if (t & ET::STACK_ELT) {
 			int i{pop<int>()};
 			bst::str s {pop<bst::str>()};
-			stack.push(s.uAt(negative_index(i,s.uLength(),true)));
+			stack.push(
+				static_cast<unsigned int>(s.uAt(
+						static_cast<int>(negative_index(i,static_cast<unsigned int>(s.uLength()),true)))
+				)
+				);
 		}
 		else
 		{
 			// get references
-			int data_nb { pop<int>() };
+			auto data_nb { pop<unsigned int>() };
 			int data_index { pop<int>() }; 	
 			
 			// get string and push element on the stack
 			if (t & ET::CONSTANT) {
 				const bst::str& s{E::any_cast<const bst::str&>(bt.getConstant(data_nb))};
-				stack.push(s.uAt(negative_index(data_index,s.uLength(),true)));
+				auto ls{static_cast<unsigned int>(s.uLength())};
+				stack.push(s.uAt(static_cast<int>(negative_index(data_index,ls,true))));
 			}
 			// from variable
 			else {
 				bst::str& s{E::any_cast<bst::str&>(variables[data_nb])};
-				stack.push(s.uAt(negative_index(data_index,s.uLength(),true)));
+				auto ls{static_cast<unsigned int>(s.uLength())};
+				stack.push(s.uAt(static_cast<int>(negative_index(data_index,ls,true))));
 			}
 		}
 
@@ -460,8 +466,8 @@ namespace frumul {
 		 * 	pop(index_of_char)
 		 * 	pop(char)
 		 */
-		int text_var {pop<int>()};
-		int index{pop<int>()};
+		auto text_var {pop<unsigned int>()};
+		auto index{pop<int>()};
 		const bst::str c{pop<const bst::str>()};
 		// check that c has a 1 length
 		if (c.uLength() != 1)
@@ -470,7 +476,9 @@ namespace frumul {
 		bst::str& var{E::any_cast<bst::str&>(variables[text_var])};
 
 		// index error is catched thanks to negative_index
-		var.uReplace(negative_index(index,var.uLength(),true),c);
+		auto ls{static_cast<unsigned int>(var.uLength())};
+		int neg_idx { static_cast<int>(negative_index(index,ls,true)) };
+		var.uReplace(neg_idx,c);
 	}
 
 	void VM::list_set_elt() {
@@ -488,7 +496,7 @@ namespace frumul {
 		// Set a char or an element of the list ?
 		bool is_char_to_set{static_cast<bool>(*++it)};
 		// get the id of the list
-		int var_i {pop<int>()};
+		unsigned int var_i {pop<unsigned int>()};
 
 		AnyVector* list{E::any_cast<AnyVector>(&variables[var_i])};
 		bst::str* text_ptr{nullptr};
@@ -516,7 +524,7 @@ namespace frumul {
 				throw BackException(exc::ValueError);
 
 			// index error is catched thanks to negative_index
-			text_ptr->uReplace(negative_index(last_index,text_ptr->uLength(),true),c);
+			text_ptr->uReplace(static_cast<int>(negative_index(last_index,static_cast<unsigned int>(text_ptr->uLength())),true),c);
 
 		}
 		else {
@@ -557,7 +565,7 @@ namespace frumul {
 		 * 	INDEX
 		 */
 		ET::Type t{static_cast<ET::Type>(*++it)};
-		int i{*++it};
+		unsigned int i{*++it};
 
 		if (t == ET::CONSTANT) {
 			stack.push(bt.getConstant(i));
