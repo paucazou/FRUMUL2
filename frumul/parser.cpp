@@ -1230,7 +1230,8 @@ namespace frumul {
 						value += tag().getValue();
 					} else {
 						// end of an arg
-						eat(Token::TAG,Token::MAX_TYPES_TEXT);
+						eat(Token::TAG,Token::TAIL,Token::MAX_TYPES_TEXT);
+						// we expect a tail to skip the space just after the closing tag
 						end = getTokenStart();
 					}
 					break;
