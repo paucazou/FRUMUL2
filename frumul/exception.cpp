@@ -14,6 +14,7 @@ namespace frumul {
 				rethrow_exception(last_exception);
 			}
 		       	catch (const BaseException& exc) {
+				printl(exc.what().uLength());
 				std::cerr << exc.what();
 			}
 			catch (const std::exception& exc) {

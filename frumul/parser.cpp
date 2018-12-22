@@ -1214,7 +1214,7 @@ namespace frumul {
 		constexpr int not_yet_set{-1};
 		int start {getTokenStart()};
 		int end{not_yet_set};
-		bst::str value;
+		bst::str value, name;
 
 		while (end == -1 && current_token->getType() != Token::EOFILE) {
 			switch (current_token->getType()) {
@@ -1222,17 +1222,31 @@ namespace frumul {
 					value += current_token->getValue();
 					eat(Token::SIMPLE_TEXT,Token::MAX_TYPES_TEXT);
 					break;
+				case Token::TAIL:
+					name = current_token->getValue();
+					eat(Token::TAIL,Token::MAX_TYPES_TEXT);
+					break;
 				case Token::TAG:
-					if (lex.peekToken(0,Token::TAIL,Token::MAX_TYPES_TEXT).getType() == Token::TAIL)
 					{
-						// call to another symbol as part of an arg
-#pragma message "Check that the tail does not match the name of a named parameter"
-						value += tag().getValue();
-					} else {
-						// end of an arg
-						eat(Token::TAG,Token::TAIL,Token::MAX_TYPES_TEXT);
-						// we expect a tail to skip the space just after the closing tag
-						end = getTokenStart();
+						Token next_tok { lex.peekToken(0,Token::TAIL,Token::MAX_TYPES_TEXT) };
+						if (next_tok.getType() == Token::TAIL)
+						{
+							// try to find a symbol
+							bst::str complete_tag { current_token->getValue() + next_tok.getValue() };
+							try {
+								// call to another symbol as part of an arg
+
+								header_symbol->getChildren().find(complete_tag);
+								value += tag().getValue();
+							} catch (const bst::str& ) {
+								// it must be a named parameter,
+								// so this is the end of the tag
+								end = _end_of_arg();
+							}
+
+						} else {
+							end = _end_of_arg();
+						}
 					}
 					break;
 				default:
@@ -1242,7 +1256,11 @@ namespace frumul {
 		if (end == not_yet_set)// we know we're at the end of the file, but we didn't meet a closing tag
 			throw BackException(exc::EarlyEOF);
 
-		return Node(Node::TEXTUAL_ARGUMENT,Position(start,end,filepath,source),value);
+		auto arg { Node(Node::TEXTUAL_ARGUMENT,Position(start,end,filepath,source),value) };
+		if (name)
+			return Node(Node::NAMED_ARG,Position(start,end,filepath,source),{{"arg_value",arg}},name);
+		else
+			return arg;
 	}
 
 
@@ -1286,6 +1304,16 @@ namespace frumul {
 				assert(false&&"Left bin op: error");
 		};
 		return factor(); // useless, I know. It's for the warning
+	}
+	int Parser::_end_of_arg() {
+		/* This function must be called in the arg function.
+		 * It manages the end of an arg
+		 */
+
+		// end of an arg
+		eat(Token::TAG,Token::TAIL,Token::MAX_TYPES_TEXT);
+		// we expect a tail to skip the space just after the closing tag
+		return getTokenStart();
 	}
 
 

@@ -97,6 +97,8 @@ namespace frumul {
 
 			Node left_bin_op(std::initializer_list<Token::Type>::iterator);
 
+			int _end_of_arg();
+
 			template <typename ...T>
 				Node bin_op(T ...ops) {
 					return bin_op({ops...});

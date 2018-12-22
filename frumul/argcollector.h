@@ -34,6 +34,7 @@ namespace frumul {
 			std::vector<E::any> args;
 			// functions
 			E::any format_arg(const Parameter&, const Node&);
+			void _collect(const Node&,const Parameter&);
 
 	};
 }

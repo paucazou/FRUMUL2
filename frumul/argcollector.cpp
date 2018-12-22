@@ -13,10 +13,28 @@ namespace frumul {
 	{
 	}
 
-	void ArgCollector::collect (const Node& n) {
-		assert(n.type() == Node::TEXTUAL_ARGUMENT&&"Node not recognized");
-		// get matching parameter
-		const Parameter& parm { queue(n.getValue(),n.getPosition()) };
+	void ArgCollector::collect(const Node& n) {
+		/* Wrapper of _collect
+		 * It manages the name of the arg
+		 * (if there is one)
+		 */
+		switch (n.type()) {
+			case Node::TEXTUAL_ARGUMENT:
+				_collect(n,queue(n.getValue(),n.getPosition()));
+				break;
+			case Node::NAMED_ARG:
+				_collect(n.get("arg_value"),
+					queue(n.get("arg_value").getValue(),n.getPosition())
+					);
+				break;
+			default:
+				assert(false&&"Node not recognized");
+
+		};
+	}
+
+
+	void ArgCollector::_collect (const Node& n,const Parameter& parm) {
 		// format the arg to match the type
 		// and checks it matches
 		E::any value { format_arg(parm,n) };
@@ -48,7 +66,6 @@ namespace frumul {
 		/* Try to cast the value of the node
 		 * into the type expected
 		 */
-
 		const ExprType type { parm.getType()};
 		try {
 			if (type == ExprType::INT) {
