@@ -1,4 +1,5 @@
 #include "compiler.h"
+#include "tailresult.h"
 // Note: do not forget that what is at right should be push in the stack first
 
 namespace frumul {
@@ -687,7 +688,7 @@ namespace frumul {
 		/* compile a litteral symbol
 		 */
 		try {
-			RSymbol s{parent.getChildren().find(n.getValue(),Schildren::Relative)};
+			RSymbol s{parent.getChildren().find(n.getValue(),Schildren::Relative).getSymbol()};
 			appendAndPushConstant<RSymbol>(s);
 			return ExprType(ET::SYMBOL,s.get().getReturnType());
 

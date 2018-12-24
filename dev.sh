@@ -35,6 +35,7 @@ compile () {
 		frumul/schildren.cpp\
 		frumul/symbol.cpp\
 		frumul/symboltab.cpp\
+		frumul/tailresult.cpp\
 		frumul/textto.cpp\
 		frumul/transpiler.cpp\
 		frumul/util.cpp\

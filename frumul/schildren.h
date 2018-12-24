@@ -9,11 +9,13 @@
 #include <utility>
 #include "node.h"
 #include "symbol.h"
+#include "tailresult.h"
 //#include "header.h"
 
 namespace frumul {
 	// forward declaration. Symbol is included in symbol.h
 	class Symbol;
+	class TailResult;
 
 	class Schildren {
 		/* Table of Symbol children
@@ -41,7 +43,7 @@ namespace frumul {
 			bool hasParent() const;
 			// finders
 
-			Symbol& find(const bst::str& path, PathFlag flag=PathFlag::No) ;
+			TailResult find(const bst::str& path, const PathFlag flag=PathFlag::No) ;
 			// const getters
 			const Symbol& getChild(const bst::str& name) const;
 			const std::list<Symbol>& getChildren() const;
@@ -53,6 +55,8 @@ namespace frumul {
 		private:
 			Symbol* parent{nullptr};
 			std::list<Symbol> children;
+			// functions
+			TailResult _findRestOfTail(const bst::str&,const PathFlag flag=PathFlag::No);
 	};
 }
 #endif

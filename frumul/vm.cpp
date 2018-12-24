@@ -340,7 +340,7 @@ namespace frumul {
 							// get the real type
 							
 							try {
-							RSymbol child = parent.getChildren().find(s,Schildren::Relative);
+							RSymbol child = parent.getChildren().find(s,Schildren::Relative).getSymbol();
 							ExprType type_expected{getRealType()};
 							stack.push(child);
 							if (child.get().getReturnType() != type_expected)

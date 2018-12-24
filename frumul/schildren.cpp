@@ -97,7 +97,7 @@ namespace frumul {
 
 	// finders
 	
-	Symbol& Schildren::find(const bst::str& path, PathFlag flag) {
+	TailResult Schildren::find(const bst::str& path, const PathFlag flag) {
 		/* Looks in children to find a requested symbol.
 		 * Order : long name, short name, separation dots.
 		 * If it has a remain, transmits it to the child
@@ -133,7 +133,7 @@ namespace frumul {
 				if (name.uLength() == path.uLength())
 					return child;
 				bst::str npath{path.uRange(name.uLength(),path.uLength() -1)};
-				return child.getChildren().find(npath);
+				return child.getChildren().find(npath,flag);
 				
 			}
 		}
@@ -149,14 +149,21 @@ namespace frumul {
 					return child;
 
 				bst::str npath{path.uRange(1,path.uLength() - 1) };
-				return child.getChildren().find(npath);
+				return child.getChildren().find(npath,flag);
 			}
 		}
 
 		// is there a dot ?
 		if (path.uAt(0) == ".")
-			if (path.uLength() > 1)
-				return find(path.uRange(1,path.uLength() -1));
+			if (path.uLength() > 1) {
+				try {
+					return find(path.uRange(1,path.uLength() -1),flag);
+				} catch (const bst::str&) {
+					return _findRestOfTail(path,flag);
+				}
+			}
+		if (flag & PathFlag::Privileged || flag & PathFlag::Parameter)
+			return _findRestOfTail(path,flag);
 
 		throw path; // this must be caught
 	}
@@ -205,5 +212,20 @@ namespace frumul {
 		Symbol& s {appendChild()};
 		s.getName().add(name);
 		return s;
+	}
+
+	TailResult Schildren::_findRestOfTail(const bst::str& path, const PathFlag flag) {
+		/* Manages the end of the tail and return the correct result
+		 */
+		auto result { TailResult(*parent) };
+
+		if ((flag & PathFlag::Parameter) && parent->getParameters().contains(path)) {
+			result.setParameterName(path);
+		} else if (flag & PathFlag::Privileged) {
+			result.setPrivilegedArgument(path);
+		}
+		else
+			throw path;
+		return result;
 	}
 }

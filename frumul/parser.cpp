@@ -3,6 +3,7 @@
 #include <system_error>
 #include "parser.h"
 #include "argcollector.h"
+#include "tailresult.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -1176,7 +1177,8 @@ namespace frumul {
 			eat(Token::TAIL,Token::MAX_TYPES_TEXT);
 		}
 		// get the symbol
-		Symbol& s{header_symbol->getChildren().find(tag)};
+		TailResult tail_result{header_symbol->getChildren().find(tag)};
+		Symbol& s { tail_result.getSymbol() };
 		// get the args
 		auto collector { ArgCollector(s,transpiler->getLang()) };
 		while (collector.expectsArgs()) {

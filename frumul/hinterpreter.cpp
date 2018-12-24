@@ -1,4 +1,6 @@
 #include <cassert>
+#include "hinterpreter.h"
+#include "tailresult.h"
 #if DEBUG
 #include "../tests/tests.h"
 #endif
@@ -280,7 +282,7 @@ namespace frumul {
 		if (!sym.getMark()()) {
 			try {
 				for (int i{0};; ++i){
-					InheritedOptions& io {inherited_stack.topMin(i)};
+					InheritedOptions& io {inherited_stack.topMin(static_cast<unsigned int>(i))};
 					if (io.hasMark()) {
 						sym.getMark().set(io.getMark());
 						break;
@@ -295,7 +297,7 @@ namespace frumul {
 		if (langs.empty()) {
 			try {
 				for (int i{0};; ++i){
-					InheritedOptions& io{inherited_stack.topMin(i)};
+					InheritedOptions& io{inherited_stack.topMin(static_cast<unsigned int>(i))};
 					if (io.hasLangs()) {
 						for(const auto& l : io.getLangs())
 							langs.push_back(l);
@@ -371,7 +373,7 @@ namespace frumul {
 			Alias& alias {symbol_alias.getAlias()};
 			// set the alias
 			try {
-				alias.setVal(children.find(alias.getPath(),Schildren::Relative));
+				alias.setVal(children.find(alias.getPath(),Schildren::Relative).getSymbol());
 			} catch (bst::str& e) {
 				throw exc(exc::SymbolNotFound,bst::str("No symbol found for this path: ") + e,alias.getPosition());
 			}
