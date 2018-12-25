@@ -2,7 +2,6 @@
 #include <experimental/filesystem>
 #include <system_error>
 #include "parser.h"
-#include "argcollector.h"
 #include "tailresult.h"
 
 namespace fs = std::experimental::filesystem;
@@ -1177,10 +1176,20 @@ namespace frumul {
 			eat(Token::TAIL,Token::MAX_TYPES_TEXT);
 		}
 		// get the symbol
-		TailResult tail_result{header_symbol->getChildren().find(tag)};
+		TailResult tail_result;
+		try {
+			tail_result = header_symbol->getChildren().find(
+					tag,Schildren::PathFlag(Schildren::Privileged | Schildren::Parameter));
+		} catch (const bst::str& s) {
+			throw exc(exc::NameError,bst::str("In the tag '") + tag + "', '" + s + "' was not recognized",*pos);
+		}
 		Symbol& s { tail_result.getSymbol() };
 		// get the args
 		auto collector { ArgCollector(s,transpiler->getLang()) };
+		// if the end of the tail is a privileged parameter
+		if (tail_result.hasPrivilegedArgument())
+			_manage_privileged_parameter(tail_result.getPrivilegedArgument(),*pos,collector);
+		// if the end of the tail is a named parameter
 		while (collector.expectsArgs()) {
 			Token last_tok {*current_token};
 			try {
@@ -1316,6 +1325,20 @@ namespace frumul {
 		eat(Token::TAG,Token::TAIL,Token::MAX_TYPES_TEXT);
 		// we expect a tail to skip the space just after the closing tag
 		return getTokenStart();
+	}
+
+	void Parser::_manage_privileged_parameter(const bst::str& arg,const Position& pos,ArgCollector& collector) {
+		/* Sends the privileged argument
+		 * to the arg collector.
+		 * Creates a node and sends it to
+		 * the collector.
+		 */
+		// creating the node
+		int start {pos.getEnd() - arg.uLength()};
+		auto node { Node(Node::TEXTUAL_ARGUMENT,Position(start,pos.getEnd(),filepath,source),arg) };
+
+		// giving the node to the collector
+		collector << node;
 	}
 
 

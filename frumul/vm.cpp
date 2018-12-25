@@ -1,5 +1,6 @@
 #include "vm.h"
 #include "functions.inl"
+#include "util.h"
 
 // macros
 constexpr int address_size = 2; // should be used everywhere an address is required

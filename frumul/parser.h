@@ -4,6 +4,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include "argcollector.h"
 #include "hinterpreter.h"
 #include "lexer.h"
 #include "node.h"
@@ -98,6 +99,7 @@ namespace frumul {
 			Node left_bin_op(std::initializer_list<Token::Type>::iterator);
 
 			int _end_of_arg();
+			void _manage_privileged_parameter(const bst::str&, const Position&, ArgCollector&);
 
 			template <typename ...T>
 				Node bin_op(T ...ops) {
