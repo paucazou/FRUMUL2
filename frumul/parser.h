@@ -100,6 +100,7 @@ namespace frumul {
 
 			int _end_of_arg();
 			void _manage_privileged_parameter(const bst::str&, const Position&, ArgCollector&);
+			void _manage_parameter_name_rest_of_tail(const bst::str&, const Position&,ArgCollector&);
 
 			template <typename ...T>
 				Node bin_op(T ...ops) {

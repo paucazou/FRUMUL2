@@ -1189,6 +1189,8 @@ namespace frumul {
 		// if the end of the tail is a privileged parameter
 		if (tail_result.hasPrivilegedArgument())
 			_manage_privileged_parameter(tail_result.getPrivilegedArgument(),*pos,collector);
+		if (tail_result.hasParameterName())
+			_manage_parameter_name_rest_of_tail(tail_result.getParameterName(),*pos,collector);
 		// if the end of the tail is a named parameter
 		while (collector.expectsArgs()) {
 			Token last_tok {*current_token};
@@ -1219,7 +1221,8 @@ namespace frumul {
 
 	Node Parser::arg() {
 		/* Manages an argument of a call to a value
-		 * Return a TEXTUAL_ARGUMENT Node
+		 * Return a TEXTUAL_ARGUMENT Node,
+		 * or a NAMED_ARG
 		 */
 
 		constexpr int not_yet_set{-1};
@@ -1341,6 +1344,18 @@ namespace frumul {
 		collector << node;
 	}
 
+	void Parser::_manage_parameter_name_rest_of_tail(const bst::str& name, const Position& pos,ArgCollector& collector) {
+		/* Sends a name parameter to the collector
+		 * after creating a node
+		 */
+		// creating the node
+		int start {pos.getEnd() - name.uLength()};
+		Node textual_argument{arg()};
+		auto node { Node(Node::NAMED_ARG,Position(start,textual_argument.getPosition().getEnd(),filepath,source),{{"arg_value",textual_argument}},name) };
+
+		// giving the node to the collector
+		collector << node;
+	}
 
 	std::map<bst::str,bst::str>Parser::files {};
 

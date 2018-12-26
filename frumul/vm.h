@@ -24,7 +24,11 @@ namespace frumul {
 		 * which executes
 		 * the values
 		 * of the symbols
-		 * Absolutely no check is done.
+		 * No check is done, except the following:
+		 * 	- division by zero
+		 * 	- index error
+		 * 	- cast error
+		 * Each of these errors throws an runtime error.
 		 * Bytecode must be correctly set
 		 * and checked before
 		 */
