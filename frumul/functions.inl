@@ -4,6 +4,7 @@
  * function templates
  */
 #include <deque>
+#include <experimental/any>
 #include <functional>
 #include <map>
 #include <memory>
@@ -11,6 +12,8 @@
 #include <stack>
 #include "bstrlib/bstrwrap.h"
 #include "exception.h"
+
+namespace E = std::experimental;
 
 namespace std {
 	template <typename T>
@@ -121,6 +124,15 @@ namespace frumul {
 	template <typename T>
 		T text_to(const bst::str& s) {
 			return T(s);
+		}
+
+	// cast equal
+	template <typename T>
+		bool cast_equal(const E::any& first, const E::any& second) {
+			/* true if first and second, cast to T,
+			 * are equal
+			 */
+			return E::any_cast<T>(first) == E::any_cast<T>(second);
 		}
 	
 	// Random access Stack

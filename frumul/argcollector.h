@@ -31,10 +31,11 @@ namespace frumul {
 			const Mark& mark;
 			Parameters& parameters;
 			ParmQueuer queue;
+			const bst::str& lang;
 			std::vector<E::any> args;
 			// functions
 			E::any format_arg(const Parameter&, const Node&);
-			void _collect(const Node&,const Parameter&);
+			void _collect(const Node&,Parameter&);
 
 	};
 }

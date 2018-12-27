@@ -9,7 +9,8 @@ namespace frumul {
 		symbol{s},
 		mark{symbol.getMark()},
 		parameters{symbol.getParameters()},
-		queue{symbol.getParameters().getList(), l}
+		queue{symbol.getParameters().getList(), l},
+		lang{l}
 	{
 	}
 
@@ -34,11 +35,14 @@ namespace frumul {
 	}
 
 
-	void ArgCollector::_collect (const Node& n,const Parameter& parm) {
+	void ArgCollector::_collect (const Node& n, Parameter& parm) {
 		// format the arg to match the type
 		// and checks it matches
 		E::any value { format_arg(parm,n) };
 		// check choice TODO
+		if (!parm.choiceMatch(value,lang)){
+				throw iexc(exc::ValueError,"Value entered does not match the choices set. Value entered: ",n.getPosition(),"Choices: ",parm.getChoices().getPosition());
+		}	
 		// append to args
 		args.push_back(value);
 	}

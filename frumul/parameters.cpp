@@ -416,6 +416,52 @@ namespace frumul {
 		return false;
 	}
 
+	bool Parameter::choiceMatch(const E::any& elt,const bst::str& lang) {
+		/* true if elt match one of the elements
+		 * of the choices list
+		 */
+		// if no choice has been set
+		if (!_choices && !choices)
+			return true;
+
+		// compile expression if necessary
+		if (!_choices) {
+			auto compiler { MonoExprCompiler(*choices,ExprType(ET::LIST,type),*parent,lang)};
+			auto bt { compiler.compile() };
+			auto vm { VM(bt, lang, std::vector<E::any>()) };
+			_choices = std::make_unique<std::vector<E::any>>(E::any_cast<std::vector<E::any>>(vm.run()) );
+			choices.reset();
+		}
+		// checks that elt match one of _choices
+		switch (type) { // this gets only the high level type, not the full type. It is equal to &
+			case ET::INT:
+				for (const auto& choice : *_choices)
+					if (cast_equal<int>(elt,choice))
+						return true;
+				break;
+			case ET::TEXT:
+				for (const auto& choice : *_choices)
+					if (cast_equal<bst::str>(elt,choice))
+						return true;
+				break;
+			case ET::BOOL:
+				for (const auto& choice : *_choices)
+					if (cast_equal<bool>(elt,choice))
+						return true;
+				break;
+			case ET::SYMBOL:
+				for (const auto& choice : *_choices)
+					if (cast_equal<RSymbol>(elt,choice))
+						return true;
+				break;
+			default:
+				assert(false&&"Type not recognized");
+		};
+
+		// default return: elt was not found
+		return false;
+	}
+
 	// Parameters
 	Parameters::Parameters()
 	{

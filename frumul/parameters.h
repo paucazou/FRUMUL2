@@ -59,6 +59,7 @@ namespace frumul {
 			const Node& getChoices() const;
 			const ExprType& getType() const;
 			const bst::str& getName() const;
+			bool choiceMatch(const E::any& elt,const bst::str& lang);
 			// // min/max
 			int getMin(const bst::str&) const;
 			int getMax(const bst::str&) const;
@@ -113,6 +114,7 @@ namespace frumul {
 			std::unique_ptr<Limit> limit2{nullptr};
 			uNode def;
 			uNode choices;
+			std::unique_ptr<std::vector<E::any>> _choices{nullptr};
 			Temp* temporary{nullptr};
 			std::vector<Position> pos;
 			Symbol* parent;

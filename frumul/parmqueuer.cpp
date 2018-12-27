@@ -7,7 +7,7 @@
 #include "vmtypes.h"
 
 namespace frumul {
-	ParmQueuer::ParmQueuer (CParmVect& p, const bst::str& nlang) :
+	ParmQueuer::ParmQueuer (ParmVect& p, const bst::str& nlang) :
 	parms{p}, lang{nlang}
 	{
 		/* Constructor
@@ -17,7 +17,7 @@ namespace frumul {
 
 	}
 
-	const Parameter& ParmQueuer::operator() (const bst::str& val, const Position& pos, const bst::str& name) {
+	Parameter& ParmQueuer::operator() (const bst::str& val, const Position& pos, const bst::str& name) {
 		/* This overloaded function
 		 * is a simple wrapper.
 		 * It creates a temporary Arg
@@ -29,14 +29,14 @@ namespace frumul {
 		return this->operator() (fake_arg);
 	}
 
-	const Parameter& ParmQueuer::operator() (const Arg& arg) {
+	Parameter& ParmQueuer::operator() (const Arg& arg) {
 		/* Return the next parameter
 		 * matching the arg
 		 */
 		assert(pos <= parms.size()&&"Pos is too large");
 		// get the parameter
 
-		const Parameter& parm { select_parm(arg) };
+		Parameter& parm { select_parm(arg) };
 		CRParameter crparm{parm};
 		
 		// check number
@@ -50,7 +50,7 @@ namespace frumul {
 		return parm;
 	}
 
-	const Parameter& ParmQueuer::select_parm(const Arg& arg) {
+	Parameter& ParmQueuer::select_parm(const Arg& arg) {
 		/* Select a parameter
 		 * and return it
 		 */
@@ -58,7 +58,7 @@ namespace frumul {
 		// with a name
 		if (arg.name) {
 			for (size_t i{0}; i < parms.size(); ++i) {
-				const auto& p { parms[i] };
+				auto& p { parms[i] };
 				if (p.getName() == arg.name) {
 					checked[i] = true;
 					return p;
