@@ -454,6 +454,11 @@ namespace frumul {
 					if (cast_equal<RSymbol>(elt,choice))
 						return true;
 				break;
+			case ET::LIST:
+				for (const auto& choice : *_choices)
+					if (_list_match(elt,choice,type))
+						return true;
+				break;
 			default:
 				assert(false&&"Type not recognized");
 		};
@@ -461,6 +466,40 @@ namespace frumul {
 		// default return: elt was not found
 		return false;
 	}
+
+	bool Parameter::_list_match(const E::any& first, const E::any& second, const ExprType& type) {
+		/* true if first is equal to second.
+		 * if type & ET::LIST, call this function
+		 */
+		switch (type) {
+			case ET::INT:
+				return cast_equal<int>(first,second);
+			case ET::TEXT:
+				return cast_equal<bst::str>(first,second);
+			case ET::BOOL:
+				return cast_equal<bool>(first, second);
+			case ET::SYMBOL:
+				return cast_equal<RSymbol>(first,second);
+			case ET::LIST:
+				{
+					auto first_c { E::any_cast<std::vector<E::any>>(first) };
+					auto second_c { E::any_cast<std::vector<E::any>>(second) };
+					// check the size
+					if (first_c.size() != second_c.size())
+						return false;
+					// compare each element
+					for (size_t i{0}; i < first_c.size(); ++i) {
+						if (!_list_match(first_c[i],second_c[i],type.getContained()))
+							return false;
+					}
+					return true;
+				}
+				break;
+			default:
+				assert(false&&"Type unknown");
+		};
+	}
+
 
 	// Parameters
 	Parameters::Parameters()

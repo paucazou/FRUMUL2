@@ -104,8 +104,7 @@ namespace frumul {
 				int max;
 				// TODO
 				// default ?????
-				// choices ????
-#pragma message("Default and choices are not yet set in Temp struct")
+#pragma message("Default is not yet set in Temp struct")
 			};
 
 			ExprType type;
@@ -122,6 +121,8 @@ namespace frumul {
 			Limit::Comparison comparisonValue(const bst::str&)const;
 			std::pair<int,int> calculateMinMax(const bst::str&)const;
 			std::pair<int,int> calculateMinMaxWithOneLimit(int,Limit::Comparison) const;
+			bool _list_match(const E::any&,const E::any&, const ExprType&);
+
 
 	};
 
