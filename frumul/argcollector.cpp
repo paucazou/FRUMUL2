@@ -14,6 +14,15 @@ namespace frumul {
 	{
 	}
 
+	ArgCollector::~ArgCollector() {
+		/* This destructor does nothing,
+		 * except check that all is finished
+		 */
+		assert(!multiple_parm&&"A Parameter is still in use");
+		assert(current_args_pos.size() == 0 && "Please clear the Pos vector");
+		assert(current_multiple_args.size() == 0 && "Please clear the arguments vector");
+	}
+
 	void ArgCollector::collect(const Node& n) {
 		/* Wrapper of _collect
 		 * It manages the name of the arg
@@ -34,12 +43,66 @@ namespace frumul {
 		};
 	}
 
+	void ArgCollector::finishMultipleArgs() {
+		/* Checks that all the args were collected
+		 * and put them in the main list
+		 */
+#pragma message "si un paramètre n'a pas été rempli, est-il vérifié ?" 
+		// checks
+		int nb { static_cast<int>(current_multiple_args.size()) };
+		if (multiple_parm->getMin(lang) > nb && nb > multiple_parm->getMax(lang))
+			throw iexc(exc::ArgumentNBError,
+				bst::str("The number of arguments received does not match the number required: ") + nb + " argument(s) entered. Expected minimum: " + multiple_parm->getMin(lang) + ". Maximum: " + multiple_parm->getMax(lang) + "\nArgs defined here:",
+				current_args_pos,
+				"Parameter defined here: ",
+				multiple_parm->getPositions());
+
+		// put the args in the main list
+		args.push_back(current_multiple_args);
+		// clean-up
+		queue.markFinished(*multiple_parm);
+		multiple_parm = nullptr;
+		current_multiple_args.clear();
+		current_args_pos.clear();
+	}
+
 
 	void ArgCollector::_collect (const Node& n, Parameter& parm) {
 		// format the arg to match the type
 		// and checks it matches
 		E::any value { format_arg(parm,n) };
-		// check choice TODO
+		
+		if (multiple_parm && &parm != multiple_parm)
+			finishMultipleArgs();
+		if (parm.getMax(lang) != 1) {
+			if (!multiple_parm)
+				_start_multiple_args(parm);
+			current_args_pos.push_back(n.getPosition());
+			current_multiple_args.push_back(value);
+		}
+
+		else
+			_finish_arg(n,value,parm);
+	}
+
+	void ArgCollector::_start_multiple_args(Parameter& parm) {
+		/* Start the collect of the args of a multiple parameter
+		 * If another parm has been in use before, please clean-up
+		 * before start this function
+		 */
+		assert(!multiple_parm&&"A Parameter is still in use");
+		assert(current_args_pos.size() == 0 && "Please clear the Pos vector");
+		assert(current_multiple_args.size() == 0 && "Please clear the arguments vector");
+
+		multiple_parm = &parm;
+	}
+
+
+	void ArgCollector::_finish_arg(const Node& n,const E::any& value, Parameter& parm) {
+		/* Finish to enter the value
+		 * in the args
+		 */
+		// check choice 
 		if (!parm.choiceMatch(value,lang)){
 				throw iexc(exc::ValueError,"Value entered does not match the choices set. Value entered: ",n.getPosition(),"Choices: ",parm.getChoices().getPosition());
 		}	
@@ -56,6 +119,14 @@ namespace frumul {
 		 */
 #pragma message "do not forget mark"
 		return !queue.areParametersFilled();
+	}
+
+	bool ArgCollector::isLastMultipleParmFilled() const {
+		/* true if the last parameter
+		 * with multiple args
+		 * has been filled
+		 */
+		return static_cast<int>(current_multiple_args.size()) == multiple_parm->getMax(lang);
 	}
 
 	void ArgCollector::operator << (const Node& n) {

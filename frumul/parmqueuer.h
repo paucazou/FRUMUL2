@@ -19,6 +19,7 @@ namespace frumul {
 			Parameter& operator () (const Arg&);
 			Parameter& operator () (const bst::str& val, const Position& pos, const bst::str& name = "");
 			bool areParametersFilled () const;
+			void markFinished(const Parameter&);
 		private:
 			// attributes
 			unsigned int pos{0};

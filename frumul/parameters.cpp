@@ -364,6 +364,13 @@ namespace frumul {
 		 */
 	}
 
+	Parameter::Limit::Limit(const Limit& other):
+		comparison{other.comparison}, isNode{other.isNode},
+		node { other.isNode ? new Node(*other.node) : nullptr},
+		pos{other.getPosition()}
+	{
+	}
+
 	Parameter::Limit::~Limit() {
 		/*Destructor
 		 */
@@ -383,6 +390,7 @@ namespace frumul {
 			auto vm {VM(bt, lang, std::vector<E::any>())};
 			delete node;
 			i = E::any_cast<int>(vm.run());
+			isNode = false;
 		}
 		return i;
 	}
@@ -393,6 +401,20 @@ namespace frumul {
 
 	const Position& Parameter::Limit::getPosition() const {
 		return pos;
+	}
+
+	bst::str Parameter::Limit::toString() const {
+		bst::str s { "<Limit> " };
+		if (isNode) {
+			s += "(Node)\n";
+			s += node->toString();
+		}
+		else {
+			s += "(Bytecode)\n";
+			s += pos.toString();
+		}
+		return s;
+
 	}
 
 	bool Parameter::Limit::isConform(int x,const bst::str& lang,Symbol& parent) {
@@ -593,6 +615,7 @@ namespace frumul {
 	}
 
 	std::vector<E::any> Parameters::formatArgs(const std::vector<Arg>& args, const bst::str& lang) {
+#pragma message "Choice and multiple args not yet set for calls inside values"
 		/*Check the arguments and format them
 		 */
 		std::vector<E::any> formatted;

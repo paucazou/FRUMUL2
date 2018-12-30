@@ -35,7 +35,6 @@ namespace frumul {
 		 */
 		assert(pos <= parms.size()&&"Pos is too large");
 		// get the parameter
-
 		Parameter& parm { select_parm(arg) };
 		CRParameter crparm{parm};
 		
@@ -54,13 +53,17 @@ namespace frumul {
 		/* Select a parameter
 		 * and return it
 		 */
-#pragma message "Call with multiple args for one parameter not yet ready"
 		// with a name
 		if (arg.name) {
 			for (size_t i{0}; i < parms.size(); ++i) {
 				auto& p { parms[i] };
 				if (p.getName() == arg.name) {
-					checked[i] = true;
+					// is parameter already checked ?
+					if (checked[i])
+						throw exc(exc::ArgumentNBError,"Too many arguments were entered",arg.pos);
+					// check the parameter if not multiple
+					if (p.getMax(lang) != 1)
+						checked[i] = true;
 					return p;
 				}
 			}
@@ -88,6 +91,21 @@ namespace frumul {
 		return true;
 
 	}
+
+	void ParmQueuer::markFinished(const Parameter& parm) {
+		/* Mark the parameter parm
+		 * as filled
+		 * This function must be called with much care.
+		 */
+		for (size_t i{0}; i < parms.size(); ++i) {
+			if (&parms[i] == &parm) {
+				checked[i] = true;
+				break;
+			}
+		}
+		assert(false&&"Parameter not found");
+	}
+
 
 
 }

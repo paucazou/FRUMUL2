@@ -85,11 +85,14 @@ namespace frumul {
 					};
 					Limit (const Node& n, Comparison c);
 					Limit (int ni, Comparison c);
+					Limit (const Limit& other);
 					~Limit();
 					int getLimit(const bst::str& lang,Symbol&) ;
 					Comparison getComparison() const;
 					bool isConform(int x,const bst::str&,Symbol&) ;
 					const Position& getPosition() const;
+					bst::str toString() const;
+					STDOUT(Limit)
 				private:
 					Comparison comparison{EQUAL};
 					bool isNode{true};
