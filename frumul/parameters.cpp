@@ -366,9 +366,12 @@ namespace frumul {
 
 	Parameter::Limit::Limit(const Limit& other):
 		comparison{other.comparison}, isNode{other.isNode},
-		node { other.isNode ? new Node(*other.node) : nullptr},
 		pos{other.getPosition()}
 	{
+		if (other.isNode)
+			node = new Node(*other.node);
+		else
+			i = other.i;
 	}
 
 	Parameter::Limit::~Limit() {

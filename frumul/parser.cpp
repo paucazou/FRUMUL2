@@ -1143,7 +1143,7 @@ namespace frumul {
 					transpiler->append(tag().getValue());
 					break;
 				default:
-					throw BaseException(BaseException::UnexpectedToken,"Token expected:\n" + Token::typeToString(Token::SIMPLE_TEXT) + "\n" + Token::typeToString(Token::TAG) + "\n",Position(current_token->getPosition()));
+					throw BaseException(BaseException::UnexpectedToken,Token::typeToString(current_token->getType()) + "\nToken expected:\n" + Token::typeToString(Token::SIMPLE_TEXT) + "\n" + Token::typeToString(Token::TAG) + "\n",Position(current_token->getPosition()));
 			};
 		}
 
@@ -1189,9 +1189,10 @@ namespace frumul {
 		// if the end of the tail is a privileged parameter
 		if (tail_result.hasPrivilegedArgument())
 			_manage_privileged_parameter(tail_result.getPrivilegedArgument(),*pos,collector);
+		// if the end of the tail is a named parameter
 		if (tail_result.hasParameterName())
 			_manage_parameter_name_rest_of_tail(tail_result.getParameterName(),*pos,collector);
-		// if the end of the tail is a named parameter
+
 		while (collector.expectsArgs()) {
 			Token last_tok {*current_token};
 			try {
@@ -1201,6 +1202,10 @@ namespace frumul {
 					throw exc(exc::ArgumentNBError,"End of file reached before the args were filled",last_tok.getPosition());
 			}
 		}
+		// finish the last multiple parameter if necessary
+		if (!collector.isLastMultipleParmFilled())
+			collector.finishMultipleArgs();
+
 		int end {getTokenStart()};
 		// call
 		try {
@@ -1348,6 +1353,7 @@ namespace frumul {
 		/* Sends a name parameter to the collector
 		 * after creating a node
 		 */
+		printl(name);
 		// creating the node
 		int start {pos.getEnd() - name.uLength()};
 		Node textual_argument{arg()};

@@ -34,7 +34,7 @@ namespace frumul {
 				break;
 			case Node::NAMED_ARG:
 				_collect(n.get("arg_value"),
-					queue(n.get("arg_value").getValue(),n.getPosition())
+					queue(n.get("arg_value").getValue(),n.getPosition(),n.getValue())
 					);
 				break;
 			default:
@@ -126,6 +126,10 @@ namespace frumul {
 		 * with multiple args
 		 * has been filled
 		 */
+		// is there a multiple parameter ?
+		if (! multiple_parm)
+			return true;
+
 		return static_cast<int>(current_multiple_args.size()) == multiple_parm->getMax(lang);
 	}
 
