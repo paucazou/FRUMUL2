@@ -110,7 +110,6 @@ namespace frumul {
 		 */
 		while (it != bt.getEnd()) {
 			BT::Instruction in {static_cast<BT::Instruction>(*it)};
-			printl(in);
 			switch (in) {
 				// preponed arguments
 				// Syntax is limited to the instruction

@@ -1196,15 +1196,17 @@ namespace frumul {
 		while (collector.expectsArgs()) {
 			Token last_tok {*current_token};
 			try {
-				collector << arg();
+				collector << arg(collector);
 			} catch (BackException& e) {
 				if (e.type == exc::EarlyEOF)
 					throw exc(exc::ArgumentNBError,"End of file reached before the args were filled",last_tok.getPosition());
 			}
 		}
+		/*
 		// finish the last multiple parameter if necessary
 		if (!collector.isLastMultipleParmFilled())
 			collector.finishMultipleArgs();
+		*/
 
 		int end {getTokenStart()};
 		// call
@@ -1224,7 +1226,7 @@ namespace frumul {
 		return Node(Node::SIMPLE_TEXT,Position(start,end,filepath,source),value);
 	}
 
-	Node Parser::arg() {
+	Node Parser::arg(ArgCollector& collector) {
 		/* Manages an argument of a call to a value
 		 * Return a TEXTUAL_ARGUMENT Node,
 		 * or a NAMED_ARG
@@ -1265,6 +1267,8 @@ namespace frumul {
 
 						} else {
 							end = _end_of_arg();
+							if (collector.isCurrentParmMultiple())
+								collector.finishMultipleArgsAfterLastArg();
 						}
 					}
 					break;
@@ -1353,10 +1357,9 @@ namespace frumul {
 		/* Sends a name parameter to the collector
 		 * after creating a node
 		 */
-		printl(name);
 		// creating the node
 		int start {pos.getEnd() - name.uLength()};
-		Node textual_argument{arg()};
+		Node textual_argument{arg(collector)};
 		auto node { Node(Node::NAMED_ARG,Position(start,textual_argument.getPosition().getEnd(),filepath,source),{{"arg_value",textual_argument}},name) };
 
 		// giving the node to the collector

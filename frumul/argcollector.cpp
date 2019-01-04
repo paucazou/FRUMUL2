@@ -30,6 +30,10 @@ namespace frumul {
 		 */
 		switch (n.type()) {
 			case Node::TEXTUAL_ARGUMENT:
+				if (multiple_parm) {
+					// finish a multiple parameter if necessary
+					finishMultipleArgs();
+				}
 				_collect(n,queue(n.getValue(),n.getPosition()));
 				break;
 			case Node::NAMED_ARG:
@@ -41,13 +45,18 @@ namespace frumul {
 				assert(false&&"Node not recognized");
 
 		};
+		// finish multiple arg ?
+		if (must_finish_mul_parm) {
+			finishMultipleArgs();
+			must_finish_mul_parm = false;
+		}
 	}
 
 	void ArgCollector::finishMultipleArgs() {
 		/* Checks that all the args were collected
 		 * and put them in the main list
 		 */
-#pragma message "si un paramètre n'a pas été rempli, est-il vérifié ?" 
+#pragma message "si un paramètre n'a pas été rempli, est-il vérifié ? Je crois que oui, via ParmQueuer::areParametersFilled() " 
 		// checks
 		int nb { static_cast<int>(current_multiple_args.size()) };
 		if (multiple_parm->getMin(lang) > nb && nb > multiple_parm->getMax(lang))
@@ -133,6 +142,13 @@ namespace frumul {
 		return static_cast<int>(current_multiple_args.size()) == multiple_parm->getMax(lang);
 	}
 
+	bool ArgCollector::isCurrentParmMultiple() const {
+		/* true if the current 
+		 * parameter is a multiple one
+		 */
+		return multiple_parm;
+	}
+
 	void ArgCollector::operator << (const Node& n) {
 		collect(n);
 	}
@@ -163,6 +179,15 @@ namespace frumul {
 		} catch (const BackException& e) {
 			throw iexc(exc::TypeError,"Argument entered does not match the type of the parameter. Argument: ",n.getPosition(),"Parameter: ",parm.getPositions());
 		}
+	}
+
+	void ArgCollector::finishMultipleArgsAfterLastArg() {
+		/* This function sends a signal
+		 * to the collector: the multiple parm
+		 * must be finished when the next arg
+		 * will be received
+		 */
+		must_finish_mul_parm = true;
 	}
 }
 

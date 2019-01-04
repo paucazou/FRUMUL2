@@ -62,8 +62,6 @@ namespace frumul {
 					if (checked[i])
 						throw exc(exc::ArgumentNBError,"Too many arguments were entered",arg.pos);
 					// check the parameter if not multiple
-					printl("max:");
-					printl(p.getMax(lang));
 					if (p.getMax(lang) == 1)
 						checked[i] = true;
 					return p;
@@ -100,7 +98,7 @@ namespace frumul {
 		 * This function must be called with much care.
 		 */
 		for (size_t i{0}; i < parms.size(); ++i) {
-			if (&parms[i] == &parm) {
+			if (&parms[i] == &parm) { // it is possible this is not a good idea
 				checked[i] = true;
 				return;
 			}

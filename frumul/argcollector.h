@@ -25,7 +25,9 @@ namespace frumul {
 			const std::vector<E::any>& getArgs()const;
 			bool expectsArgs() const;
 			bool isLastMultipleParmFilled() const;
+			bool isCurrentParmMultiple() const;
 			void finishMultipleArgs();
+			void finishMultipleArgsAfterLastArg();
 			// overloads
 			void operator << (const Node&);
 			void operator >> (std::vector<E::any>&)const;
@@ -36,6 +38,7 @@ namespace frumul {
 			ParmQueuer queue;
 			const bst::str& lang;
 			std::vector<E::any> args;
+			bool must_finish_mul_parm{false};
 
 			// multiple parameter
 			std::vector<E::any> current_multiple_args;

@@ -94,7 +94,7 @@ namespace frumul {
 
 			Node text ();
 			Node tag();
-			Node arg();
+			Node arg(ArgCollector&);
 
 			Node left_bin_op(std::initializer_list<Token::Type>::iterator);
 
