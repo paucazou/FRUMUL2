@@ -14,6 +14,7 @@ namespace frumul {
 	Parameter::Parameter(const Node& node, Symbol& np) :
 		Parameter(node,&np)
 	{}
+
 	Parameter::Parameter(const Node& node,Symbol* np) : 
 		type{node.get("variable").get("type")},
 		name{node.get("variable").get("name").getValue()},
@@ -52,6 +53,17 @@ namespace frumul {
 		// positions
 		pos.push_back(node.getPosition());
 
+	}
+
+	Parameter::Parameter (const bst::str& nname, const ExprType& ntype, const std::vector<Position>& npos,Symbol& nparent) :
+		type{ntype},
+		name{nname},
+		limit1 {std::make_unique<Limit>(Limit(1,Limit::EQUAL))},
+		pos{npos},
+		parent{&nparent}
+	{
+		/* Creates a parameter with a limit equal to 1
+		 */
 	}
 
 	Parameter::Parameter(const Parameter& other) :

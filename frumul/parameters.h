@@ -43,6 +43,7 @@ namespace frumul {
 		public:
 			Parameter(const Node& node,Symbol* np=nullptr);
 			Parameter(const Node& node, Symbol& np);
+			Parameter(const bst::str&, const ExprType&,const std::vector<Position>&,Symbol&);
 			Parameter(const Parameter&);
 			~Parameter();
 			// setters

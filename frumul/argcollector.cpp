@@ -56,7 +56,6 @@ namespace frumul {
 		/* Checks that all the args were collected
 		 * and put them in the main list
 		 */
-#pragma message "si un paramètre n'a pas été rempli, est-il vérifié ? Je crois que oui, via ParmQueuer::areParametersFilled() " 
 		// checks
 		int nb { static_cast<int>(current_multiple_args.size()) };
 		if (multiple_parm->getMin(lang) > nb && nb > multiple_parm->getMax(lang))
@@ -83,6 +82,7 @@ namespace frumul {
 		
 		if (multiple_parm && &parm != multiple_parm)
 			finishMultipleArgs();
+
 		if (parm.getMax(lang) != 1) {
 			if (!multiple_parm)
 				_start_multiple_args(parm);
@@ -126,7 +126,6 @@ namespace frumul {
 	bool ArgCollector::expectsArgs() const {
 		/* true if new arguments are expected
 		 */
-#pragma message "do not forget mark"
 		return !queue.areParametersFilled();
 	}
 

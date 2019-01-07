@@ -107,6 +107,7 @@ namespace frumul {
 			void throwInconsistentType(const ExprType& t1, const ExprType& t2, const Position& n1, const Position& n2);
 
 			void visitParameters();
+			void addUnsafeArgsToParms();
 
 	};
 

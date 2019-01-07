@@ -28,7 +28,7 @@ namespace frumul {
 			
 		private:
 			bool return_certified{false};
-			unsigned int level{0};
+			int level{0};
 			rstack<bool> block_return;
 	};
 }

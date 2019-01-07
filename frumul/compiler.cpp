@@ -3,7 +3,7 @@
 // Note: do not forget that what is at right should be push in the stack first
 
 namespace frumul {
-	const bst::str unsafe_name { "0_unsafe_args_" };
+	static const bst::str unsafe_name { "0_unsafe_arg_" };
 
 	/*
 	Compiler::Compiler(Symbol& s, const bst::str& lang) :
@@ -34,14 +34,18 @@ namespace frumul {
 		 */
 		if (!bytecode) {
 			if (return_type != ET::VOID)
-				symbol_table->append("",return_type,node.getPosition()); //an empty name is the only one that can't be set by the user
-			// manages, if necessary, the unsafe args
-			if (unsafe_args_remainder)
-				symbol_table->append(unsafe_name,ET::TEXT,node.getPosition()); // an name starting by a digit cannot be used by the user
+				symbol_table->append("",return_type,node.getPosition()); //an empty name can't be set by the user
 				
+			// manages, if necessary, the unsafe args
+			addUnsafeArgsToParms();
+			// manages, if necessary, the verified args
 			visitParameters();
+
+			// compilation
 			visit(node);
+			// inform the bytecode of the number of variables
 			bytecode.addVariable(symbol_table->variableNumber());
+
 			if (!rtc) 
 				// no value seems to be returned
 				throw exc(exc::NoReturnedValue,"Compiler can not be sure that a value will be return.",node.getPosition());
@@ -982,11 +986,10 @@ namespace frumul {
 			throw iexc(exc::ArgumentNBError,"Too many calls of unsafe arguments. Call in excess: ",n.getPosition(),"Number defined here: ", parent.getMark().getPositions());
 
 		int index = parent.getMark().afterArgsNumber() - unsafe_args_remainder;
+		
 		--unsafe_args_remainder;
 
-		appendInstructions(BT::PUSH,ET::VARIABLE,symbol_table->getIndex(unsafe_name));
-		appendAndPushConstant<int>(index);
-		appendInstructions(BT::LIST_GET_ELT);
+		appendInstructions(BT::PUSH,ET::VARIABLE,symbol_table->getIndex(unsafe_name+index));
 
 		return ET::TEXT;
 	}
@@ -1195,6 +1198,18 @@ namespace frumul {
 
 		}
 	}
+
+	void __compiler::addUnsafeArgsToParms() {
+		/* Compiles the unsafe arguments
+		 */
+		auto& parms { parent.getParameters() };
+		auto& pos { parent.getMark().getPositions() };
+
+		for (int i{0}; i < unsafe_args_remainder;++i) {
+			parms.push_back(Parameter(unsafe_name + i,ET::TEXT,pos,parent));
+		}
+	}
+
 
 	ByteCode MonoExprCompiler::compile() {
 		/* Compiles the node
