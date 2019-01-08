@@ -3,7 +3,6 @@
 // Note: do not forget that what is at right should be push in the stack first
 
 namespace frumul {
-	static const bst::str unsafe_name { "0_unsafe_arg_" };
 
 	/*
 	Compiler::Compiler(Symbol& s, const bst::str& lang) :
@@ -36,8 +35,6 @@ namespace frumul {
 			if (return_type != ET::VOID)
 				symbol_table->append("",return_type,node.getPosition()); //an empty name can't be set by the user
 				
-			// manages, if necessary, the unsafe args
-			addUnsafeArgsToParms();
 			// manages, if necessary, the verified args
 			visitParameters();
 
@@ -1199,6 +1196,7 @@ namespace frumul {
 		}
 	}
 
+#if 0
 	void __compiler::addUnsafeArgsToParms() {
 		/* Compiles the unsafe arguments
 		 */
@@ -1209,6 +1207,7 @@ namespace frumul {
 			parms.push_back(Parameter(unsafe_name + i,ET::TEXT,pos,parent));
 		}
 	}
+#endif
 
 
 	ByteCode MonoExprCompiler::compile() {

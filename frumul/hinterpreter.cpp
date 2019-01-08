@@ -159,6 +159,7 @@ namespace frumul {
 				{
 				// options
 				OneValue& oval{visit_options_basic(node.get("options"),symbol)};
+				symbol.addUnsafeArgsToParms();
 				visit_basic_value(value,oval);
 				}
 				break;

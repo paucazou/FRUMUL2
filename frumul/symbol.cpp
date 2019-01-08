@@ -237,6 +237,21 @@ namespace frumul {
 		*/
 
 	}
+
+	void Symbol::addUnsafeArgsToParms() {
+		/* The unsafe arguments will be add to the parameters.
+		 * This function works only once.
+		 */
+
+		if (mark_added_to_parameters)
+			return;
+
+		auto& pos { mark.getPositions() };
+		for (int i{0}; i < mark.afterArgsNumber(); ++i) {
+			parameters.push_back(Parameter(unsafe_name + i, ET::TEXT,pos,*this));
+		}
+		mark_added_to_parameters = true;
+	}
 	
 	// booleans
 	bool Symbol::hasParent() const {

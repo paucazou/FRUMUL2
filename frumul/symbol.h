@@ -84,6 +84,7 @@ namespace frumul {
 			void setParent(Symbol& nparent);
 			void setParameters(const Parameters&);
 			void setReturnType(const Node&);
+			void addUnsafeArgsToParms();
 			// booleans
 			bool hasParent() const;
 			bool hasAlias () const;
@@ -109,6 +110,8 @@ namespace frumul {
 			Alias alias;
 			std::unique_ptr<Value> value = std::make_unique<Value>(*this);
 			Parameters parameters{*this};
+			// state variables
+			bool mark_added_to_parameters{false};
 
 			// functions
 			void checkCall(const bst::str& lang); // UNFINISHED TODO arguments must be check

@@ -1,8 +1,11 @@
+#ifndef MACROS_H
+#define MACROS_H
 /* This file contains many
  * macro utilities
  */
 #include <cstdint>
 #include <iostream>
+#include "bstrlib/bstrwrap.h"
 
 /*****************
 *  enum to strings
@@ -59,9 +62,14 @@
 namespace std {
 	using byte = uint_fast8_t;
 }
+namespace frumul {
+	const bst::str unsafe_name { "0_unsafe_arg_" };
+}
 
 #ifdef DEBUG
 #define printl(elt) std::cout <<  elt << std::endl
 #else
 #define printl(elt) 
+#endif
+
 #endif

@@ -71,7 +71,8 @@ namespace frumul {
 		name{other.name},
 		def{uniq_copy<Node>(other.def)},
 		choices{uniq_copy<Node>(other.choices)},
-		pos{other.pos}
+		pos{other.pos},
+		parent{other.parent}
 	{
 		/* Copy constructor
 		 * Temporary is not copied
