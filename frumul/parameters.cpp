@@ -213,7 +213,7 @@ namespace frumul {
 		return !(*this == other);
 	}
 
-	const Node& Parameter::getDefault() const {
+	const Node& Parameter::getNodeDefault() const {
 		return *def;
 	}
 
@@ -326,6 +326,12 @@ namespace frumul {
 		 * and max
 		 */
 		return (nb <= temporary->max && nb >= temporary->min);
+	}
+
+	bool Parameter::hasDefault() const {
+		/* true if a default value is set
+		 */
+		return static_cast<bool>(def);
 	}
 
 	bool Parameter::operator == (const bst::str& n) const {
@@ -503,6 +509,23 @@ namespace frumul {
 
 		// default return: elt was not found
 		return false;
+	}
+
+	E::any Parameter::getDefault(const bst::str& lang) {
+		/* Return the default parameter if it has one
+		 */
+		assert((def||_def) && "No default set. Please use Parameter::hasDefault to check it");
+		// check that default number of elements match the number indicated TODO
+#pragma message "Check default number in getDefault"
+		if (!_def) {
+			auto compiler { MonoExprCompiler(*def,type,*parent,lang) };
+			auto bt {compiler.compile()};
+			auto vm { VM(bt,lang,std::vector<E::any>()) };
+			_def = std::make_unique<E::any>(vm.run());
+
+		}
+		return *_def;
+
 	}
 
 	bool Parameter::_list_match(const E::any& first, const E::any& second, const ExprType& type) {
