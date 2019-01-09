@@ -518,10 +518,18 @@ namespace frumul {
 		// check that default number of elements match the number indicated TODO
 #pragma message "Check default number in getDefault"
 		if (!_def) {
-			auto compiler { MonoExprCompiler(*def,type,*parent,lang) };
+			ExprType real_type {getMax(lang) > 1 ? ExprType(ET::LIST,type) : type};
+			auto compiler { MonoExprCompiler(*def,real_type,*parent,lang) };
 			auto bt {compiler.compile()};
 			auto vm { VM(bt,lang,std::vector<E::any>()) };
 			_def = std::make_unique<E::any>(vm.run());
+
+			// checks
+			if (getMax(lang) > 1) {
+				auto vect_def { E::any_cast<std::vector<E::any>>(*_def) };
+				if (!between(vect_def.size()))
+					throw iexc(exc::ArgumentNBError,"Default arguments doesn't match the number required by the parameter. Default defined here: ",def->getPosition(),"Argument defined here: ", pos);
+			}
 
 		}
 		return *_def;
