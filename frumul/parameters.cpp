@@ -72,7 +72,8 @@ namespace frumul {
 		def{uniq_copy<Node>(other.def)},
 		choices{uniq_copy<Node>(other.choices)},
 		pos{other.pos},
-		parent{other.parent}
+		parent{other.parent},
+		index{other.index}
 	{
 		/* Copy constructor
 		 * Temporary is not copied
@@ -177,6 +178,13 @@ namespace frumul {
 		/* Set a new parent
 		 */
 		parent = &np;
+	}
+
+	void Parameter::setIndex(int i) {
+		/* Set the index
+		 */
+		assert(index == -1 && "index already set");
+		index = i;
 	}
 
 	Parameter::Limit::Comparison Parameter::comparisonValue(const bst::str& val) const{
@@ -299,6 +307,11 @@ namespace frumul {
 
 	const PosVect& Parameter::getPositions() const {
 		return pos;
+	}
+
+	int Parameter::getIndex() const {
+		assert(index > -1 && "Index not set");
+		return index;
 	}
 
 	bool Parameter::operator == (int nb) const {
@@ -630,10 +643,15 @@ namespace frumul {
 				throw iexc(exc::NameError,"Name already taken by another parameter",np.getPositions(),"Name already defined here: ",p.getPositions());
 
 		parms.push_back(np);
+		parms.back().setIndex(parms.size()-1);
 	}
 
 	bool Parameters::empty() const{
 		return parms.empty();
+	}
+
+	size_t Parameters::size() const {
+		return parms.size();
 	}
 
 	const std::vector<Parameter>& Parameters::getList() const{

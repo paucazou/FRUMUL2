@@ -92,6 +92,14 @@ namespace frumul {
 
 	}
 
+	std::vector<std::reference_wrapper<Parameter>> ParmQueuer::getUnfilledDefault() {
+	}
+
+	std::vector<E::any> ParmQueuer::getUnfilledDefaultArgs() {
+		/* Get the default args and filled them
+		 */
+	}
+
 	void ParmQueuer::markFinished(const Parameter& parm) {
 		/* Mark the parameter parm
 		 * as filled

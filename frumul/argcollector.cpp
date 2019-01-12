@@ -12,6 +12,7 @@ namespace frumul {
 		queue{symbol.getParameters().getList(), l},
 		lang{l}
 	{
+		args.resize(parameters.size());
 	}
 
 	ArgCollector::~ArgCollector() {
@@ -66,7 +67,8 @@ namespace frumul {
 				multiple_parm->getPositions());
 
 		// put the args in the main list
-		args.push_back(current_multiple_args);
+		//args.push_back(current_multiple_args);
+		args.at(static_cast<size_t>(multiple_parm->getIndex())) = current_multiple_args;
 		// clean-up
 		queue.markFinished(*multiple_parm);
 		multiple_parm = nullptr;
@@ -116,7 +118,8 @@ namespace frumul {
 				throw iexc(exc::ValueError,"Value entered does not match the choices set. Value entered: ",n.getPosition(),"Choices: ",parm.getChoices().getPosition());
 		}	
 		// append to args
-		args.push_back(value);
+		//args.push_back(value);
+		args.at(static_cast<size_t>(parm.getIndex())) = value;
 	}
 
 	const std::vector<E::any>& ArgCollector::getArgs() const {

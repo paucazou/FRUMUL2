@@ -52,6 +52,7 @@ namespace frumul {
 			void evaluate();
 			void reset();
 			void setParent(Symbol&);
+			void setIndex(int);
 
 			// getters
 			bool operator == (const Parameter& other) const;
@@ -62,6 +63,7 @@ namespace frumul {
 			const bst::str& getName() const;
 			bool choiceMatch(const E::any& elt,const bst::str& lang);
 			E::any getDefault(const bst::str&);
+			int getIndex() const;
 			// // min/max
 			int getMin(const bst::str&) const;
 			int getMax(const bst::str&) const;
@@ -122,6 +124,7 @@ namespace frumul {
 			Temp* temporary{nullptr};
 			std::vector<Position> pos;
 			Symbol* parent;
+			int index{-1};
 			// private functions
 			Limit::Comparison comparisonValue(const bst::str&)const;
 			std::pair<int,int> calculateMinMax(const bst::str&)const;
@@ -143,6 +146,7 @@ namespace frumul {
 			PosVect getPositions() const;
 			void push_back(const Parameter& np);
 			bool empty()const;
+			size_t size()const;
 			const std::vector<Parameter>& getList()const;
 			void setParent(Symbol&);
 			std::vector<Parameter>& getList();

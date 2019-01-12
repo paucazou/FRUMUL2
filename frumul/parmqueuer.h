@@ -1,6 +1,7 @@
 #ifndef PARMQUEUER_H
 #define PARMQUEUER_H
 
+#include <functional>
 #include <unordered_map>
 #include <vector>
 #include "parameters.h"
@@ -20,6 +21,9 @@ namespace frumul {
 			Parameter& operator () (const bst::str& val, const Position& pos, const bst::str& name = "");
 			bool areParametersFilled () const;
 			void markFinished(const Parameter&);
+			std::vector<std::reference_wrapper<Parameter>> getUnfilledDefault();
+			std::vector<E::any> getUnfilledDefaultArgs();
+
 		private:
 			// attributes
 			unsigned int pos{0};
