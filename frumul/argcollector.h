@@ -28,6 +28,8 @@ namespace frumul {
 			bool isCurrentParmMultiple() const;
 			void finishMultipleArgs();
 			void finishMultipleArgsAfterLastArg();
+			void flagNextArgAsNamed(bool);
+			void fillDefaultArgs();
 			// overloads
 			void operator << (const Node&);
 			void operator >> (std::vector<E::any>&)const;
@@ -39,6 +41,7 @@ namespace frumul {
 			const bst::str& lang;
 			std::vector<E::any> args;
 			bool must_finish_mul_parm{false};
+			bool is_next_arg_named{false};
 
 			// multiple parameter
 			std::vector<E::any> current_multiple_args;

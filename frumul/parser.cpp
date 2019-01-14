@@ -1207,6 +1207,7 @@ namespace frumul {
 		if (!collector.isLastMultipleParmFilled())
 			collector.finishMultipleArgs();
 		*/
+		collector.fillDefaultArgs();
 
 		int end {getTokenStart()};
 		// call
@@ -1263,12 +1264,14 @@ namespace frumul {
 								// it must be a named parameter,
 								// so this is the end of the tag
 								end = _end_of_arg();
+								collector.flagNextArgAsNamed(true);
 							}
 
 						} else {
 							end = _end_of_arg();
 							if (collector.isCurrentParmMultiple())
 								collector.finishMultipleArgsAfterLastArg();
+							collector.flagNextArgAsNamed(false);
 						}
 					}
 					break;

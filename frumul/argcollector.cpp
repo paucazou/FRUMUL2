@@ -129,7 +129,8 @@ namespace frumul {
 	bool ArgCollector::expectsArgs() const {
 		/* true if new arguments are expected
 		 */
-		return !queue.areParametersFilled();
+		return !queue.areNonDefaultParametersFilled() ||
+			(is_next_arg_named && queue.hasUnfilledDefault());
 	}
 
 	bool ArgCollector::isLastMultipleParmFilled() const {
@@ -150,6 +151,26 @@ namespace frumul {
 		 */
 		return multiple_parm;
 	}
+
+	void ArgCollector::flagNextArgAsNamed(bool b) {
+		/* Next arg is supposed to be a named
+		 * parameter
+		 */
+		is_next_arg_named = b;
+	}
+
+	void ArgCollector::fillDefaultArgs() {
+		/* fill the default args
+		 */
+		auto unfilled_def { queue.getUnfilledDefault() };
+		for (auto& parm_rf : unfilled_def) {
+			auto& parm {parm_rf.get()};
+			printl(parm);
+			args.at(static_cast<size_t>(parm.getIndex())) = parm.getDefault(lang);
+			queue.markFinished(parm);
+		}
+	}
+
 
 	void ArgCollector::operator << (const Node& n) {
 		collect(n);

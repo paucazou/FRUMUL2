@@ -92,13 +92,46 @@ namespace frumul {
 
 	}
 
-	std::vector<std::reference_wrapper<Parameter>> ParmQueuer::getUnfilledDefault() {
+	bool ParmQueuer::areNonDefaultParametersFilled() const {
+		/* true if all parameters without default
+		 * are filled
+		 */
+		for (size_t i{0}; i < parms.size(); ++i) {
+			if (!checked[i] && !parms[i].hasDefault())
+				return false;
+		}
+		return true;
 	}
 
-	std::vector<E::any> ParmQueuer::getUnfilledDefaultArgs() {
-		/* Get the default args and filled them
+	bool ParmQueuer::hasUnfilledDefault() const {
+		/* true if there is at least one
+		 * default parameter that is not filled
+		 * false if no default parameter
 		 */
+		assert(checked.size() == parms.size()&&"Vectors sizes don't match");
+
+		for (size_t i{0}; i < parms.size(); ++i) {
+			if (!checked[i] && parms[i].hasDefault())
+				return true;
+		}
+
+		return false;
 	}
+
+	std::vector<std::reference_wrapper<Parameter>> ParmQueuer::getUnfilledDefault() {
+		/* Return the parameters with defaults
+		 * but not filled by the user
+		 */
+		assert(checked.size() == parms.size()&&"Vectors sizes don't match");
+
+		std::vector<std::reference_wrapper<Parameter>> unfilled;
+		for (size_t i{0}; i < parms.size(); ++i) {
+			if (!checked[i] && parms[i].hasDefault())
+				unfilled.push_back(parms[i]);
+		}
+		return unfilled;
+	}
+
 
 	void ParmQueuer::markFinished(const Parameter& parm) {
 		/* Mark the parameter parm

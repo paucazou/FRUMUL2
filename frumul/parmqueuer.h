@@ -20,9 +20,10 @@ namespace frumul {
 			Parameter& operator () (const Arg&);
 			Parameter& operator () (const bst::str& val, const Position& pos, const bst::str& name = "");
 			bool areParametersFilled () const;
+			bool areNonDefaultParametersFilled() const;
+			bool hasUnfilledDefault() const;
 			void markFinished(const Parameter&);
 			std::vector<std::reference_wrapper<Parameter>> getUnfilledDefault();
-			std::vector<E::any> getUnfilledDefaultArgs();
 
 		private:
 			// attributes
