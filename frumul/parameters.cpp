@@ -526,8 +526,6 @@ namespace frumul {
 		/* Return the default parameter if it has one
 		 */
 		assert((def||_def) && "No default set. Please use Parameter::hasDefault to check it");
-		// check that default number of elements match the number indicated TODO
-#pragma message "Check default number in getDefault"
 		if (!_def) {
 			ExprType real_type {getMax(lang) > 1 ? ExprType(ET::LIST,type) : type};
 			auto compiler { MonoExprCompiler(*def,real_type,*parent,lang) };

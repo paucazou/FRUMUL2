@@ -138,7 +138,7 @@ namespace frumul {
 
 			// tail
 			if (intokl(Token::TAIL,expected)) {
-				while ( !iswspace(raw_current_char) && current_char != unbreakable_space && current_char != "") {
+				while ( !iswspace(static_cast<wint_t>(raw_current_char)) && current_char != unbreakable_space && current_char != "") {
 					val += current_char;
 					advanceBy();
 				}
@@ -241,7 +241,7 @@ namespace frumul {
 		 * true if spaces have been skipped
 		 */
 		int oldpos = pos;
-		while (std::iswspace(raw_current_char) || current_char == unbreakable_space )
+		while (std::iswspace(static_cast<wint_t>(raw_current_char)) || current_char == unbreakable_space )
 			advanceBy();
 		return oldpos != pos;
 	}
@@ -326,7 +326,7 @@ namespace frumul {
 		//std::setlocale(LC_ALL,std::locale("").name().data()); WARNING do not forget to set locale
 		bst::str value;
 		int start{pos};
-		while (!std::iswspace(raw_current_char) && current_char != unbreakable_space && current_char != "") {
+		while (!std::iswspace(static_cast<wint_t>(raw_current_char)) && current_char != unbreakable_space && current_char != "") {
 			value += current_char;
 			advanceBy();
 		}
@@ -484,20 +484,20 @@ namespace frumul {
 		}
 
 		// programmatic parts
-		if (std::iswdigit(raw_current_char)) {
+		if (std::iswdigit(static_cast<wint_t>(raw_current_char))) {
 			// manages numbers
 			bst::str val;
 			int oldpos{pos};
-			while (iswdigit(raw_current_char)) {
+			while (iswdigit(static_cast<wint_t>(raw_current_char))) {
 				val += current_char;
 				advanceBy();
 			}
 			return Token(Token::NUMBER,val,Position(oldpos,pos-1,filepath,source));
 		}
-		if (std::iswalnum(raw_current_char) || current_char == "_") {
+		if (std::iswalnum(static_cast<wint_t>(raw_current_char)) || current_char == "_") {
 			bst::str val;
 			int oldpos{pos};
-			while (iswalnum(raw_current_char) || current_char == "_") {
+			while (iswalnum(static_cast<wint_t>(raw_current_char)) || current_char == "_") {
 				val += current_char;
 				advanceBy();
 			}

@@ -129,7 +129,7 @@ namespace frumul {
 		 * index.
 		 */
 		assert(!childrenNamed&&"Children are a map.");
-		return numbered_children.at(index);
+		return numbered_children.at(static_cast<size_t>(index));
 	}
 
 	const std::map<bst::str,Node>& Node::getNamedChildren () const {
@@ -241,7 +241,7 @@ namespace frumul {
 			// the following cast is ugly, but silent the stupid -Wsign-compare warning
 			// maybe I should have used decltype instead
 			for (int i{0}; i < static_cast<int>(numbered_children.size()); ++i)
-				s += bst::str(i) + ": " + typeToString(numbered_children.at(i).node_type) + "\n";
+				s += bst::str(i) + ": " + typeToString(numbered_children.at(static_cast<size_t>(i)).node_type) + "\n";
 		}
 
 		s += pos.toString();

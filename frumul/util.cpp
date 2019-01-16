@@ -40,8 +40,8 @@ namespace frumul {
 		 * If index is not negative, it is returned unchanged
 		 */
 		if (index >= 0)
-			return index;
-		return length + index;
+			return static_cast<unsigned int>(index);
+		return length + static_cast<unsigned int>(index);
 	}
 	
 	unsigned int negative_index(int index, unsigned int length, bool check) {

@@ -41,7 +41,7 @@ namespace frumul {
 				// in this case, the return statement is certified
 				deactivate();
 			} else
-				block_return.at(level-1) = b;
+				block_return.at(static_cast<unsigned int>(level-1)) = b;
 		}
 	}
 
@@ -49,7 +49,7 @@ namespace frumul {
 		/* Pop out the last element in the stack
 		 * and change level
 		 */
-		if (block_return.size() == level)
+		if (static_cast<int>(block_return.size()) == level)
 			this->operator--();
 		return return_certified ? return_certified : block_return.pop();
 	}
@@ -62,9 +62,9 @@ namespace frumul {
 		if (!return_certified) {
 			++level;
 			block_return.push(false);
-			assert(level == block_return.size() && "Level and stack size don't match");
+			assert(level == static_cast<int>(block_return.size()) && "Level and stack size don't match");
 		}
-		return level;
+		return static_cast<unsigned int>(level);
 	}
 
 	unsigned int RetChecker::operator -- () {
@@ -77,11 +77,11 @@ namespace frumul {
 			assert(level > 0 && "Level is under zero");
 			--level;
 		}
-		return level;
+		return static_cast<unsigned int>(level);
 	}
 
 	unsigned int RetChecker::getCurrentLevel () const {
-		return level;
+		return static_cast<unsigned int>(level);
 	}
 
 
