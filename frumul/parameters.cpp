@@ -6,7 +6,6 @@
 #include "compiler.h"
 #include "symbol.h"
 #include "vm.h"
-#define TEMPASSERT assert(temporary&&"Temporary does not exist")
 
 namespace frumul {
 
@@ -87,6 +86,7 @@ namespace frumul {
 
 	Parameter::~Parameter () {
 		/* Destructor.
+		 * TODO it's probably useless now
 		 */
 		/*
 		if (limit1)
@@ -94,8 +94,6 @@ namespace frumul {
 		if (limit2)
 			delete limit2;
 			*/
-		if (temporary)
-			delete temporary;
 	}
 
 	void Parameter::appendPos(const Position& npos) {
@@ -155,24 +153,6 @@ namespace frumul {
 
 	}
 
-	void Parameter::evaluate() {
-		/* evaluate temporary values
-		 * default and choices
-		 * TODO
-		 */
-
-		assert(!temporary&&"Temporary already set");
-		temporary = new Temp;
-	}
-
-	void Parameter::reset() {
-		/* Reset temporary values
-		 * dynamically evaluated:
-		 * min/max, default and choices
-		 */
-		delete temporary;
-		temporary = nullptr;
-	}
 
 	void Parameter::setParent(Symbol& np) {
 		/* Set a new parent
@@ -237,72 +217,84 @@ namespace frumul {
 		return name;
 	}
 
-	int Parameter::getMin(const bst::str& lang) const {
-		return calculateMinMax(lang).first;
+	int Parameter::getMin(const bst::str& lang) {
+		if (min == -1)
+			calculateMinMax(lang);
+		return min;
 	}
 
-	int Parameter::getMax(const bst::str& lang) const {
-		return calculateMinMax(lang).second;
+	int Parameter::getMax(const bst::str& lang) {
+		if (max == -1)
+			calculateMinMax(lang);
+		return max;
 	}
 
-	std::pair<int,int> Parameter::calculateMinMax(const bst::str& lang) const {
+	void Parameter::calculateMinMax(const bst::str& lang) {
 		/* Calculate min and max
 		 * and returns it, min as first,
 		 * and max as second
 		 * checks the error (impossible to do this before)
 		 */
 		assert(parent&&"Parameter: parent is not set");
+		assert(min == -1 && "Min already set");
+		assert(max == -1 && "Max already set");
+
 		if (limit2) { 
-			int min { limit1->getLimit(lang,*parent) };
-			int max{limit2->getLimit(lang,*parent) };
+			int min_ { limit1->getLimit(lang,*parent) };
+			int max_ {limit2->getLimit(lang,*parent) };
 
 			// limits are equal
-			if (min == max) {
+			if (min_ == max_) {
 				if (limit1->getComparison() != limit2->getComparison())
 					throw iexc(exc::ArgumentNBError,"Limits given to the parameter have the same value but not the same sign. Limit 1:",limit1->getPosition(),"Limit 2:",limit2->getPosition());
 
-				return calculateMinMaxWithOneLimit(min,limit1->getComparison());
+				return calculateMinMaxWithOneLimit(min_,limit1->getComparison());
 
 			}
-			else if (min > max)
+			else if (min_ > max_)
 				throw iexc(exc::ArgumentNBError,"Min is over max. Min: ",limit1->getPosition(),"Max: ",limit2->getPosition());
 
 			// get real value
 			if (limit1->getComparison() == Limit::SUPERIOR)
-				++min;
+				++min_;
 			if (limit2->getComparison() == Limit::INFERIOR)
-				--max;
+				--max_;
 
 			// last checks
-			if (min < 0)
+			if (min_ < 0)
 				throw exc(exc::ValueError,"Limit given is under zero",limit1->getPosition());
-			return {min,max};
+			min = min_;
+			max = max_;
 
 		}
 
 		return calculateMinMaxWithOneLimit(limit1->getLimit(lang,*parent),limit1->getComparison());
 	}
 
-	std::pair<int,int> Parameter::calculateMinMaxWithOneLimit(int limit, Limit::Comparison c) const {
+	void Parameter::calculateMinMaxWithOneLimit(int limit, Limit::Comparison c) {
 		constexpr int absolute_min {0};
 		// check errors
-		if (limit<0)
+		if (limit<absolute_min)
 			throw exc(exc::ValueError,"Limit given is under zero",limit1->getPosition());
 
 		switch (c) {
 			case Limit::EQUAL:
-				return {limit,limit};
+				min = limit;
+				max = limit;
 			case Limit::SUPERIOR:
-				return {limit+1,INT_MAX};
+				min = limit +1;
+				max = INT_MAX;
 			case Limit::INFERIOR:
-				return {absolute_min,limit-1};
+				min = absolute_min;
+				max = limit-1;
 			case Limit::SEQUAL:
-				return {limit,INT_MAX};
+				min = limit;
+				max = INT_MAX;
 			case Limit::IEQUAL:
-				return {absolute_min,limit};
+				min = absolute_min;
+				max = limit;
 
 		};
-		return {-1,-1}; // -Wreturn-type
 	}
 
 	const PosVect& Parameter::getPositions() const {
@@ -317,28 +309,34 @@ namespace frumul {
 	bool Parameter::operator == (int nb) const {
 		/* true if nb is equal to min AND max
 		 */
-		TEMPASSERT;
-		return (nb == temporary->min && nb == temporary->max);
+		return (nb == min && nb == max);
 	}
 
 	bool Parameter::operator > (int nb) const {
 		/* true if max is above nb
 		 */
-		TEMPASSERT;
-		return temporary->max > nb;
+		return max > nb;
 	}
 
 	bool Parameter::operator < (int nb) const {
 		/* true if min is beyond nb
 		 */
-		return temporary->min < nb;
+		return min < nb;
 	}
 
 	bool Parameter::between (int nb) const {
 		/* true if nb is between or equal to min
 		 * and max
 		 */
-		return (nb <= temporary->max && nb >= temporary->min);
+		assert(min > -1 && max > -1 && "Min and max not set");
+
+		return (nb <= max && nb >= min);
+	}
+
+	bool Parameter::between (int nb, const bst::str& lang) {
+		/* Can set min and max
+		 */
+		return (nb <= getMax(lang) && nb >= getMin(lang));
 	}
 
 	bool Parameter::hasDefault() const {
@@ -540,7 +538,7 @@ namespace frumul {
 			// checks
 			if (getMax(lang) > 1) {
 				auto vect_def { E::any_cast<std::vector<E::any>>(*_def) };
-				if (!between(vect_def.size()))
+				if (!between(vect_def.size(),lang))
 					throw iexc(exc::ArgumentNBError,"Default arguments doesn't match the number required by the parameter. Default defined here: ",def->getPosition(),"Argument defined here: ", pos);
 			}
 

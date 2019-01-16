@@ -49,8 +49,6 @@ namespace frumul {
 			// setters
 			void appendPos(const Position& npos);
 			void setMinMax(const StrNodeMap& fields);
-			void evaluate();
-			void reset();
 			void setParent(Symbol&);
 			void setIndex(int);
 
@@ -65,13 +63,14 @@ namespace frumul {
 			E::any getDefault(const bst::str&);
 			int getIndex() const;
 			// // min/max
-			int getMin(const bst::str&) const;
-			int getMax(const bst::str&) const;
+			int getMin(const bst::str&) ;
+			int getMax(const bst::str&);
 			const PosVect& getPositions() const;
 			bool operator == (int nb) const;
 			bool operator > (int nb) const;
 			bool operator < (int nb) const;
 			bool between (int nb) const;
+			bool between (int nb,const bst::str&);
 			bool hasDefault() const;
 			// name
 			bool operator == (const bst::str& n) const;
@@ -107,28 +106,24 @@ namespace frumul {
 					};
 					Position pos;
 			};
-			struct Temp {
-				int min;
-				int max;
-#pragma message("Default is not yet set in Temp struct")
-			};
 
 			ExprType type;
 			bst::str name;
 			std::unique_ptr<Limit> limit1{nullptr};
 			std::unique_ptr<Limit> limit2{nullptr};
+			int min{-1};
+			int max{-1};
 			uNode def;
 			uNode choices;
 			std::unique_ptr<std::vector<E::any>> _choices{nullptr};
 			std::unique_ptr<E::any> _def{nullptr};
-			Temp* temporary{nullptr};
 			std::vector<Position> pos;
 			Symbol* parent;
 			int index{-1};
 			// private functions
 			Limit::Comparison comparisonValue(const bst::str&)const;
-			std::pair<int,int> calculateMinMax(const bst::str&)const;
-			std::pair<int,int> calculateMinMaxWithOneLimit(int,Limit::Comparison) const;
+			void calculateMinMax(const bst::str&);
+			void calculateMinMaxWithOneLimit(int,Limit::Comparison) ;
 			bool _list_match(const E::any&,const E::any&, const ExprType&);
 
 

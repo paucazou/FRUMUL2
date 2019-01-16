@@ -1185,7 +1185,7 @@ namespace frumul {
 		/* Compiles the parameters
 		 */
 		constexpr int global_scope {0};
-		for (const auto& parm : parent.getParameters()) {
+		for (auto& parm : parent.getParameters()) {
 
 			symbol_table->append(parm.getName(),
 					(parm.getMax(lang) == 1 ? parm.getType() : ExprType(ET::LIST,parm.getType())),
