@@ -9,6 +9,8 @@ namespace frumul {
                                 {"bool",ET::BOOL},
                                 {"symbol",ET::SYMBOL},
                                 {"list",ET::LIST},
+				{"const",ET::CONSTANT},
+				{"static",ET::STATIC},
 				};
 
 	ExprType::ExprType( ExprType::Type t) : type{t}
@@ -130,6 +132,12 @@ namespace frumul {
 		/* true if type is a container
 		 */
 		return static_cast<bool>(contained);
+	}
+
+	bool ExprType::isConst() const {
+		/* true if type is const
+		 */
+		return is_const;
 	}
 
 	ExprType::Type ExprType::getPrimitive() const {

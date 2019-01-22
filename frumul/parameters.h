@@ -152,6 +152,7 @@ namespace frumul {
 		private:
 			std::vector<Parameter> parms;
 			Symbol* parent;
+			E::any get_multiple_args(const std::vector<Arg>&, size_t&, const bst::str&,Parameter&);
 	};
 
 	using CRParameter = std::reference_wrapper<const Parameter>;

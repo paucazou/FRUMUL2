@@ -676,47 +676,78 @@ namespace frumul {
 	}
 
 	std::vector<E::any> Parameters::formatArgs(const std::vector<Arg>& args, const bst::str& lang) {
-#pragma message "Choice and multiple args not yet set for calls inside values"
 		/*Check the arguments and format them
 		 */
-		std::vector<E::any> formatted;
+		std::vector<E::any> formatted {parms.size()};
 		auto queue { ParmQueuer(parms,lang) };
-		/*
-		// maps that saves the number of times a parameter
-		// has been called
-		std::unordered_map<CRParameter,unsigned int> call_number;
-		const auto defaultSetMap { &defaultSet<std::unordered_map<CRParameter,unsigned int>,CRParameter,unsigned int> };
-		*/
 
 		size_t arg_idx{0};
 		for (; arg_idx < args.size(); ++arg_idx) {
 			// get the argument
 			const Arg& arg{args[arg_idx]};
 			// get matching parameter
-			const Parameter& parm{queue(arg)};
-			//CRParameter crparm{parm};
-			// check type TODO vérifier si un argument est seulemnet un membre de liste
-			if (arg.type != parm.getType())
-				throw iexc(exc::TypeError,"Argument entered does not match the type of the parameter. Argument: ",arg.pos,"Parameter set here: ",parm.getPositions());
-			/*
-			// check number
-			unsigned int call_nb { defaultSetMap(call_number,crparm,0) };
-			if (call_nb > static_cast<unsigned int>(parm.getMax(lang)))
-				throw iexc(exc::ArgumentNBError,"Too many arguments entered for the required parameter",arg.pos,"Parameter defined here: ",parm.getPositions());
-				*/
-			// check choice TODO
+			Parameter& parm{queue(arg)};
+
+			E::any value;
+			// check type 
+			if (parm.getMax(lang) > 1)
+				value = get_multiple_args(args,arg_idx,lang,parm);
+			else {
+				if (arg.type != parm.getType())
+					throw iexc(exc::TypeError,"Argument entered does not match the type of the parameter. Argument: ",arg.pos,"Parameter set here: ",parm.getPositions());
+				value = arg.value;
+			}
+
+			// check choice 
+			if (!parm.choiceMatch(value,lang))
+				throw iexc(exc::ValueError,"Value entered does not match the choices set. Value entered: ",arg.pos,"Choices: ",parm.getChoices().getPosition());
+
 			// append to formatted
-			formatted.push_back(arg.value);
+			formatted.at(static_cast<size_t>(parm.getIndex())) = value;
 
 		}
-		// check if every parameter has been checked TODO or args match the minimum required
+		// fill default
+		if (queue.hasUnfilledDefault()) {
+			auto unfilled_def { queue.getUnfilledDefault() };
+			for (auto& parm_rf : unfilled_def) {
+				auto& parm {parm_rf.get()};
+				formatted.at(static_cast<size_t>(parm.getIndex())) = parm.getDefault(lang);
+				queue.markFinished(parm);
+			}
+		}
+		// check if every parameter has been checked 
+		if (!queue.areParametersFilled()) {
+			std::vector<Position> pos;
+			for (const auto& arg : args)
+				pos.push_back(arg.pos);
+			throw iexc(exc::ArgumentNBError,"The number of arguments requireddoes not match the number of arguments entered. Arguments: ", pos,"Parameters defined here: ", getPositions());
+		}
+
 		return formatted;
+	}
+
+	E::any Parameters::get_multiple_args(const std::vector<Arg>& args, size_t& arg_idx, const bst::str& lang,Parameter& parm) {
+		/* Return a multiple arg
+		 */
+		const bst::str& arg_name { args[arg_idx].name };
+		std::vector<E::any> value;
+
+		for (; arg_idx < args.size() && args[arg_idx].name == arg_name; ++arg_idx) {
+			const Arg& arg {args[arg_idx]};
+			if (args[arg_idx].type != parm.getType())
+				throw iexc(exc::TypeError,"Argument entered does not match the type of the parameter. Argument: ",arg.pos,"Parameter set here: ",parm.getPositions());
+
+			value.push_back(arg.value);
+		}
+		if (!parm.between(lang))
+			throw iexc(exc::ArgumentNBError,"Argument number entered does not match the number required. Last argument: ",args[arg_idx-1].pos,"Parameter set here: ",parm.getPositions());
+		return value;
 	}
 
 	bool operator == (CRParameter& f, CRParameter& s) {
 		/* true if f and s points to the same object
 		 */
-		return &f.get() == & s.get();
+		return &f.get() == &s.get();
 	}
 
 }

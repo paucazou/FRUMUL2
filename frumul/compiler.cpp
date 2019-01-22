@@ -1069,19 +1069,21 @@ namespace frumul {
 		}
 		*/
 
-		// set symbol
-		symbol_table->append(name,type_,n.getPosition());
-		// optional: set value 
+		// optional: compile value 
 		if (n.getNamedChildren().count("value")) {
 			ExprType value_rt {visit(n.get("value"))};
 			if (value_rt != type_)
 				cast(value_rt,type_,n,n.get("value"));
-
-			//appendAndPushConstant<int>();
-			appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
-			//symbol_table->markDefined(name);
-
 		}
+
+		// set symbol
+		// We set the symbol after, because if we set it before the assignment, the user can make a call to the variable before this variable has been set
+		symbol_table->append(name,type_,n.getPosition());
+
+		// assign value
+		if (n.getNamedChildren().count("value"))
+			appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
+
 		return ET::VOID;
 	}
 

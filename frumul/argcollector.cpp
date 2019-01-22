@@ -165,7 +165,6 @@ namespace frumul {
 		auto unfilled_def { queue.getUnfilledDefault() };
 		for (auto& parm_rf : unfilled_def) {
 			auto& parm {parm_rf.get()};
-			printl(parm);
 			args.at(static_cast<size_t>(parm.getIndex())) = parm.getDefault(lang);
 			queue.markFinished(parm);
 		}

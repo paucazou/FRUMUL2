@@ -3,11 +3,14 @@
 /* This file defines the types used in the Virtual Machine
  */
 #include <cassert>
+#include <experimental/any>
 #include <map>
 #include <memory>
 #include "exception.h"
 #include "macros.h"
 #include "node.h"
+
+namespace E = std::experimental;
 
 #define EXPR_TYPES(T)\
 	T(MIN_PRIMITIVE)\
@@ -26,6 +29,7 @@
 	\
 	/* modifiers */\
 	T(CONSTANT)\
+	T(STATIC)\
 	T(VARIABLE)\
 	T(STACK_ELT)\
 
@@ -56,6 +60,7 @@ namespace frumul {
 			bool operator != (const ExprType::Type)const;
 			bool operator & (const ExprType::Type)const;
 			bool isContainer () const;
+			bool isConst () const;
 			// getters
 			const ExprType& getContained() const;
 			ExprType& getContained() ;
@@ -72,7 +77,9 @@ namespace frumul {
 			STDOUT(ExprType)
 		private:
 			Type type;
-			//BaseType modifier;
+			bool is_const{false};
+			bool is_static{false};
+			E::any value;
 			std::unique_ptr<ExprType> contained;
 			const static std::map<bst::str,ExprType::Type> type_names;
 
