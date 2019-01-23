@@ -1035,32 +1035,8 @@ namespace frumul {
 
 		// find type
 		ExprType type_{ExprType(n.get("type"))};
-		/* DEPRECATED
-		static const std::map<bst::str,ExprType> types{
-			{"text",ET::TEXT},
-			{"int",ET::INT},
-			{"bool",ET::BOOL},
-			{"symbol",ET::SYMBOL},
-			{"list",ET::LIST},
-		};
-		type.tolower();
-		ExprType type_{ET::VOID};
-		bst::str type_key{"type"}; // useful for the catch beyond
-		try {
-			type_ = types.at(type);
-			// manages list
-			if (type_ == ET::LIST) {
-				type_key = "primitive_type";
-				bst::str primitive_type{n.get(type_key).getValue()};
-				primitive_type.tolower();
-				type_ = visit_list_type_declaration(n, types.at(primitive_type));
-			}
-				
 
-		} catch (const std::out_of_range& oor){
-			throw exc(exc::UnknownType,"Invalid type declared",n.get(type_key).getPosition());
-		}
-		*/
+		size_t source_ad{type_.isStatic() ? prepare_static_initialization(n) : 0 };
 
 		// optional: compile value 
 		if (n.getNamedChildren().count("value")) {
@@ -1071,11 +1047,16 @@ namespace frumul {
 
 		// set symbol
 		// We set the symbol after, because if we set it before the assignment, the user can make a call to the variable before this variable has been set
-		symbol_table->append(name,type_,n.getPosition());
+		auto& var { symbol_table->append(name,type_,n.getPosition()) };
+		if (type_.isStatic())
+			bytecode.addStaticVar(static_cast<unsigned int>(var.getIndex()));
 
 		// assign value
 		if (n.getNamedChildren().count("value"))
 			appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
+		
+		if (type_.isStatic()) // set the jump to skip the initialization after the first assignment
+			setJump(source_ad,code.size());
 
 		return ET::VOID;
 	}
@@ -1189,6 +1170,24 @@ namespace frumul {
 
 
 		}
+	}
+
+	size_t __compiler::prepare_static_initialization(const Node& n) {
+		/* Prepare the initialization of a static variable
+		 */
+		// create static bool
+		VarSymbol& bool_ {symbol_table->append(symbol_table->next(),ET::BOOL,n.getPosition())};
+		bytecode.addStaticVar(static_cast<unsigned int>(bool_.getIndex()),false);
+		// push bool on stack
+		appendInstructions(BT::PUSH,ET::VARIABLE,bool_.getIndex(),
+		// prepare the jump
+				BT::JUMP_TRUE,0,0);
+		auto ad_index { code.size() };
+		// set the new value of the bool -> true
+		appendAndPushConstant<bool>(true);
+		appendInstructions(BT::ASSIGN,bool_.getIndex());
+
+		return ad_index;
 	}
 
 #if 0

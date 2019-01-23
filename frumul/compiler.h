@@ -108,6 +108,8 @@ namespace frumul {
 
 			void visitParameters();
 
+			size_t prepare_static_initialization(const Node&);
+
 	};
 
 	class ValueCompiler : public __compiler {

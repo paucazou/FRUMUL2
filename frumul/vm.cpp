@@ -81,6 +81,9 @@ namespace frumul {
 		for (size_t i{0};i<args.size();++i) {
 			variables[i+ret_val_nb] = args[i];
 		}
+		// fill the static variables
+		for (const auto& elt : bt.getStatics())
+			variables[elt.first] = elt.second;
 		// set the return value to an empty string if it is a TEXT
 		if (bt.getReturnType() == ET::TEXT)
 			variables[0] = bst::str{""};
@@ -100,6 +103,7 @@ namespace frumul {
 			long int position {std::distance(bt.getBegin(),it)};
 			bt.throwRuntimeError(position,e.type);
 		}
+		bt.setStatics(variables);
 		return variables[0];
 	}
 

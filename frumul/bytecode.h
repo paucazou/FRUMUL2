@@ -112,12 +112,14 @@ namespace frumul {
 			const E::any& getConstant(size_t) const;
 			std::vector<E::any>& getConstants();
 			std::vector<byte>& getCode();
+			const std::map<unsigned int,E::any>& getStatics() const;
 			const Position& getEltPosition(unsigned int i) const;
 			void setEltPosition(const Position& npos);
-			//static bst::str typeToString(ExprType);
-			//static bst::str listToString(ExprType);
 
 			void addVariable(int i=1);
+			void addStaticVar(unsigned int);
+			void addStaticVar(unsigned int,const E::any&);
+			void setStatics(const std::vector<E::any>&);
 			void addRuntimeError(const BaseException&);
 			void throwRuntimeError(unsigned int i, exc::Type t);
 
@@ -159,6 +161,8 @@ namespace frumul {
 			std::map<std::pair<unsigned int,BaseException::Type>,BaseException> runtime_errors;
 			// store positions of elements that must be found at runtime
 			std::map<unsigned int, Position> element_positions;
+			// static variables
+			std::map<unsigned int, E::any> statics;
 	};
 	using BT = ByteCode;
 	using AnyVector = std::vector<E::any>;

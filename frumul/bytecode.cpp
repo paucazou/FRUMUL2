@@ -64,6 +64,10 @@ namespace frumul {
 		return code;
 	}
 
+	const std::map<unsigned int,E::any>& ByteCode::getStatics() const {
+		return statics;
+	}
+
 	/*bst::str ByteCode::typeToString(BT::ExprType e) {
 		* Return a string representation of type
 		 *
@@ -104,6 +108,29 @@ namespace frumul {
 		/* Increment the number of variables to allow
 		 */
 		v_nb += i;
+	}
+
+	void ByteCode::addStaticVar(unsigned int i) {
+		/* Add a static variable with an empty value
+		 */
+		assert(statics.count(i) == 0&&"Value already set");
+		statics[i] = E::any();
+	}
+
+	void ByteCode::addStaticVar(unsigned int i, const E::any& val) {
+		/* Add a static variable and give it a value
+		 */
+		assert(statics.count(i) == 0&&"Value already set");
+		statics[i] = val;
+	}
+
+	void ByteCode::setStatics(const std::vector<E::any>& variables) {
+		/* Set the static variables
+		 */
+		for (size_t i{0}; i<variables.size(); ++i) {
+			if (statics.count(i) > 0)
+				statics[i] = variables[i];
+		}
 	}
 
 	void ByteCode::addRuntimeError(const BaseException& e) {

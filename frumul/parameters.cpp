@@ -51,6 +51,8 @@ namespace frumul {
 
 		// positions
 		pos.push_back(node.getPosition());
+		if (type.isStatic())
+			throw exc(exc::TypeError,"A parameter can not be static",node.getPosition());
 
 	}
 
