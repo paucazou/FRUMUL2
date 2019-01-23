@@ -210,32 +210,10 @@ namespace frumul {
 		assert(node.type() == Node::RETURN_TYPE&&"Node type should be RETURN_TYPE");
 		return_type.type = ExprType(node);
 		return_type.pos = std::make_unique<Position>(node.getPosition());
+
+		if (return_type.type.isConst() || return_type.type.isStatic())
+			throw exc(exc::TypeError,"Symbol return type can not be const or static",node.getPosition());
 		
-		/*
-		std::map<bst::str,BT::ExprType> types {
-			{"int",BT::INT},
-			{"text",BT::TEXT},
-			{"bool",BT::BOOL},
-			{"void",BT::VOID},
-			{"symbol",BT::SYMBOL},
-		};
-		if (return_type.pos)
-			throw iexc(exc::ReturnTypeAlreadySet,"Return type set twice. First here:",
-					*return_type.pos,
-					"Second here:", node.getPosition());
-
-		bst::str val{ node.getValue()};
-		val.tolower();
-
-		try {
-			return_type.type = types.at(val);
-			return_type.pos = std::make_unique<Position>(node.getPosition());
-		} catch (const std::out_of_range& oor)
-		{
-			throw exc(exc::UnknownOption,"Incorrect return value.",node.getPosition());
-		}
-		*/
-
 	}
 
 	void Symbol::addUnsafeArgsToParms() {

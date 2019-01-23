@@ -424,6 +424,9 @@ namespace frumul {
 		ExprType var_type{symbol_table->getType(name)};
 		ExprType type_expected{ET::VOID};
 
+		if (var_type.isConst())
+			throw iexc(exc::ValueError,"Variable declared const here: ",symbol_table->getPosition(name),"Can not change value.", n.getPosition());
+
 		if (var_type != ET::TEXT && !(var_type & ET::LIST))
 			throw exc(exc::TypeError,"This type can not be used with indices",n.getPosition());
 
@@ -434,9 +437,6 @@ namespace frumul {
 			if (fields.size() > 2)
 				throw iexc(exc::IndexError,"Number of indices can not exceed one for a text",n.getPosition(),"text defined here: ",symbol_table->getPosition(name));
 		}
-		/*else if ((var_type & ET::TEXT) && 
-			(var_type % (ET::LIST * (fields.size() - 1)) != BT::TEXT) 
-			){// lists of texts // complicated condition  */
 		else if (var_type.getPrimitive(ET::LIST) == ET::TEXT &&
 			fields.size() -1 > static_cast<unsigned int>(var_type.getDepth())
 			) // case of a list of texts whose last index refers
@@ -1015,18 +1015,11 @@ namespace frumul {
 		if (rt != s_type) {
 			// cast if possible
 			cast(rt,s_type,n,n.get("value"));
-			/*
-			if (rt == ET::SYMBOL ||
-				(s_type == ET::SYMBOL && rt != ET::TEXT)
-			   )
-				throwInconsistentType(rt,s_type,n.get("value"),n.get("name"));
-			else
-				appendInstructions(BT::CAST,rt,s_type);
-				*/
 		}
-		//appendAndPushConstant<int>(symbol_table->getIndex(name));
+		if (s_type.isConst())
+			throw iexc(exc::ValueError,"Variable declared const here: ",symbol_table->getPosition(name),"Can not change value.", n.getPosition());
+
 		appendInstructions(BT::ASSIGN,symbol_table->getIndex(name));
-		//symbol_table->markDefined(name);
 		return ET::VOID;
 	}
 
@@ -1174,7 +1167,7 @@ namespace frumul {
 
 	void __compiler::checkVariable(const bst::str& name, const Node& n) {
 		/* Checks that variable name has already
-		 * been defined and has been defined
+		 * been defined 
 		 */
 		if (!symbol_table->contains(name))
 			throw exc(exc::NameError,"Name not defined",n.getPosition());

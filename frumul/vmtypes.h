@@ -61,6 +61,7 @@ namespace frumul {
 			bool operator & (const ExprType::Type)const;
 			bool isContainer () const;
 			bool isConst () const;
+			bool isStatic() const;
 			// getters
 			const ExprType& getContained() const;
 			ExprType& getContained() ;
@@ -79,7 +80,6 @@ namespace frumul {
 			Type type;
 			bool is_const{false};
 			bool is_static{false};
-			E::any value;
 			std::unique_ptr<ExprType> contained;
 			const static std::map<bst::str,ExprType::Type> type_names;
 

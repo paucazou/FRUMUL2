@@ -21,7 +21,7 @@ namespace frumul {
 	}
 
 	ExprType::ExprType(const ExprType& other) :
-		type{other.type}
+		type{other.type}, is_const{other.is_const}, is_static{other.is_static}
 	{
 		if (other.contained)
 			contained = std::make_unique<ExprType>(*other.contained);
@@ -37,8 +37,35 @@ namespace frumul {
 		// first type
 		checkNode(types,types.crbegin());
 		ExprType t{type_names.at(types.crbegin()->getValue())};
+		// is const and/or static ?
+		bool is_t_static {false};
+		bool is_t_const {false};
+		auto types_crend { types.crend() };
 
-		for (auto it {types.crbegin() + 1}; it != types.crend(); ++it) {
+		if (types[0].getValue() == "static") {
+			is_t_static = true;
+			--types_crend;
+		} else if (types[0].getValue() == "const") {
+			is_t_const = true;
+			--types_crend;
+		}
+		if (types.size() > 1) {
+			if (types[1].getValue() == "const") {
+				if (is_t_const)
+					throw exc(exc::TypeError,"Const defined twice",n.getPosition());
+				is_t_const = true;
+				--types_crend;
+			} else if (types[1].getValue() == "static") {
+				if (is_t_static)
+					throw exc(exc::TypeError,"Static defined twice",n.getPosition());
+				is_t_static = true;
+				--types_crend;
+			}
+		}
+			
+
+
+		for (auto it {types.crbegin() + 1}; it != types_crend; ++it) {
 			checkNode(types,it);
 			if (it->type() == Node::LITINT) {
 				int nb{ static_cast<int>(it->getValue()) };
@@ -51,6 +78,8 @@ namespace frumul {
 		}
 
 		*this = t;
+		is_static = is_t_static;
+		is_const = is_t_const;
 	}
 
 	ExprType::ExprType(ExprType::Type container, const ExprType& contained_) :
@@ -138,6 +167,12 @@ namespace frumul {
 		/* true if type is const
 		 */
 		return is_const;
+	}
+
+	bool ExprType::isStatic() const {
+		/* true if type is static
+		 */
+		return is_static;
 	}
 
 	ExprType::Type ExprType::getPrimitive() const {
@@ -231,6 +266,9 @@ namespace frumul {
 		if (it->type() == Node::VARIABLE_TYPE) {
 			if (type_names.count(type_name) != 1)
 				throw exc(exc::UnknownType,"Type not recognized",it->getPosition());
+
+			if (type_name == "static" || type_name == "const")
+				throw exc(exc::TypeError,"Const or static must be at the beginning of the type",it->getPosition());
 
 			if (type_names.at(type_name) < ET::MAX_PRIMITIVE && it != types.crbegin())
 				throw exc(exc::TypeError,"Primitive type must be at the end of the list of types",it->getPosition());
