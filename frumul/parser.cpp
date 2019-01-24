@@ -751,7 +751,9 @@ namespace frumul {
 		} else
 			fields.insert({"condition",condition});
 			
-		eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // eat }
+		if (current_token->getType() != Token::SEMICOLON)
+			eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // eat }
+
 		Node inside_loop {basic_value(getTokenStart()) };
 		fields.insert({"inside_loop",inside_loop});
 		if (current_token->getValue() != "pool")
@@ -777,13 +779,15 @@ namespace frumul {
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); //eat 'if'
 		// get comparison
 		fields.insert({"comparison",bin_op(Token::OR)});
-		eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); //eat }
+		if (current_token->getType() != Token::SEMICOLON)
+			eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); //eat }
 		// get text inside
 		fields.insert({"text",basic_value(getTokenStart())});
 		// get the else or pass
 		if (current_token->getValue() == "else") {
 			eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); //eat 'else'
-			eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // eat }
+			if (current_token->getType() != Token::SEMICOLON)
+				eat(Token::RBRACE,Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES); // eat }
 			fields.insert({"else_text",basic_value(getTokenStart())});
 		}
 		// check if 'fi' is present
