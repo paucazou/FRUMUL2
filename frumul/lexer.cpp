@@ -525,6 +525,10 @@ namespace frumul {
 			val = ",";
 			t = Token::COMMA;
 		}
+		else if (current_char == ";") {
+			val = ";";
+			t = Token::SEMICOLON;
+		}
 		else if (current_char == "¦") {
 			val = "¦";
 			t = Token::VBAR;

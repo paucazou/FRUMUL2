@@ -272,12 +272,17 @@ namespace frumul {
 				eat(Token::VAL_TEXT,Token::LBRACE,Token::MAX_TYPES_VALUES);
 			}
 			// programmatic part
-			else if (current_token->getType() == Token::LBRACE) {
-				eat(Token::LBRACE,Token::MAX_TYPES_VALUES); // eat {
+			else if (current_token->getType() == Token::LBRACE || current_token->getType() == Token::SEMICOLON) {
+				if (current_token->getType() == Token::LBRACE)
+					eat(Token::LBRACE,Token::MAX_TYPES_VALUES); // eat {
+				else
+					eat(Token::SEMICOLON,Token::MAX_TYPES_VALUES); // eat ;
+
 				if (in<bst::str,std::initializer_list<bst::str>>(current_token->getValue(),{"pool","else","fi"}))
 					break; // end of a loop or a condition
 				fields.push_back(programmatic_part());
-				eat(Token::RBRACE,Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat }
+				if (current_token->getType() != Token::SEMICOLON)
+					eat(Token::RBRACE,Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat }
 			}
 		}
 		int end {current_token->getPosition().getEnd()}; // should match with the position of RAQUOTE
@@ -291,7 +296,7 @@ namespace frumul {
 		 * the values
 		 * Node returned may be of various types.
 		 */
-		if (current_token->getType() == Token::RBRACE)
+		if (current_token->getType() == Token::RBRACE || current_token->getType() == Token::SEMICOLON)
 			// we know it is the placeholder for a unsafe arg
 			return Node{Node::UNSAFE_ARG,current_token->getPosition()};
 

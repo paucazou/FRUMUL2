@@ -25,6 +25,7 @@
 	TOK(LBRACKET)		/* [ */\
 	TOK(RBRACKET)		/* ] */\
 	TOK(COMMA)		/* , */\
+	TOK(SEMICOLON)		/* ; */\
 	TOK(VBAR)		/* ¦ */\
 	TOK(ASSIGN)		/* : */\
 	TOK(EQUAL)		/* = */\
