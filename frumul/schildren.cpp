@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include "schildren.h"
 
@@ -95,6 +96,21 @@ namespace frumul {
 		return parent;
 	}
 
+	std::vector<Symbol*> Schildren::sortChildrenByLongName() {
+		/* Return a vector of pointers 
+		 * of the children sorted by long names, the longest first
+		 */
+		std::vector<Symbol*> sorted;
+		for (auto& child : children)
+			sorted.push_back(&child);
+
+		std::sort(sorted.begin(), sorted.end(), [](Symbol* a, Symbol* b) {
+				return a->getName().getLong().uLength() > b->getName().getLong().uLength();
+				});
+
+		return sorted;
+	}
+
 	// finders
 	
 	TailResult Schildren::find(const bst::str& path, const PathFlag flag) {
@@ -122,7 +138,8 @@ namespace frumul {
 					return find(path.uRange(1,path.uLength()-1),flag);
 		}
 		// try to find a long name
-		for (auto& child : children) {
+		for (auto child_ptr : sortChildrenByLongName()) {
+			auto& child {*child_ptr};
 			const bst::str& name {child.getName().getLong()};
 			
 			if (!name || name.uLength() > path.uLength())

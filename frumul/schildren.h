@@ -41,6 +41,7 @@ namespace frumul {
 			bool hasChild(const bst::str& name) const;
 			bool hasChild(const Node& node) const;
 			bool hasParent() const;
+			std::vector<Symbol*> sortChildrenByLongName();
 			// finders
 
 			TailResult find(const bst::str& path, const PathFlag flag=PathFlag::No) ;
