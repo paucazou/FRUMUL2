@@ -14,6 +14,7 @@ compile () {
 		-Wfatal-errors\
 		-Wsign-conversion\
 		-D DEBUG\
+		-D CXXOPTS_USE_UNICODE\
 		-g\
 		tests/astbrowser.cpp\
 		tests/tests.cpp\
@@ -50,6 +51,10 @@ compile () {
 		$bstrlib/buniutil.o\
 		$bstrlib/utf8util.o\
 		/usr/lib/gcc/x86_64-linux-gnu/6/libstdc++fs.a\
+		-Ifrumul/icu/usr/local/include\
+		-Ifrumul/cxxopts/include\
+		-licuuc -licudata -licuio -licui18n\
+		-Wl,-Rfrumul/icu/usr/local/lib\
 		$@
 }
 
@@ -59,6 +64,8 @@ objectify () {
 		-Wextra -Wall -pedantic\
 		-pedantic-errors\
 		-Wsign-conversion\
+		-isystem ../frumul/icu/usr/local/include\
+		-isystem ../frumul/cxxopts/include\
 		-D DEBUG\
 		-g\
 		-c ../$1

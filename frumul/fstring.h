@@ -1,0 +1,88 @@
+#ifndef FSTRING_H
+#define FSTRING_H
+
+#include <string>
+#include "unicode/unistr.h"
+#include "unicode/ustream.h"
+
+namespace frumul {
+	class FString {
+		/* Frumul String.
+		 * Supports Unicode
+		 */
+		public:
+			// constructors
+			FString();
+			FString(const std::string&);
+			FString(const char*);
+			FString(const char);
+			FString(const int);
+			FString(unsigned int);
+			FString(const FString&);
+			FString(const FString&&);
+
+			// getters
+			int length() const;
+			int linesNumber() const;
+			bool operator ==(const FString&) const;
+			bool operator == (const char) const;
+			bool operator !=(const FString&) const;
+			bool operator != (const char) const;
+			FString operator [] (int) const;
+			FString getLine(int) const;
+			// cast
+			operator int ()const;
+			operator bool ()const;
+
+			// setters 
+			FString& operator += (const FString&);
+			void insert(int,const FString&);
+
+			// to new strings
+			FString extract(int,int) const;
+
+			// output
+			friend std::ostream& operator << (std::ostream&, const FString&);
+
+			// subclasses
+			class iterator {
+				public:
+					iterator(const FString&, int pos = 0);
+					bool operator != (const iterator&) const;
+					FString operator * ();
+					iterator& operator++();
+					operator bool () const;
+				private:
+					int _pos{0};
+					const FString& _str;
+
+			};
+			
+			// iterators
+			iterator begin() const;
+			iterator end() const;
+
+
+		private:
+			icu::UnicodeString _str ;
+			FString& that{*this};
+	};
+
+	class FStringException {
+		public:
+			FStringException(const FString&);
+			const FString& what() const;
+		private:
+			const FString _msg;
+
+	};
+	FString operator + (const FString&, const FString&);
+	FString operator + (const FString&, const char*);
+	FString operator + (const char*, const FString&);
+	FString operator + (const FString&, int);
+	FString operator * (const FString&, int);
+	FString operator * (int, const FString&);
+
+	using fsexc = FStringException;
+}
+#endif
