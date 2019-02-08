@@ -1,6 +1,7 @@
 #ifndef FSTRING_H
 #define FSTRING_H
 
+#include <iostream>
 #include <string>
 #include "unicode/unistr.h"
 #include "unicode/ustream.h"
@@ -28,8 +29,8 @@ namespace frumul {
 			bool operator == (const char) const;
 			bool operator !=(const FString&) const;
 			bool operator != (const char) const;
+			char16_t rawAt(int) const;
 			FString operator [] (int) const;
-			FString getLine(int) const;
 			// cast
 			operator int ()const;
 			operator bool ()const;
@@ -40,6 +41,7 @@ namespace frumul {
 
 			// to new strings
 			FString extract(int,int) const;
+			FString getLine(int) const;
 
 			// output
 			friend std::ostream& operator << (std::ostream&, const FString&);

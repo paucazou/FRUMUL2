@@ -2,7 +2,16 @@
 frumul_path="../../frumul"
 icu_path="$frumul_path/icu"
 
-g++ test.cpp \
+if [[ $1 ]]; then
+	compiler=$1
+else
+	compiler=g++
+fi
+
+$compiler test.cpp \
+	-g \
+	-std=c++14 \
+	-Wno-unused-value \
 	$frumul_path/fstring.cpp \
 	-I$frumul_path/icu/usr/local/include \
 	-I$frumul_path \

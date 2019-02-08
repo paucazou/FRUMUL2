@@ -1,8 +1,12 @@
 #include <cassert>
-#include <locale.h>
+#include <codecvt>
+#include <locale>
 #include "fstring.h"
 
 namespace frumul {
+	std::wstring_convert<std::codecvt_utf8<char32_t>,char32_t> utfconverter;
+
+	
 	FString::FString():
 		_str{icu::UnicodeString()}
 	{
@@ -14,7 +18,7 @@ namespace frumul {
 	}
 
 	FString::FString(const char * s) :
-		_str{*s}
+		_str{s}
 	{
 	}
 
@@ -63,25 +67,31 @@ namespace frumul {
 		return !(*this == other);
 	}
 
+	char16_t FString::rawAt(int i) const {
+		return _str[i];
+	}
+
 	FString FString::operator [] (int i) const {
 		if (i >= length())
 			throw fsexc("FString: index out of range. Index: " + FString(i) + "Length: " + length());
-		return _str[i];
+		return utfconverter.to_bytes(rawAt(i));
 	}
 
 	FString FString::getLine(int i) const {
 		/* Return the line at i
-		 * i must be > 0 < length()
+		 * i must be > 0 < linesNumber()
 		 */
+		assert(i >= 1 &&"Line must be equal or greater than 1");
+
 		FString tmp;
 		int linepos{1};
 		for (int cpos{0}; linepos <= i && cpos < length(); ++cpos) {
-			if (that[i] == '\n')
+			if (that[cpos] == '\n')
 				++linepos;
 			else if (linepos == i)
-				tmp += that[i];
+				tmp += that[cpos];
 		}
-		if (linepos < i)
+		if (linepos < i || !that)
 			throw fsexc("getLine: line requested does not exist");
 		return tmp;
 	}
@@ -89,13 +99,11 @@ namespace frumul {
 	int FString::linesNumber() const {
 		/* Return the number of lines in *this
 		 */
-		int nb{0};
+		int nb{1};
 		for (int i{0}; i < length(); ++i) {
 			if (that[i] == '\n')
 				++nb;
 		}
-		if (that[_str.length()-1] != '\n')
-			++nb;
 		return nb;
 	}
 
@@ -130,12 +138,12 @@ namespace frumul {
 		/* insert other at pos position
 		 */
 		assert(pos > -1 && "Insert: pos is under zero");
-		assert(pos < length() && "Insert: pos it too large");
+		assert(pos <= length() && "Insert: pos it too large");
 		_str.insert(pos,other._str);
 	}
 
 	FString FString::extract(int start, int end) const {
-		/* Extract a string between start and end
+		/* Extract a string between start and end (included)
 		 * Example :
 		 * 	String : "Home, sweet home"
 		 * 	extract(0,3) == "Home"
@@ -144,7 +152,7 @@ namespace frumul {
 		assert(start > -1 && "Extract: start is under zero");
 		assert(end < length() && "Extract: end is too large");
 		FString s;
-		_str.extract(start,end-1,s._str);
+		_str.extract(start,end+1,s._str);
 		return s;
 	}
 
