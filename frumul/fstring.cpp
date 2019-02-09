@@ -151,8 +151,11 @@ namespace frumul {
 		 */
 		assert(start > -1 && "Extract: start is under zero");
 		assert(end < length() && "Extract: end is too large");
+		assert(start <= end && "Extract: start is greater than end");
+
 		FString s;
-		_str.extract(start,end+1,s._str);
+		int length { end + 1 - start };
+		_str.extract(start,length,s._str);
 		return s;
 	}
 
@@ -228,11 +231,19 @@ namespace frumul {
 	}
 
 	FString operator + (const char * cstring, const FString& s) {
-		return s + cstring;
+		return FString(cstring) + s;
 	}
 
 	FString operator + (const FString& s, int i) {
 		return s + FString (i);
+	}
+
+	FString operator + (const char c, const FString& s) {
+		return FString(c) + s;
+	}
+
+	FString operator + (const FString& s, const char c) {
+		return s + FString(c);
 	}
 
 	FString operator * (const FString& s, int nb) {

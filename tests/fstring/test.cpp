@@ -176,6 +176,12 @@ bool test_getLine() {
 	assert(end_n.getLine(1) == "One");
 	assert(end_n.getLine(2) == "");
 
+	// test const-correctness
+	const FString two_lines {"One\nTwo"};
+	const FString&& line_got { std::move(two_lines.getLine(2)) };
+	assert(&line_got != &two_lines);
+
+
 	return true;
 }
 
@@ -217,10 +223,69 @@ bool test_insert() {
 
 bool test_extract() {
 	FString fs { "Home, sweet home" };
-	printl(fs.extract(0,3));
 	assert(fs.extract(0,3) == "Home");
-	printl(fs.extract(4,10));
 	assert(fs.extract(4,10) == ", sweet");
+	assert(fs.extract(12,15) == "home");
+	
+	// test const correctness
+	const FString& cfs { fs };
+	const FString&& extracted { std::move(cfs.extract(0,3)) };
+	assert(&extracted != &cfs);
+	return true;
+}
+
+bool test_operator_plus() {
+	// every argument is supposed to be constant
+	const FString fs {"FSTRING"};
+	const FString fs2 {"2"};
+	// FString + FString
+	assert(fs + fs == "FSTRINGFSTRING");
+	assert(fs + FString() == fs);
+	assert(FString() + fs == fs);
+	assert(fs + fs2 != fs2 + fs);
+
+	// FString + const char *
+	const char cstring[] {"fstring"};
+	assert(fs + "fstring" == "FSTRINGfstring");
+	assert(fs + "" == fs);
+	assert(FString() + "fstring" == cstring);
+	assert(fs + cstring == "FSTRINGfstring");
+
+	// const char * + FString
+	assert((cstring + fs) == "fstringFSTRING");
+	assert("" + fs == fs);
+	assert(cstring + FString() == cstring);
+	assert("1" + fs2 == "12");
+
+	// FString + int
+	const int i {12};
+	assert(fs + i == "FSTRING12");
+	assert(fs + 0 == "FSTRING0");
+	assert(fs + -1 == "FSTRING-1");
+
+	// char + FString
+	const char c{ 'c' };
+	assert(c + fs2 == "c2");
+	assert('u' + fs2 == "u2");
+
+	// FString + char
+	assert(fs2 + c == "2c");
+	assert(fs2 + 'u' == "2u");
+
+	// int * FString
+	const int x {2};
+	const FString y { "ux" };
+
+	assert(x * y == "uxux");
+	assert(3 * y == "uxuxux");
+	assert(4 * FString(" ") == "    ");
+
+	// FString * int
+	assert( y * x == "uxux");
+	assert( y * 3 == "uxuxux");
+	assert(FString(" ") * 4 == "    ");
+	assert(y * x == x * y);
+	
 	return true;
 }
 
@@ -283,6 +348,9 @@ int main () {
 
 	// FStringException
 	test_fstring_exception();
+
+	// operator +
+	test_operator_plus();
 	
 
 	return 0;

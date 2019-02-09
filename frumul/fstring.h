@@ -82,6 +82,8 @@ namespace frumul {
 	FString operator + (const FString&, const char*);
 	FString operator + (const char*, const FString&);
 	FString operator + (const FString&, int);
+	FString operator + (const char,const FString&);
+	FString operator + (const FString&, const char);
 	FString operator * (const FString&, int);
 	FString operator * (int, const FString&);
 
