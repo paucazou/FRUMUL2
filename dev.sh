@@ -23,6 +23,7 @@ compile () {
 		frumul/compiler.cpp\
 		frumul/exception.cpp\
 		frumul/fdeclaration.cpp\
+		frumul/fstring.cpp\
 		frumul/hinterpreter.cpp\
 		frumul/lexer.cpp\
 		frumul/mark.cpp\

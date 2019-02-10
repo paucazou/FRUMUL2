@@ -6,7 +6,7 @@ namespace frumul {
                         /* Text to Int
                          */
 			// checks that all characters are digits
-			for (int i{0}; i < s.uLength(); ++i) {
+			for (int i{0}; i < s.length(); ++i) {
 				const auto elt { static_cast<unsigned int>(s.rawAt(i)) };
 				if (!iswdigit(elt))
 					throw BackException(exc::TypeError);

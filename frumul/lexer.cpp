@@ -199,7 +199,7 @@ namespace frumul {
 		/* Change the position and the current char
 		 * by advancing to npos
 		 */
-		if (npos < source.uLength()) {
+		if (npos < source.length()) {
 			current_char = source.uAt(npos);
 			raw_current_char = source.rawAt(npos);
 		}
@@ -218,7 +218,7 @@ namespace frumul {
 		 * Return true if is a comment.
 		 */
 		// Test
-		if (pos+2 >= source.uLength() || !(source.uAt(pos+1) == "/" && source.uAt(pos+2) == "*"))
+		if (pos+2 >= source.length() || !(source.uAt(pos+1) == "/" && source.uAt(pos+2) == "*"))
 			return false;
 
 		try {
@@ -302,8 +302,8 @@ namespace frumul {
 		FString c, d;
 		tempos = pos;
 		for (int cpos{0};
-				cpos < candidate.uLength() && 
-				tempos < source.uLength();
+				cpos < candidate.length() && 
+				tempos < source.length();
 				++cpos, ++tempos
 		    ) {
 			c = source.uAt(tempos);
@@ -598,9 +598,9 @@ namespace frumul {
 		/* Try to see if the current char is the start of
 		 * at least one tag
 		 */
-		int remaining_length { source.uLength() - pos};
+		int remaining_length { source.length() - pos};
 		for (const auto & tag : opening_tags) {
-			int taglen {tag.uLength()};
+			int taglen {tag.length()};
 			if (remaining_length >= taglen) {
 				if (source.uRange(pos,pos + taglen-1) == tag)
 					return true;
@@ -612,13 +612,13 @@ namespace frumul {
 	Token Lexer::findOpeningTag() {
 		/* Find the correct opening tag
 		 */
-		int remaining_length { source.uLength() - pos };
+		int remaining_length { source.length() - pos };
 		int oldpos{pos};
 		FString chosen;
 		for (const auto& tag : opening_tags) {
-			int taglen {tag.uLength()};
+			int taglen {tag.length()};
 			if (remaining_length >= taglen)
-				if (source.uRange(pos,pos + taglen - 1) == tag && taglen > chosen.uLength())
+				if (source.uRange(pos,pos + taglen - 1) == tag && taglen > chosen.length())
 					chosen = tag;
 		}
 		if (!chosen) {
@@ -628,7 +628,7 @@ namespace frumul {
 			throw BaseException(BaseException::TagNotFound,msg,Position(pos,pos,filepath,source));
 		}
 
-		advanceTo(pos+chosen.uLength());
+		advanceTo(pos+chosen.length());
 		return Token(Token::TAG,chosen,Position(oldpos,pos-1,filepath,source));
 	}
 

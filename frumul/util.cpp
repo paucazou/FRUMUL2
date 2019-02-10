@@ -59,7 +59,7 @@ namespace frumul {
 		/* true if s is a whitespace
 		 */
 		static const FString unbreakable_space { L'\u00A0' };
-		assert(s.uLength() == 1&&"String entered is not a single character");
+		assert(s.length() == 1&&"String entered is not a single character");
 		const auto raw_char { static_cast<unsigned int>(s.rawAt(0)) };
 		return std::iswspace(raw_char) || s == unbreakable_space;
 	}
@@ -67,7 +67,7 @@ namespace frumul {
 	FString remove_trailing_whitespaces(const FString& s) {
 		/* Remove the trailing whitespace
 		 */
-		for (int i{s.uLength()-1}; i >= 0; --i) {
+		for (int i{s.length()-1}; i >= 0; --i) {
 			if (!is_whitespace(s.uAt(i))) {
 				return s.uRange(0,i);
 			}

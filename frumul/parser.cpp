@@ -12,7 +12,7 @@ namespace frumul {
 		source{nsource}, filepath{nfilepath},
 		lex{nsource,nfilepath},
 		transpiler{ntranspiler},
-		AST{Node::DOCUMENT,Position{0,nsource.uLength()-1,nfilepath,source},StrNodeMap()}
+		AST{Node::DOCUMENT,Position{0,nsource.length()-1,nfilepath,source},StrNodeMap()}
 	{
 		current_token = new Token{lex.getNextToken(next_token,Token::MAX_TYPES_HEADER)};
 	}
@@ -184,7 +184,7 @@ namespace frumul {
 
 		if (isNameRequired) {
 			FString name{current_token->getValue()}; // get name
-			Node::Type t = (name.uLength() > 1 ? Node::LONG_NAME : Node::SHORT_NAME);
+			Node::Type t = (name.length() > 1 ? Node::LONG_NAME : Node::SHORT_NAME);
 			fields.insert({"name",Node(t,current_token->getPosition(),name)});
 
 			eat(Token::ID,Token::COLON,Token::MAX_TYPES_HEADER); // eat id
@@ -1358,7 +1358,7 @@ namespace frumul {
 		 * the collector.
 		 */
 		// creating the node
-		int start {pos.getEnd() - arg.uLength()};
+		int start {pos.getEnd() - arg.length()};
 		auto node { Node(Node::TEXTUAL_ARGUMENT,Position(start,pos.getEnd(),filepath,source),arg) };
 
 		// giving the node to the collector
@@ -1370,7 +1370,7 @@ namespace frumul {
 		 * after creating a node
 		 */
 		// creating the node
-		int start {pos.getEnd() - name.uLength()};
+		int start {pos.getEnd() - name.length()};
 		Node textual_argument{arg(collector)};
 		auto node { Node(Node::NAMED_ARG,Position(start,textual_argument.getPosition().getEnd(),filepath,source),{{"arg_value",textual_argument}},name) };
 

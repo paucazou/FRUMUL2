@@ -60,24 +60,24 @@ namespace frumul {
 
 		FString returned{"File: "};
 		returned += filepath + '\n';
-		//returned += FString{" "} * (startp.getColumn() + FString{startp.getLine()}.uLength() ) + "↓\n";
+		//returned += FString{" "} * (startp.getColumn() + FString{startp.getLine()}.length() ) + "↓\n";
 
 		
 		int startcol {startp.getColumn()-1};
 		for (int cline{startp.getLine()}; cline <= endp.getLine();++cline) {
 			FString curline {filecontent.getLine(cline)};
 			if (cline == startp.getLine()) {
-				if (startcol >= curline.uLength())
+				if (startcol >= curline.length())
 					curline += red;
 				else
 					curline.uInsert(startcol,red);
 				if (cline == endp.getLine())
-					curline.uInsert(endp.getColumn() + red.uLength(), reset);
+					curline.uInsert(endp.getColumn() + red.length(), reset);
 				returned += FString(cline) + " " + curline + '\n';
 				continue;
 			}
 			else if (cline == endp.getLine()) {
-				if (endp.getColumn() >= curline.uLength())
+				if (endp.getColumn() >= curline.length())
 					curline += reset;
 				else
 					curline.uInsert(endp.getColumn(),reset);
@@ -86,14 +86,14 @@ namespace frumul {
 			returned += reset + FString(cline) + red + " " + curline + '\n';
 		}
 
-		//returned += FString{" "} * (endp.getColumn() + FString{endp.getLine()}.uLength() ) + "↑\n";
+		//returned += FString{" "} * (endp.getColumn() + FString{endp.getLine()}.length() ) + "↑\n";
 
 		FString temp_line;
 		int max_length{0};
 		for (int cline{0}; cline <= returned.linesNumber() ; ++cline) {
 			temp_line = returned.getLine(cline);
-			if (temp_line.uLength() > max_length)
-				max_length = temp_line.uLength();
+			if (temp_line.length() > max_length)
+				max_length = temp_line.length();
 		}
 		if (max_length > max_col)
 			max_length = max_col;

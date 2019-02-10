@@ -177,7 +177,7 @@ namespace frumul {
 				len = E::any_cast<AnyVector&>(elt).size();
 				break;
 			case ET::TEXT:
-				len = E::any_cast<FString&>(elt).uLength();
+				len = E::any_cast<FString&>(elt).length();
 				break;
 			default:
 				assert(false&&"Type expected: text or list.");
@@ -436,7 +436,7 @@ namespace frumul {
 			FString s {pop<FString>()};
 			stack.push(
 				static_cast<unsigned int>(s.uAt(
-						static_cast<int>(negative_index(i,static_cast<unsigned int>(s.uLength()),true)))
+						static_cast<int>(negative_index(i,static_cast<unsigned int>(s.length()),true)))
 				)
 				);
 		}
@@ -449,13 +449,13 @@ namespace frumul {
 			// get string and push element on the stack
 			if (t & ET::CONSTANT) {
 				const FString& s{E::any_cast<const FString&>(bt.getConstant(data_nb))};
-				auto ls{static_cast<unsigned int>(s.uLength())};
+				auto ls{static_cast<unsigned int>(s.length())};
 				stack.push(s.uAt(static_cast<int>(negative_index(data_index,ls,true))));
 			}
 			// from variable
 			else {
 				FString& s{E::any_cast<FString&>(variables[data_nb])};
-				auto ls{static_cast<unsigned int>(s.uLength())};
+				auto ls{static_cast<unsigned int>(s.length())};
 				stack.push(s.uAt(static_cast<int>(negative_index(data_index,ls,true))));
 			}
 		}
@@ -474,13 +474,13 @@ namespace frumul {
 		auto index{pop<int>()};
 		const FString c{pop<const FString>()};
 		// check that c has a 1 length
-		if (c.uLength() != 1)
+		if (c.length() != 1)
 			throw BackException(exc::ValueError);
 
 		FString& var{E::any_cast<FString&>(variables[text_var])};
 
 		// index error is catched thanks to negative_index
-		auto ls{static_cast<unsigned int>(var.uLength())};
+		auto ls{static_cast<unsigned int>(var.length())};
 		int neg_idx { static_cast<int>(negative_index(index,ls,true)) };
 		var.uReplace(neg_idx,c);
 	}
@@ -524,11 +524,11 @@ namespace frumul {
 			const FString c{pop<const FString>()};
 			
 			// check that c has a 1 length
-			if (c.uLength() != 1)
+			if (c.length() != 1)
 				throw BackException(exc::ValueError);
 
 			// index error is catched thanks to negative_index
-			text_ptr->uReplace(static_cast<int>(negative_index(last_index,static_cast<unsigned int>(text_ptr->uLength())),true),c);
+			text_ptr->uReplace(static_cast<int>(negative_index(last_index,static_cast<unsigned int>(text_ptr->length())),true),c);
 
 		}
 		else {

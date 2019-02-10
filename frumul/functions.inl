@@ -67,7 +67,7 @@ namespace frumul {
 			/* Check that s can be converted 
 			 * to T
 			 */
-			std::string ss((const char*)(s.data));
+			std::string ss((const char*)(s.toUTF8String<std::string>()));
 			std::istringstream iss{ss};
 			T tmp;
 			return (iss >> tmp) && (iss.eof());

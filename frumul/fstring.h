@@ -42,6 +42,12 @@ namespace frumul {
 			// to new strings
 			FString extract(int,int) const;
 			FString getLine(int) const;
+			template <typename stringT>
+				stringT toUTF8String() const {
+					stringT string;
+					_str.toUTF8String(string);
+					return string;
+				}
 
 			// output
 			friend std::ostream& operator << (std::ostream&, const FString&);

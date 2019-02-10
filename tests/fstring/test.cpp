@@ -234,6 +234,12 @@ bool test_extract() {
 	return true;
 }
 
+bool test_toUTF8() {
+	const FString fs{str};
+	assert(fs.toUTF8String<std::string>() == str);
+	return true;
+}
+
 bool test_operator_plus() {
 	// every argument is supposed to be constant
 	const FString fs {"FSTRING"};
@@ -316,6 +322,7 @@ int main () {
 	// // getline
 	test_getLine();
 	test_extract();
+	test_toUTF8();
 
 	// // equality
 	test_equality();

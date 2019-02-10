@@ -53,7 +53,7 @@ namespace frumul {
 		 * WITHOUT position. Don't use it
 		 * in the regular interpreter
 		 */
-		if (name.uLength() == 1) {
+		if (name.length() == 1) {
 			if (!sname)
 				sname = name;
 			else
@@ -73,7 +73,7 @@ namespace frumul {
 		 */
 		const FString& ns {node.getValue()};
 
-		if (ns.uLength() != 1)
+		if (ns.length() != 1)
 			throw exc(exc::InvalidName,"A short name must have only one character",node.getPosition());
 
 		if (sname) {
@@ -96,7 +96,7 @@ namespace frumul {
 		 */
 		const FString& nl {node.getValue()};
 
-		if (nl.uLength() <= 1)
+		if (nl.length() <= 1)
 			throw exc(exc::InvalidName,"A long name must have at least two characters",node.getPosition());
 
 		if (lname) {
