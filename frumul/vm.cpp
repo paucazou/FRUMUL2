@@ -41,7 +41,7 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 	ET::Type t{static_cast<ET::Type>(*++it)}; \
 	switch (t) { \
 		case ET::TEXT: \
-			       stack.push(pop<bst::str>() op pop<bst::str>()); \
+			       stack.push(pop<FString>() op pop<FString>()); \
 				break; \
 		case ET::INT: \
 			      stack.push(pop<int>() op pop<int>()); \
@@ -66,7 +66,7 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 	} while (false)
 	
 namespace frumul {
-	VM::VM(ByteCode& nbt,const bst::str& nlang,const std::vector<E::any>& args) :
+	VM::VM(ByteCode& nbt,const FString& nlang,const std::vector<E::any>& args) :
 		bt{nbt}, it{nbt.getBegin()}, lang{nlang}
 	{
 		// resize variables vector
@@ -86,7 +86,7 @@ namespace frumul {
 			variables[elt.first] = elt.second;
 		// set the return value to an empty string if it is a TEXT
 		if (bt.getReturnType() == ET::TEXT)
-			variables[0] = bst::str{""};
+			variables[0] = FString{""};
 		// set an arbitrary number of elements for the stack 
 		// but it can be set above without problem
 		stack.exposeContainer().resize(255);
@@ -124,8 +124,8 @@ namespace frumul {
 				case BT::INT_MOD:	modulo();break;
 				case BT::INT_NEG:	UNARY_OP(-,int); break;
 				case BT::INT_POS:	UNARY_OP(+,int); break;
-				case BT::TEXT_ADD:	BINARY_OP_SAME_TYPE(+,bst::str);break;
-				case BT::TEXT_MUL:	BINARY_OP(*,bst::str,int);break;
+				case BT::TEXT_ADD:	BINARY_OP_SAME_TYPE(+,FString);break;
+				case BT::TEXT_MUL:	BINARY_OP(*,FString,int);break;
 				case BT::LIST_ADD:	BINARY_OP_SAME_TYPE(+,AnyVector);break;
 				case BT::BOOL_AND:	BINARY_OP_BOOL(&&);break;
 				case BT::BOOL_OR:	BINARY_OP_BOOL(||);break;
@@ -177,7 +177,7 @@ namespace frumul {
 				len = E::any_cast<AnyVector&>(elt).size();
 				break;
 			case ET::TEXT:
-				len = E::any_cast<bst::str&>(elt).uLength();
+				len = E::any_cast<FString&>(elt).uLength();
 				break;
 			default:
 				assert(false&&"Type expected: text or list.");
@@ -272,7 +272,7 @@ namespace frumul {
 			ExprType type{getRealType()};
 
 			// get the name (if necessary)
-			bst::str name{ (*++it ? pop<bst::str>() : "") };
+			FString name{ (*++it ? pop<FString>() : "") };
 
 			// get the position
 			const Position& pos{bt.getEltPosition(std::distance(bt.getBegin(),it))};
@@ -317,7 +317,7 @@ namespace frumul {
 				switch (target_t) {
 					case ET::INT:
 						{
-						bst::str s{pop<bst::str>()};
+						FString s{pop<FString>()};
 						if (!can_be_cast_to<int>(s))
 							throw BackException(exc::CastError);
 
@@ -326,7 +326,7 @@ namespace frumul {
 						break;
 					case ET::BOOL:
 						{
-							bst::str s{pop<bst::str>()};	
+							FString s{pop<FString>()};	
 							if (s == "1" || s == "true")
 								stack.push(true);
 							else if (s == "0" || s == "false")
@@ -339,7 +339,7 @@ namespace frumul {
 					case ET::SYMBOL:
 						{
 							// get the string
-							bst::str s{pop<bst::str>()};
+							FString s{pop<FString>()};
 							Symbol& parent{bt.getParent()};
 							// get the real type
 							
@@ -349,7 +349,7 @@ namespace frumul {
 							stack.push(child);
 							if (child.get().getReturnType() != type_expected)
 								throw BackException(exc::TypeError);
-							} catch (bst::str& e) {
+							} catch (FString& e) {
 								throw BackException(exc::NameError);
 							}
 							
@@ -363,7 +363,7 @@ namespace frumul {
 			case ET::INT:
 				switch (target_t) {
 					case ET::TEXT:
-						stack.push(bst::str(pop<int>()));
+						stack.push(FString(pop<int>()));
 						break;
 					case ET::BOOL:
 						{
@@ -382,7 +382,7 @@ namespace frumul {
 					case ET::TEXT:
 						{
 						bool b{pop<bool>()};
-						const bst::str True{"true"}, False{"false"};
+						const FString True{"true"}, False{"false"};
 						if (b)
 							stack.push(True);
 						else
@@ -433,7 +433,7 @@ namespace frumul {
 		ET::Type t{static_cast<ET::Type>(*++it)};
 		if (t & ET::STACK_ELT) {
 			int i{pop<int>()};
-			bst::str s {pop<bst::str>()};
+			FString s {pop<FString>()};
 			stack.push(
 				static_cast<unsigned int>(s.uAt(
 						static_cast<int>(negative_index(i,static_cast<unsigned int>(s.uLength()),true)))
@@ -448,13 +448,13 @@ namespace frumul {
 			
 			// get string and push element on the stack
 			if (t & ET::CONSTANT) {
-				const bst::str& s{E::any_cast<const bst::str&>(bt.getConstant(data_nb))};
+				const FString& s{E::any_cast<const FString&>(bt.getConstant(data_nb))};
 				auto ls{static_cast<unsigned int>(s.uLength())};
 				stack.push(s.uAt(static_cast<int>(negative_index(data_index,ls,true))));
 			}
 			// from variable
 			else {
-				bst::str& s{E::any_cast<bst::str&>(variables[data_nb])};
+				FString& s{E::any_cast<FString&>(variables[data_nb])};
 				auto ls{static_cast<unsigned int>(s.uLength())};
 				stack.push(s.uAt(static_cast<int>(negative_index(data_index,ls,true))));
 			}
@@ -472,12 +472,12 @@ namespace frumul {
 		 */
 		auto text_var {pop<unsigned int>()};
 		auto index{pop<int>()};
-		const bst::str c{pop<const bst::str>()};
+		const FString c{pop<const FString>()};
 		// check that c has a 1 length
 		if (c.uLength() != 1)
 			throw BackException(exc::ValueError);
 
-		bst::str& var{E::any_cast<bst::str&>(variables[text_var])};
+		FString& var{E::any_cast<FString&>(variables[text_var])};
 
 		// index error is catched thanks to negative_index
 		auto ls{static_cast<unsigned int>(var.uLength())};
@@ -503,7 +503,7 @@ namespace frumul {
 		unsigned int var_i {pop<unsigned int>()};
 
 		AnyVector* list{E::any_cast<AnyVector>(&variables[var_i])};
-		bst::str* text_ptr{nullptr};
+		FString* text_ptr{nullptr};
 
 		// get the indices
 		for (;indices_nb > 1; --indices_nb) {
@@ -511,7 +511,7 @@ namespace frumul {
 			unsigned int index{negative_index(i,list->size(),true)};
 
 			if (is_char_to_set && indices_nb == 2)
-				text_ptr = E::any_cast<bst::str>(&list->operator[](index));
+				text_ptr = E::any_cast<FString>(&list->operator[](index));
 			else
 				list = E::any_cast<AnyVector>(&list->operator[](index));
 		}
@@ -521,7 +521,7 @@ namespace frumul {
 
 		if (is_char_to_set) {
 			// get the value
-			const bst::str c{pop<const bst::str>()};
+			const FString c{pop<const FString>()};
 			
 			// check that c has a 1 length
 			if (c.uLength() != 1)

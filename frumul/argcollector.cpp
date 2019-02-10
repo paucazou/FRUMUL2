@@ -5,7 +5,7 @@
 #include "util.h"
 
 namespace frumul {
-	ArgCollector::ArgCollector(Symbol& s, const bst::str& l):
+	ArgCollector::ArgCollector(Symbol& s, const FString& l):
 		symbol{s},
 		mark{symbol.getMark()},
 		parameters{symbol.getParameters()},
@@ -61,7 +61,7 @@ namespace frumul {
 		int nb { static_cast<int>(current_multiple_args.size()) };
 		if (multiple_parm->getMin(lang) > nb && nb > multiple_parm->getMax(lang))
 			throw iexc(exc::ArgumentNBError,
-				bst::str("The number of arguments received does not match the number required: ") + nb + " argument(s) entered. Expected minimum: " + multiple_parm->getMin(lang) + ". Maximum: " + multiple_parm->getMax(lang) + "\nArgs defined here:",
+				FString("The number of arguments received does not match the number required: ") + nb + " argument(s) entered. Expected minimum: " + multiple_parm->getMin(lang) + ". Maximum: " + multiple_parm->getMax(lang) + "\nArgs defined here:",
 				current_args_pos,
 				"Parameter defined here: ",
 				multiple_parm->getPositions());
@@ -186,11 +186,11 @@ namespace frumul {
 		const ExprType type { parm.getType()};
 		try {
 			if (type == ExprType::INT) {
-				const bst::str v { remove_trailing_whitespaces(n.getValue()) };
+				const FString v { remove_trailing_whitespaces(n.getValue()) };
 				return text_to<int>(v);
 				}
 			if (type == ExprType::BOOL) {
-				const bst::str v { remove_trailing_whitespaces(n.getValue()) };
+				const FString v { remove_trailing_whitespaces(n.getValue()) };
 				return text_to<bool>(v);
 				}
 			if (type != ExprType::TEXT)

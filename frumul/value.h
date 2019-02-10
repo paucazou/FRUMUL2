@@ -23,19 +23,19 @@ namespace frumul {
 		/* Represents one language
 		 */
 		public:
-			Lang(const bst::str& nname, const Position& npos);
+			Lang(const FString& nname, const Position& npos);
 			Lang(const Lang& other);
 			// getters
 			const Position& getPosition() const;
-			const bst::str& getName() const;
+			const FString& getName() const;
 			// booleans
-			bool operator==(const bst::str& other) const;
+			bool operator==(const FString& other) const;
 			bool operator==(const Lang& other) const;
 			// display
-			bst::str toString() const;
+			FString toString() const;
 			friend std::ostream& operator<< (std::ostream& out, const Lang& l);
 		private:
-			const bst::str name;
+			const FString name;
 			const Position pos;
 	};
 
@@ -49,7 +49,7 @@ namespace frumul {
 			OneValue(std::vector<Lang>& nlangs,Symbol& nparent);
 			OneValue(const Node& node, std::vector<Lang>& nlangs,Symbol& nparent);
 			//getters
-			bool hasLang(const bst::str& lang) const;
+			bool hasLang(const FString& lang) const;
 			const std::vector<Lang>& getLangs() const;
 			const Position& getPosition() const;
 			const Node& getValue() const;
@@ -58,9 +58,9 @@ namespace frumul {
 			void setNode(const Node& node);
 			void setLangs(std::vector<Lang>& nlangs);
 			// use
-			E::any execute(const bst::str& lang,const std::vector<E::any>& args);
+			E::any execute(const FString& lang,const std::vector<E::any>& args);
 			// display
-			bst::str toString() const;
+			FString toString() const;
 			friend std::ostream& operator<< (std::ostream& out, const OneValue val);
 		private:
 			std::vector<Lang> langs;
@@ -80,22 +80,22 @@ namespace frumul {
 		public:
 			Value (Symbol& nparent);
 			Value (const Value& other);
-			//const bst::str execute(const bst::str& lang, args?) const;// execute the value with the arguments. How to do that ?
-			E::any execute(const bst::str& lang,const std::vector<E::any>& args);
+			//const FString execute(const FString& lang, args?) const;// execute the value with the arguments. How to do that ?
+			E::any execute(const FString& lang,const std::vector<E::any>& args);
 			// getters
 			operator bool () const; // true if value is set
 			const std::vector<Lang> getLangs() const;
-			const OneValue& getValue(const bst::str& lang) const;
-			OneValue& getValue(const bst::str& lang,bool every=true);
-			bool hasLang(const bst::str& lang) const;
+			const OneValue& getValue(const FString& lang) const;
+			OneValue& getValue(const FString& lang,bool every=true);
+			bool hasLang(const FString& lang) const;
 			bool hasEvery() const;
-			bool canExecuteWith(const bst::str& lang) const;
+			bool canExecuteWith(const FString& lang) const;
 			//setters
 			OneValue& set (std::vector<Lang>& nlangs);
 			OneValue& set (const Node& val, std::vector<Lang>& nlangs);
 			OneValue& set (const OneValue& val);
 			// display
-			bst::str toString() const;
+			FString toString() const;
 			friend std::ostream& operator<<(std::ostream& out, const Value& val);
 		private:
 			std::vector<OneValue> values;

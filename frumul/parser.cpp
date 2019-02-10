@@ -8,7 +8,7 @@ namespace fs = std::experimental::filesystem;
 
 namespace frumul {
  	// constructors
-	Parser::Parser (const bst::str& nsource, const bst::str& nfilepath, const Token::Type next_token,Transpiler* ntranspiler) :
+	Parser::Parser (const FString& nsource, const FString& nfilepath, const Token::Type next_token,Transpiler* ntranspiler) :
 		source{nsource}, filepath{nfilepath},
 		lex{nsource,nfilepath},
 		transpiler{ntranspiler},
@@ -17,7 +17,7 @@ namespace frumul {
 		current_token = new Token{lex.getNextToken(next_token,Token::MAX_TYPES_HEADER)};
 	}
 
-	Parser::Parser (const bst::str& nsource, const bst::str& nfilepath,Transpiler& ntranspiler) :
+	Parser::Parser (const FString& nsource, const FString& nfilepath,Transpiler& ntranspiler) :
 		Parser{nsource,nfilepath,Token::MAX_TYPES_HEADER,&ntranspiler}
 	{
 	}
@@ -180,10 +180,10 @@ namespace frumul {
 		int start {current_token->getPosition().getStart()}; // start position
 
 
-		std::map<bst::str,Node> fields;
+		std::map<FString,Node> fields;
 
 		if (isNameRequired) {
-			bst::str name{current_token->getValue()}; // get name
+			FString name{current_token->getValue()}; // get name
 			Node::Type t = (name.uLength() > 1 ? Node::LONG_NAME : Node::SHORT_NAME);
 			fields.insert({"name",Node(t,current_token->getPosition(),name)});
 
@@ -278,7 +278,7 @@ namespace frumul {
 				else
 					eat(Token::SEMICOLON,Token::MAX_TYPES_VALUES); // eat ;
 
-				if (in<bst::str,std::initializer_list<bst::str>>(current_token->getValue(),{"pool","else","fi"}))
+				if (in<FString,std::initializer_list<FString>>(current_token->getValue(),{"pool","else","fi"}))
 					break; // end of a loop or a condition
 				fields.push_back(programmatic_part());
 				if (current_token->getType() != Token::SEMICOLON)
@@ -451,7 +451,7 @@ namespace frumul {
 
 		bool isComparison{true};
 		while (isComparison) {
-			bst::str val;
+			FString val;
 			int start{getTokenStart()};
 			int end {start};
 			switch (current_token->getType()) {
@@ -495,7 +495,7 @@ namespace frumul {
 		Node* temp_node = new Node(term());
 
 		while (intokl(current_token->getType(),{Token::PLUS,Token::MINUS,Token::OR})) {
-			bst::str val;
+			FString val;
 			switch (current_token->getType()) {
 				case Token::PLUS:
 					val = "+";
@@ -534,7 +534,7 @@ namespace frumul {
 		 */
 		Node factor1 {factor()};
 
-		bst::str val;
+		FString val;
 		if (intokl(current_token->getType(),{Token::MUL,Token::DIV,Token::MODULO,Token::AND}))
 			val = current_token->getValue();
 		else
@@ -560,7 +560,7 @@ namespace frumul {
 		if (intokl(current_token->getType(),{Token::MINUS,Token::PLUS,Token::NOT})) {
 
 			Position cur_pos{current_token->getPosition()};
-			bst::str cur_val{current_token->getValue()};
+			FString cur_val{current_token->getValue()};
 			eat(current_token->getType(),Token::MAX_TYPES_VALUES);
 
 			Node unop{Node::UNARY_OP,cur_pos,{{"expr",factor()}},cur_val};
@@ -569,7 +569,7 @@ namespace frumul {
 		}
 
 		// text, number and bool litteral
-		if (intokl(current_token->getType(), {Token::NUMBER,Token::LAQUOTE}) || in<bst::str,std::initializer_list<bst::str>>(current_token->getValue(),{"true","false"}))
+		if (intokl(current_token->getType(), {Token::NUMBER,Token::LAQUOTE}) || in<FString,std::initializer_list<FString>>(current_token->getValue(),{"true","false"}))
 			return litteral();
 
 		switch (current_token->getType()) {
@@ -620,7 +620,7 @@ namespace frumul {
 		int start {getTokenStart()};
 		int end {current_token->getPosition().getEnd()};
 
-		bst::str variable_name {current_token->getValue()};
+		FString variable_name {current_token->getValue()};
 		Node variable {Node::VARIABLE_NAME,Position(start,end,filepath,source),variable_name};
 
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES);
@@ -808,7 +808,7 @@ namespace frumul {
 		 */
 		int start {getTokenStart()};
 		eat(Token::LAQUOTE,Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat «
-		bst::str val {current_token->getValue()};
+		FString val {current_token->getValue()};
 		eat(Token::VAL_TEXT,Token::MAX_TYPES_VALUES); // eat path
 		int end {getTokenStart()};
 		// RAQUOTE is eat in statement_list
@@ -832,8 +832,8 @@ namespace frumul {
 		{
 			throw BaseException{exc::FileError,"Invalid file path.",path_node.getPosition()};
 		}
-		std::map<bst::str,bst::str>::iterator i{Parser::files.find(path_node.getValue())};
-		const bst::str& path = i->first;
+		std::map<FString,FString>::iterator i{Parser::files.find(path_node.getValue())};
+		const FString& path = i->first;
 		// create parser
 		Parser p{Parser::files[path],path,Token::ID};
 		return p.declaration(false);
@@ -893,7 +893,7 @@ namespace frumul {
 		 */
 		int start {getTokenStart()};
 		eat(Token::LBRACE,Token::LNAME,Token::MAX_TYPES_NAMESPACE_VALUES); // eat { and get long name
-		bst::str val {current_token->getValue()};
+		FString val {current_token->getValue()};
 		eat(Token::LNAME,Token::MAX_TYPES_NAMESPACE_VALUES); // eat lname
 		int end {getTokenStart()};
 		eat(Token::RBRACE,Token::MAX_TYPES_NAMESPACE_VALUES); // eat }
@@ -910,9 +910,9 @@ namespace frumul {
 		 * names.
 		 */
 		int start {getTokenStart()}; // start position
-		std::array<bst::str,4> optionsnames {{"lang","mark","arg","return"}};
+		std::array<FString,4> optionsnames {{"lang","mark","arg","return"}};
 		NodeVector fields;
-		for (int i{0};in<bst::str,std::array<bst::str,4>>(current_token->getValue(),optionsnames);++i) {
+		for (int i{0};in<FString,std::array<FString,4>>(current_token->getValue(),optionsnames);++i) {
 				if (current_token->getValue() == "lang") {
 					for (const auto& child : lang_option())
 						fields.push_back(child.second);
@@ -962,13 +962,13 @@ namespace frumul {
 		if (f)
 			return f(*this);
 
-		bst::str value { current_token->getValue()};
+		FString value { current_token->getValue()};
 		eat(tok_type,Token::RAQUOTE,Token::MAX_TYPES_HEADER); // consume number/return type name
 		int end {current_token->getPosition().getEnd()};
 		return Node(node_type,Position(start,end,filepath,source),value);
 	}
 
-	std::map<bst::str,Node> Parser::lang_option () {
+	std::map<FString,Node> Parser::lang_option () {
 		/* Manages the lang option.
 		 * Returns a map of lang Nodes.
 		 * Each node inside has a value
@@ -977,10 +977,10 @@ namespace frumul {
 		eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // consume lang
 		eat(Token::LAQUOTE,Token::LANGNAME,Token::MAX_TYPES_LANG_VALUES); // consume «
 
-		std::map<bst::str,Node> fields;
+		std::map<FString,Node> fields;
 		for (int i{0}; current_token->getType() != Token::RAQUOTE;++i) {
 			Node n {Node::LANG,current_token->getPosition(),current_token->getValue()};
-			fields.insert({bst::str(i),n});
+			fields.insert({FString(i),n});
 			eat(Token::LANGNAME,Token::VBAR,Token::RAQUOTE,Token::MAX_TYPES_LANG_VALUES);
 			if (current_token->getType() == Token::VBAR)
 				eat(Token::VBAR,Token::LANGNAME,Token::MAX_TYPES_LANG_VALUES);
@@ -1020,7 +1020,7 @@ namespace frumul {
 			if (intokl(current_token->getType(),{Token::EQUAL,Token::LESS,Token::GREATER})){ // number of args
 				NodeVector argnb {arg_number()};
 				for (unsigned int i{0}; i < argnb.size();++i)
-					fields.insert({bst::str("argnb") + i,argnb.at(i)});
+					fields.insert({FString("argnb") + i,argnb.at(i)});
 
 				if (current_token->getType() == Token::COMMA)
 					eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
@@ -1044,7 +1044,7 @@ namespace frumul {
 		NodeVector fields;
 		while (intokl(current_token->getType(),{Token::EQUAL,Token::GREATER,Token::LESS})) {
 			int start{getTokenStart()};
-			bst::str val { current_token->getValue()};
+			FString val { current_token->getValue()};
 			eat(current_token->getType(),Token::MAX_TYPES_VALUES); // eat =,> or <
 			if ((val == ">" || val == "<") && current_token->getType() == Token::EQUAL) {
 				val += "=";
@@ -1081,7 +1081,7 @@ namespace frumul {
 					NodeVector fields;
 					int start {getTokenStart()};
 					eat(Token::LAQUOTE,Token::LITTEXT,Token::MAX_TYPES_VALUES); // eat «
-					bst::str val {current_token->getValue()};
+					FString val {current_token->getValue()};
 					eat(Token::LITTEXT,Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat text itself
 					int end {getTokenStart()};
 					eat(Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat »
@@ -1135,7 +1135,7 @@ namespace frumul {
 		// ___text___
 		eat(Token::TEXT,Token::MAX_TYPES_TEXT);
 
-		std::map<bst::str,Node> children;
+		std::map<FString,Node> children;
 
 		int i{0};
 		while (current_token->getType() != Token::EOFILE) {
@@ -1172,11 +1172,11 @@ namespace frumul {
 		/* Manages the Tag token
 		 */
 		int start { getTokenStart() };
-		bst::str value;
+		FString value;
 
 		// keep the tag
 		std::unique_ptr<Position> pos{std::make_unique<Position>(current_token->getPosition())};
-		bst::str tag{current_token->getValue()};
+		FString tag{current_token->getValue()};
 		eat(Token::TAG,Token::TAIL,Token::MAX_TYPES_TEXT);
 		// append tail if necessary
 		if (current_token->getType() == Token::TAIL) {
@@ -1189,8 +1189,8 @@ namespace frumul {
 		try {
 			tail_result = header_symbol->getChildren().find(
 					tag,Schildren::PathFlag(Schildren::Privileged | Schildren::Parameter));
-		} catch (const bst::str& s) {
-			throw exc(exc::NameError,bst::str("In the tag '") + tag + "', '" + s + "' was not recognized",*pos);
+		} catch (const FString& s) {
+			throw exc(exc::NameError,FString("In the tag '") + tag + "', '" + s + "' was not recognized",*pos);
 		}
 		Symbol& s { tail_result.getSymbol() };
 		// get the args
@@ -1245,7 +1245,7 @@ namespace frumul {
 		constexpr int not_yet_set{-1};
 		int start {getTokenStart()};
 		int end{not_yet_set};
-		bst::str value, name;
+		FString value, name;
 
 		while (end == -1 && current_token->getType() != Token::EOFILE) {
 			switch (current_token->getType()) {
@@ -1263,13 +1263,13 @@ namespace frumul {
 						if (next_tok.getType() == Token::TAIL)
 						{
 							// try to find a symbol
-							bst::str complete_tag { current_token->getValue() + next_tok.getValue() };
+							FString complete_tag { current_token->getValue() + next_tok.getValue() };
 							try {
 								// call to another symbol as part of an arg
 
 								header_symbol->getChildren().find(complete_tag);
 								value += tag().getValue();
-							} catch (const bst::str& ) {
+							} catch (const FString& ) {
 								// it must be a named parameter,
 								// so this is the end of the tag
 								end = _end_of_arg();
@@ -1306,7 +1306,7 @@ namespace frumul {
 
 		Node left{left_bin_op(ops.begin())};
 
-		bst::str val;
+		FString val;
 		if (intokl(current_token->getType(),ops))
 			val = current_token->getValue();
 		else
@@ -1351,7 +1351,7 @@ namespace frumul {
 		return getTokenStart();
 	}
 
-	void Parser::_manage_privileged_parameter(const bst::str& arg,const Position& pos,ArgCollector& collector) {
+	void Parser::_manage_privileged_parameter(const FString& arg,const Position& pos,ArgCollector& collector) {
 		/* Sends the privileged argument
 		 * to the arg collector.
 		 * Creates a node and sends it to
@@ -1365,7 +1365,7 @@ namespace frumul {
 		collector << node;
 	}
 
-	void Parser::_manage_parameter_name_rest_of_tail(const bst::str& name, const Position& pos,ArgCollector& collector) {
+	void Parser::_manage_parameter_name_rest_of_tail(const FString& name, const Position& pos,ArgCollector& collector) {
 		/* Sends a name parameter to the collector
 		 * after creating a node
 		 */
@@ -1378,6 +1378,6 @@ namespace frumul {
 		collector << node;
 	}
 
-	std::map<bst::str,bst::str>Parser::files {};
+	std::map<FString,FString>Parser::files {};
 
 } // namespace

@@ -80,10 +80,10 @@ namespace frumul {
 		return positions;
 	}
 
-	bst::str Mark::toString() const {
+	FString Mark::toString() const {
 		/* Representation of the Mark
 		 */
-		bst::str returned {"<Mark|"};
+		FString returned {"<Mark|"};
 		returned += val;
 		returned += ">\n";
 		for (const auto& elt : positions)

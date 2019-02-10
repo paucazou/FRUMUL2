@@ -5,19 +5,19 @@ namespace frumul {
 		type{MAX_TYPES_TEXT}, value{"No value"}, position{1,1,1,1,"Nofile","Nocontent"}
 	{}
 #endif
-	Token::Token (Type ntype, const bst::str& nvalue, const Position& pos) :
+	Token::Token (Type ntype, const FString& nvalue, const Position& pos) :
 		type{ntype}, value{nvalue}, position{pos}
 	{}
 
-	Token::Token (Type ntype, const bst::str& nvalue,
+	Token::Token (Type ntype, const FString& nvalue,
 			int c1, int l1, int c2, int l2,
-			const bst::str& filepath, const bst::str& filecontent):
+			const FString& filepath, const FString& filecontent):
 		type{ntype}, value{nvalue}, position{c1,l1,c2,l2,filepath,filecontent}
 	{}
 
-	Token::Token (Type ntype, const bst::str& nvalue,
+	Token::Token (Type ntype, const FString& nvalue,
 			const Point& start, const Point& end,
-			const bst::str& filepath, const bst::str& filecontent):
+			const FString& filepath, const FString& filecontent):
 		type{ntype}, value{nvalue}, position{start,end,filepath,filecontent}
 	{}
 
@@ -29,21 +29,21 @@ namespace frumul {
 		return type;
 	}
 
-	const bst::str& Token::getValue () const {
+	const FString& Token::getValue () const {
 		return value;
 	}
 
-	bst::str Token::toString () const {
-		bst::str returned{"<Token|" + typeToString(type) + ">\n"};
+	FString Token::toString () const {
+		FString returned{"<Token|" + typeToString(type) + ">\n"};
 		returned += position.toString();
 		return returned;
 	}
 
 #if 0
 	// DEPRECATED
-	bst::str Token::typeToString (Token::Type t) {
+	FString Token::typeToString (Token::Type t) {
 		// TODO stays empty until all things are done
-		return bst::str{static_cast<int>(t)};
+		return FString{static_cast<int>(t)};
 	}
 #endif
 

@@ -69,10 +69,10 @@ namespace frumul {
 		return !parameters.empty();
 	}
 
-	bst::str InheritedOptions::toString() const {
+	FString InheritedOptions::toString() const {
 		/* string representation
 		 */
-		bst::str s{"<InheritedOptions"};
+		FString s{"<InheritedOptions"};
 		if (hasMark())
 			s += "|Mark";
 		if (hasLangs())
@@ -375,8 +375,8 @@ namespace frumul {
 			// set the alias
 			try {
 				alias.setVal(children.find(alias.getPath(),Schildren::Relative).getSymbol());
-			} catch (bst::str& e) {
-				throw exc(exc::SymbolNotFound,bst::str("No symbol found for this path: ") + e,alias.getPosition());
+			} catch (FString& e) {
+				throw exc(exc::SymbolNotFound,FString("No symbol found for this path: ") + e,alias.getPosition());
 			}
 			// remove alias;
 			aliases.pop();

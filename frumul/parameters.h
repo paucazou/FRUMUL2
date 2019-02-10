@@ -14,7 +14,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
-#include "bstrlib/bstrwrap.h"
+#include "fstring.h"
 #include "bytecode.h"
 //#include "compiler.h"
 #include "exception.h"
@@ -35,7 +35,7 @@ namespace frumul {
 	class VM;
 	struct Arg;
 
-	//using Arg = std::tuple<ExprType,bst::str,E::any>; // see vm.h for more
+	//using Arg = std::tuple<ExprType,FString,E::any>; // see vm.h for more
 
 	class Parameter {
 		/* One parameter of the values
@@ -43,7 +43,7 @@ namespace frumul {
 		public:
 			Parameter(const Node& node,Symbol* np=nullptr);
 			Parameter(const Node& node, Symbol& np);
-			Parameter(const bst::str&, const ExprType&,const std::vector<Position>&,Symbol&);
+			Parameter(const FString&, const ExprType&,const std::vector<Position>&,Symbol&);
 			Parameter(const Parameter&);
 			~Parameter();
 			// setters
@@ -58,24 +58,24 @@ namespace frumul {
 			const Node& getNodeDefault() const;
 			const Node& getChoices() const;
 			const ExprType& getType() const;
-			const bst::str& getName() const;
-			bool choiceMatch(const E::any& elt,const bst::str& lang);
-			E::any getDefault(const bst::str&);
+			const FString& getName() const;
+			bool choiceMatch(const E::any& elt,const FString& lang);
+			E::any getDefault(const FString&);
 			int getIndex() const;
 			// // min/max
-			int getMin(const bst::str&) ;
-			int getMax(const bst::str&);
+			int getMin(const FString&) ;
+			int getMax(const FString&);
 			const PosVect& getPositions() const;
 			bool operator == (int nb) const;
 			bool operator > (int nb) const;
 			bool operator < (int nb) const;
 			bool between (int nb) const;
-			bool between (int nb,const bst::str&);
+			bool between (int nb,const FString&);
 			bool hasDefault() const;
 			// name
-			bool operator == (const bst::str& n) const;
+			bool operator == (const FString& n) const;
 			// display
-			bst::str toString() const;
+			FString toString() const;
 			STDOUT(Parameter)
 		protected:
 			class Limit {
@@ -91,11 +91,11 @@ namespace frumul {
 					Limit (int ni, Comparison c);
 					Limit (const Limit& other);
 					~Limit();
-					int getLimit(const bst::str& lang,Symbol&) ;
+					int getLimit(const FString& lang,Symbol&) ;
 					Comparison getComparison() const;
-					bool isConform(int x,const bst::str&,Symbol&) ;
+					bool isConform(int x,const FString&,Symbol&) ;
 					const Position& getPosition() const;
-					bst::str toString() const;
+					FString toString() const;
 					STDOUT(Limit)
 				private:
 					Comparison comparison{EQUAL};
@@ -108,7 +108,7 @@ namespace frumul {
 			};
 
 			ExprType type;
-			bst::str name;
+			FString name;
 			std::unique_ptr<Limit> limit1{nullptr};
 			std::unique_ptr<Limit> limit2{nullptr};
 			int min{-1};
@@ -121,8 +121,8 @@ namespace frumul {
 			Symbol* parent;
 			int index{-1};
 			// private functions
-			Limit::Comparison comparisonValue(const bst::str&)const;
-			void calculateMinMax(const bst::str&);
+			Limit::Comparison comparisonValue(const FString&)const;
+			void calculateMinMax(const FString&);
 			void calculateMinMaxWithOneLimit(int,Limit::Comparison) ;
 			bool _list_match(const E::any&,const E::any&, const ExprType&);
 
@@ -136,7 +136,7 @@ namespace frumul {
 			Parameters (Symbol&);
 			Parameters();
 			Parameters& operator=(const Parameters&);
-			bool contains(const bst::str& name)const;
+			bool contains(const FString& name)const;
 			bool operator == (const Parameters& others) const;
 			PosVect getPositions() const;
 			void push_back(const Parameter& np);
@@ -148,11 +148,11 @@ namespace frumul {
 			std::vector<Parameter>::iterator begin();
 			std::vector<Parameter>::iterator end();
 			// use
-			std::vector<E::any> formatArgs(const std::vector<Arg>&,const bst::str&);
+			std::vector<E::any> formatArgs(const std::vector<Arg>&,const FString&);
 		private:
 			std::vector<Parameter> parms;
 			Symbol* parent;
-			E::any get_multiple_args(const std::vector<Arg>&, size_t&, const bst::str&,Parameter&);
+			E::any get_multiple_args(const std::vector<Arg>&, size_t&, const FString&,Parameter&);
 	};
 
 	using CRParameter = std::reference_wrapper<const Parameter>;

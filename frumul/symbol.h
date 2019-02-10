@@ -45,7 +45,7 @@ namespace frumul {
 			bool hasPath() const; // true if path has been set before
 			const Position& getPosition() const;
 			const Symbol& getVal() const;
-			const bst::str& getPath() const;
+			const FString& getPath() const;
 
 			// setters
 			void setPath(const Node& node);
@@ -53,7 +53,7 @@ namespace frumul {
 			void setPosition(const Position& npos);
 		protected:
 			const Symbol* val{nullptr};
-			bst::str path;
+			FString path;
 			std::unique_ptr<Position> pos;
 	};
 
@@ -69,7 +69,7 @@ namespace frumul {
 			Symbol& getParent();
 			Value& getValue();
 			Parameters& getParameters();
-			std::vector<bst::str> getChildrenNames();
+			std::vector<FString> getChildrenNames();
 			// const getters
 			const ExprType& getReturnType() const;
 			const Position& getReturnTypePos() const;
@@ -92,10 +92,10 @@ namespace frumul {
 			bool hasChildren () const;
 			bool hasValue() const;
 			// use
-			bst::str call(const std::vector<E::any>& args, const bst::str& lang);
-			E::any any_call(const std::vector<Arg>& args, const bst::str& lang);
+			FString call(const std::vector<E::any>& args, const FString& lang);
+			E::any any_call(const std::vector<Arg>& args, const FString& lang);
 			// display
-			bst::str toString() const;
+			FString toString() const;
 			STDOUT(Symbol)
 
 		protected:
@@ -114,7 +114,7 @@ namespace frumul {
 			bool mark_added_to_parameters{false};
 
 			// functions
-			void checkCall(const bst::str& lang); // UNFINISHED TODO arguments must be check
+			void checkCall(const FString& lang); // UNFINISHED TODO arguments must be check
 
 
 	};

@@ -33,7 +33,7 @@ namespace frumul {
 		/* Class that compiles effectively
 		 */
 		public:
-			__compiler (const Node& n,const ExprType& rt, Symbol& s,const bst::str& nlang);
+			__compiler (const Node& n,const ExprType& rt, Symbol& s,const FString& nlang);
 			ByteCode compile();
 		protected:
 			// attributes
@@ -42,7 +42,7 @@ namespace frumul {
 			ByteCode bytecode;
 			RetChecker rtc;
 			Symbol& parent;
-			const bst::str& lang;
+			const FString& lang;
 			int unsafe_args_remainder;
 			std::vector<E::any>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
@@ -101,7 +101,7 @@ namespace frumul {
 			ExprType visit_variable_declaration(const Node& n);
 			ExprType visit_variable_name(const Node& n);
 			void cast(const ExprType& source, const ExprType& target, const Node& source_node, const Node& target_node);
-			void checkVariable(const bst::str& name,const Node& n);
+			void checkVariable(const FString& name,const Node& n);
 
 			void throwInconsistentType(const ExprType& t1, const ExprType& t2,const Node& n1, const Node& n2);
 			void throwInconsistentType(const ExprType& t1, const ExprType& t2, const Position& n1, const Position& n2);
@@ -116,7 +116,7 @@ namespace frumul {
 		/* Compiles one value
 		 */
 		public:
-			ValueCompiler(OneValue& v,const bst::str& nlang):
+			ValueCompiler(OneValue& v,const FString& nlang):
 				__compiler(v.getValue(),v.getParent().getReturnType(),v.getParent(),nlang)
 		{
 			assert(v.getValue().type() == Node::BASIC_VALUE&&"Node should be a basic value");
@@ -127,7 +127,7 @@ namespace frumul {
 		/* Compiles an only expression
 		 */
 		public:
-			MonoExprCompiler(const Node& n, const ExprType& et, Symbol& p, const bst::str& nlang):
+			MonoExprCompiler(const Node& n, const ExprType& et, Symbol& p, const FString& nlang):
 				__compiler(n,et,p,nlang)
 			{}
 

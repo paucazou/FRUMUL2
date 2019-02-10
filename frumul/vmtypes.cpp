@@ -2,7 +2,7 @@
 
 namespace frumul {
 
-	const std::map<bst::str,ExprType::Type> ExprType::type_names {
+	const std::map<FString,ExprType::Type> ExprType::type_names {
                                 {"void",ET::VOID},
                                 {"int",ET::INT},
                                 {"text",ET::TEXT},
@@ -244,8 +244,8 @@ namespace frumul {
 		return type;
 	}
 
-	bst::str ExprType::toString(bool asContained) const {
-		bst::str s;
+	FString ExprType::toString(bool asContained) const {
+		FString s;
 		if (!asContained)
 			s = "<ExprType>\n";
 
@@ -261,7 +261,7 @@ namespace frumul {
 	void ExprType::checkNode(const NodeVector& types, const NodeVector::const_reverse_iterator it) {
 		/* Check that *it is a correct type
 		 */
-		const bst::str& type_name {it->getValue()};
+		const FString& type_name {it->getValue()};
 
 		if (it->type() == Node::VARIABLE_TYPE) {
 			if (type_names.count(type_name) != 1)

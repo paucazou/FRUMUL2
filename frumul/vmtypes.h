@@ -74,14 +74,14 @@ namespace frumul {
 			operator Type () const;
 
 			// display
-			bst::str toString(bool asChild = false) const;
+			FString toString(bool asChild = false) const;
 			STDOUT(ExprType)
 		private:
 			Type type;
 			bool is_const{false};
 			bool is_static{false};
 			std::unique_ptr<ExprType> contained;
-			const static std::map<bst::str,ExprType::Type> type_names;
+			const static std::map<FString,ExprType::Type> type_names;
 
 			// functions
 			void checkNode(const NodeVector& types, const NodeVector::const_reverse_iterator it);

@@ -7,7 +7,7 @@
 	assert(!childrenNamed&&"Children are not numbered")
 
 namespace frumul {
-	Node::Node (const Node::Type ntype, const Position& npos, const std::map<bst::str,Node>& nchildren, const bst::str& nvalue) :
+	Node::Node (const Node::Type ntype, const Position& npos, const std::map<FString,Node>& nchildren, const FString& nvalue) :
 		node_type{ntype}, pos{npos}, named_children{nchildren}, value{nvalue}, childrenNamed{true}
 	{
 		/* Constructs the named_children
@@ -15,7 +15,7 @@ namespace frumul {
 		 */
 	}
 
-	Node::Node (const Node::Type ntype, const Position& npos, const std::vector<Node>& nchildren, const bst::str& nvalue):
+	Node::Node (const Node::Type ntype, const Position& npos, const std::vector<Node>& nchildren, const FString& nvalue):
 		node_type{ntype}, pos{npos}, numbered_children{nchildren}, value{nvalue}, childrenNamed{false}
 	{
 		/* Constructs the numbered_children
@@ -23,14 +23,14 @@ namespace frumul {
 		 */
 	}
 
-	Node::Node (const Type ntype, const Position& npos, const bst::str& nvalue) :
+	Node::Node (const Type ntype, const Position& npos, const FString& nvalue) :
 		node_type{ntype}, pos{npos}, numbered_children{}, value{nvalue}, childrenNamed{false}
 	{
 		/* No child, only value
 		 */
 	}
 
-	Node::Node (const Type ntype, const Position& npos, const std::map<bst::str,Node>& nchildren) :
+	Node::Node (const Type ntype, const Position& npos, const std::map<FString,Node>& nchildren) :
 		node_type{ntype}, pos{npos}, named_children{nchildren}, childrenNamed{true}
 	{
 		/* Constructs the named_children
@@ -53,7 +53,7 @@ namespace frumul {
 		/* copy constructor
 		 */
 		if (childrenNamed) {
-			new (&named_children) std::map<bst::str,Node>;
+			new (&named_children) std::map<FString,Node>;
 			named_children = n.named_children;
 		}
 		else {
@@ -68,7 +68,7 @@ namespace frumul {
 
 	Node::~Node () {
 		if (childrenNamed)
-			named_children.~map<bst::str,Node>();
+			named_children.~map<FString,Node>();
 		else
 			numbered_children.~vector<Node>();
 	}
@@ -80,7 +80,7 @@ namespace frumul {
 		return childrenNamed;
 	}
 
-	bool Node::has(const bst::str& key) const {
+	bool Node::has(const FString& key) const {
 		/* true if node has 'key' in his 
 		 * children
 		 * false if children are not named
@@ -107,7 +107,7 @@ namespace frumul {
 		return pos;
 	}
 
-	const bst::str& Node::getValue () const {
+	const FString& Node::getValue () const {
 		/* Return the value
 		 * saved in the node
 		 * It can be an empty one
@@ -115,7 +115,7 @@ namespace frumul {
 		return value;
 	}
 
-	const Node& Node::get (const bst::str& key) const {
+	const Node& Node::get (const FString& key) const {
 		/* Read only function to get
 		 * the node matching with key 
 		 */
@@ -132,7 +132,7 @@ namespace frumul {
 		return numbered_children.at(static_cast<size_t>(index));
 	}
 
-	const std::map<bst::str,Node>& Node::getNamedChildren () const {
+	const std::map<FString,Node>& Node::getNamedChildren () const {
 		/* Return a reference to 
 		 * the named children
 		 * if they exist.
@@ -159,7 +159,7 @@ namespace frumul {
 			return numbered_children.size();
 	}
 
-	std::map<bst::str,Node>::reverse_iterator Node::rbegin(bool named) {
+	std::map<FString,Node>::reverse_iterator Node::rbegin(bool named) {
 		ASSERT_CHILDREN_NAMED;
 		assert(named&&"not named");
 		return named_children.rbegin();
@@ -170,7 +170,7 @@ namespace frumul {
 		return numbered_children.rbegin();
 	}
 
-	std::map<bst::str,Node>::reverse_iterator Node::rend(bool named) {
+	std::map<FString,Node>::reverse_iterator Node::rend(bool named) {
 		ASSERT_CHILDREN_NAMED;
 		assert(named&&"not named");
 		return named_children.rend();
@@ -181,11 +181,11 @@ namespace frumul {
 		return numbered_children.rend();
 	}
 
-	void Node::addChild(const bst::str& name, const Node& child) {
+	void Node::addChild(const FString& name, const Node& child) {
 		/* Add a child in children.
 		 */
 		assert(childrenNamed&&"Children are a vector.");
-		named_children.insert(std::pair<bst::str,Node>(name,child));
+		named_children.insert(std::pair<FString,Node>(name,child));
 	}
 
 	void Node::addChild(const Node& child) {
@@ -196,7 +196,7 @@ namespace frumul {
 		numbered_children.push_back(child);
 	}
 
-	void Node::removeChild(const bst::str& name) {
+	void Node::removeChild(const FString& name) {
 		/* Remove a child if the children
 		 * are a map
 		 */
@@ -225,13 +225,13 @@ namespace frumul {
 	}
 
 
-	const bst::str Node::toString() const {
+	const FString Node::toString() const {
 		/* Return a string
 		 * presenting the object
 		 */
-		bst::str s{"<NODE|" + typeToString(node_type) + ">\n"};
+		FString s{"<NODE|" + typeToString(node_type) + ">\n"};
 		// value
-		s += bst::str(value ? "Has a value" : "Has no value") + ".\n";
+		s += FString(value ? "Has a value" : "Has no value") + ".\n";
 
 		//children
 		if (childrenNamed) {
@@ -241,7 +241,7 @@ namespace frumul {
 			// the following cast is ugly, but silent the stupid -Wsign-compare warning
 			// maybe I should have used decltype instead
 			for (int i{0}; i < static_cast<int>(numbered_children.size()); ++i)
-				s += bst::str(i) + ": " + typeToString(numbered_children.at(static_cast<size_t>(i)).node_type) + "\n";
+				s += FString(i) + ": " + typeToString(numbered_children.at(static_cast<size_t>(i)).node_type) + "\n";
 		}
 
 		s += pos.toString();

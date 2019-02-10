@@ -48,7 +48,7 @@ namespace frumul {
 		};
 	}
 
-	void Name::add(const bst::str& name) {
+	void Name::add(const FString& name) {
 		/* add a name, short or long
 		 * WITHOUT position. Don't use it
 		 * in the regular interpreter
@@ -71,7 +71,7 @@ namespace frumul {
 	void Name::addShort(const Node& node) {
 		/* Add a short name
 		 */
-		const bst::str& ns {node.getValue()};
+		const FString& ns {node.getValue()};
 
 		if (ns.uLength() != 1)
 			throw exc(exc::InvalidName,"A short name must have only one character",node.getPosition());
@@ -80,7 +80,7 @@ namespace frumul {
 			if (sname != ns)
 				throw iexc(
 						exc::NameAlreadyDefined,
-						bst::str("The short name associated with this long name has already been defined: ") + sname,
+						FString("The short name associated with this long name has already been defined: ") + sname,
 						node.getPosition(),
 						"Association already defined here:",
 						getBothPositions()
@@ -94,7 +94,7 @@ namespace frumul {
 	void Name::addLong(const Node& node) {
 		/* Add a long name
 		 */
-		const bst::str& nl {node.getValue()};
+		const FString& nl {node.getValue()};
 
 		if (nl.uLength() <= 1)
 			throw exc(exc::InvalidName,"A long name must have at least two characters",node.getPosition());
@@ -103,7 +103,7 @@ namespace frumul {
 			if (lname != nl)
 				throw iexc(
 						exc::NameAlreadyDefined,
-						bst::str("The long name associated with this short name has already been defined: ") + lname,
+						FString("The long name associated with this short name has already been defined: ") + lname,
 						node.getPosition(),
 						"Association defined here:",
 						getBothPositions()
@@ -123,7 +123,7 @@ namespace frumul {
 		positions.emplace("both",node.getPosition());
 	}
 
-	const bst::str& Name::getLong() const {
+	const FString& Name::getLong() const {
 		/* Return the long name
 		 * If no long name, return an empty
 		 * value
@@ -131,7 +131,7 @@ namespace frumul {
 		return lname;
 	}
 
-	const bst::str& Name::getShort() const {
+	const FString& Name::getShort() const {
 		/* Return the short name.
 		 * If no long name, return an empty
 		 * value
@@ -188,10 +188,10 @@ namespace frumul {
 		return getPositionsOf("both");
 	}
 
-	PosVect Name::getPositionsOf(const bst::str& type) const {
+	PosVect Name::getPositionsOf(const FString& type) const {
 		/* Return the positions where type is found
 		 */
-		bool isTypeRegular { !in<bst::str,std::array<bst::str,3>>(type,{{"short","long","both"}}) };
+		bool isTypeRegular { !in<FString,std::array<FString,3>>(type,{{"short","long","both"}}) };
 		assert(!isTypeRegular&& "type must be short, long or both");
 
 		PosVect vect;
@@ -209,10 +209,10 @@ namespace frumul {
 		return positions;
 	}
 
-	bst::str Name::toString() const {
+	FString Name::toString() const {
 		/* Create a representation of Name
 		 */
-		bst::str returned{"<Name>\n"};
+		FString returned{"<Name>\n"};
 		if (sname)
 			returned += "Short: " + sname + '\n';
 		if (lname)
@@ -222,7 +222,7 @@ namespace frumul {
 		return returned;
 	}
 
-	bst::str Name::names() const {
+	FString Name::names() const {
 		/* Simple representation of the names
 		 */
 		if (sname&&lname)
@@ -230,7 +230,7 @@ namespace frumul {
 		return (sname ? sname : lname);
 	}
 
-	bool Name::operator == (const bst::str& name) const {
+	bool Name::operator == (const FString& name) const {
 		/* true if name is one of the two names
 		 */
 		return (name == sname || name == lname);

@@ -12,7 +12,7 @@
 #include <map>
 #include <utility>
 #include <vector>
-#include "bstrlib/bstrwrap.h"
+#include "fstring.h"
 #include "exception.h"
 #include "functions.inl"
 #include "macros.h"

@@ -2,7 +2,7 @@
 #include "textto.h"
 namespace frumul {
         template <>
-                int text_to<int>(const bst::str& s) {
+                int text_to<int>(const FString& s) {
                         /* Text to Int
                          */
 			// checks that all characters are digits
@@ -19,10 +19,10 @@ namespace frumul {
                         }
                 }
         template <>
-                bool text_to<bool>(const bst::str& s) {
+                bool text_to<bool>(const FString& s) {
                         /* Text to bool
                          */
-                        static const std::map<bst::str,bool> bools {
+                        static const std::map<FString,bool> bools {
                                 {"false",false},
                                 {"true",true}
                         };

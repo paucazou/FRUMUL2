@@ -24,7 +24,7 @@ namespace frumul {
 		assert (node.type() == Node::PARAM&&"Node is not a parameter");
 		//type
 		/*
-		const bst::str& t{node.get("variable").get("type").getValue()};
+		const FString& t{node.get("variable").get("type").getValue()};
 		if (t == "text")
 			type = Text;
 		else if (t == "int")
@@ -56,7 +56,7 @@ namespace frumul {
 
 	}
 
-	Parameter::Parameter (const bst::str& nname, const ExprType& ntype, const std::vector<Position>& npos,Symbol& nparent) :
+	Parameter::Parameter (const FString& nname, const ExprType& ntype, const std::vector<Position>& npos,Symbol& nparent) :
 		type{ntype},
 		name{nname},
 		limit1 {std::make_unique<Limit>(Limit(1,Limit::EQUAL))},
@@ -169,7 +169,7 @@ namespace frumul {
 		index = i;
 	}
 
-	Parameter::Limit::Comparison Parameter::comparisonValue(const bst::str& val) const{
+	Parameter::Limit::Comparison Parameter::comparisonValue(const FString& val) const{
 		/* Return an enum
 		 * matching with val
 		 */
@@ -215,23 +215,23 @@ namespace frumul {
 		return type;
 	}
 
-	const bst::str& Parameter::getName() const {
+	const FString& Parameter::getName() const {
 		return name;
 	}
 
-	int Parameter::getMin(const bst::str& lang) {
+	int Parameter::getMin(const FString& lang) {
 		if (min == -1)
 			calculateMinMax(lang);
 		return min;
 	}
 
-	int Parameter::getMax(const bst::str& lang) {
+	int Parameter::getMax(const FString& lang) {
 		if (max == -1)
 			calculateMinMax(lang);
 		return max;
 	}
 
-	void Parameter::calculateMinMax(const bst::str& lang) {
+	void Parameter::calculateMinMax(const FString& lang) {
 		/* Calculate min and max
 		 * and returns it, min as first,
 		 * and max as second
@@ -335,7 +335,7 @@ namespace frumul {
 		return (nb <= max && nb >= min);
 	}
 
-	bool Parameter::between (int nb, const bst::str& lang) {
+	bool Parameter::between (int nb, const FString& lang) {
 		/* Can set min and max
 		 */
 		return (nb <= getMax(lang) && nb >= getMin(lang));
@@ -347,18 +347,18 @@ namespace frumul {
 		return static_cast<bool>(def);
 	}
 
-	bool Parameter::operator == (const bst::str& n) const {
+	bool Parameter::operator == (const FString& n) const {
 		/* true if n is equal to name
 		 */
 		return n == name;
 	}
 
-	bst::str Parameter::toString() const {
+	FString Parameter::toString() const {
 		/* representation of the instance
 		 * Return a partial one, in order to be filled
 		 * by overloads of this function
 		 */
-		bst::str s{"<Parameter|"};
+		FString s{"<Parameter|"};
 		s += type.toString(true) + ">\n"; // true: to avoid unnecessary details
 		s += "Name: " + name + "\n";
 		if (def)
@@ -413,7 +413,7 @@ namespace frumul {
 			delete node;
 	}
 
-	int Parameter::Limit::getLimit(const bst::str& lang,Symbol& parent) {
+	int Parameter::Limit::getLimit(const FString& lang,Symbol& parent) {
 		/* Return the limit as an int.
 		 * Evaluates the node (if there is a node)
 		 * or return the int
@@ -438,8 +438,8 @@ namespace frumul {
 		return pos;
 	}
 
-	bst::str Parameter::Limit::toString() const {
-		bst::str s { "<Limit> " };
+	FString Parameter::Limit::toString() const {
+		FString s { "<Limit> " };
 		if (isNode) {
 			s += "(Node)\n";
 			s += node->toString();
@@ -452,7 +452,7 @@ namespace frumul {
 
 	}
 
-	bool Parameter::Limit::isConform(int x,const bst::str& lang,Symbol& parent) {
+	bool Parameter::Limit::isConform(int x,const FString& lang,Symbol& parent) {
 		/* true if x respects the limit
 		 */
 		int limit {getLimit(lang,parent)};
@@ -473,7 +473,7 @@ namespace frumul {
 		return false;
 	}
 
-	bool Parameter::choiceMatch(const E::any& elt,const bst::str& lang) {
+	bool Parameter::choiceMatch(const E::any& elt,const FString& lang) {
 		/* true if elt match one of the elements
 		 * of the choices list
 		 */
@@ -498,7 +498,7 @@ namespace frumul {
 				break;
 			case ET::TEXT:
 				for (const auto& choice : *_choices)
-					if (cast_equal<bst::str>(elt,choice))
+					if (cast_equal<FString>(elt,choice))
 						return true;
 				break;
 			case ET::BOOL:
@@ -524,7 +524,7 @@ namespace frumul {
 		return false;
 	}
 
-	E::any Parameter::getDefault(const bst::str& lang) {
+	E::any Parameter::getDefault(const FString& lang) {
 		/* Return the default parameter if it has one
 		 */
 		assert((def||_def) && "No default set. Please use Parameter::hasDefault to check it");
@@ -555,7 +555,7 @@ namespace frumul {
 			case ET::INT:
 				return cast_equal<int>(first,second);
 			case ET::TEXT:
-				return cast_equal<bst::str>(first,second);
+				return cast_equal<FString>(first,second);
 			case ET::BOOL:
 				return cast_equal<bool>(first, second);
 			case ET::SYMBOL:
@@ -599,7 +599,7 @@ namespace frumul {
 		return *this;
 	}
 
-	bool Parameters::contains(const bst::str& name) const {
+	bool Parameters::contains(const FString& name) const {
 		/* true if name names a parameter
 		 */
 		for (const auto& p : parms)
@@ -677,7 +677,7 @@ namespace frumul {
 		return parms.end();
 	}
 
-	std::vector<E::any> Parameters::formatArgs(const std::vector<Arg>& args, const bst::str& lang) {
+	std::vector<E::any> Parameters::formatArgs(const std::vector<Arg>& args, const FString& lang) {
 		/*Check the arguments and format them
 		 */
 		std::vector<E::any> formatted {parms.size()};
@@ -728,10 +728,10 @@ namespace frumul {
 		return formatted;
 	}
 
-	E::any Parameters::get_multiple_args(const std::vector<Arg>& args, size_t& arg_idx, const bst::str& lang,Parameter& parm) {
+	E::any Parameters::get_multiple_args(const std::vector<Arg>& args, size_t& arg_idx, const FString& lang,Parameter& parm) {
 		/* Return a multiple arg
 		 */
-		const bst::str& arg_name { args[arg_idx].name };
+		const FString& arg_name { args[arg_idx].name };
 		std::vector<E::any> value;
 
 		for (; arg_idx < args.size() && args[arg_idx].name == arg_name; ++arg_idx) {

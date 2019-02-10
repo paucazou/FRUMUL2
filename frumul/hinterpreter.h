@@ -47,7 +47,7 @@ namespace frumul {
 			bool hasLangs() const;
 			bool hasParameters() const;
 			//display
-			bst::str toString()const;
+			FString toString()const;
 			STDOUT(InheritedOptions)
 
 		private:

@@ -6,7 +6,7 @@ namespace frumul {
 
 	// Lang
 
-	Lang::Lang(const bst::str& nname, const Position& npos) :
+	Lang::Lang(const FString& nname, const Position& npos) :
 		name{nname}, pos{npos}
 	{
 	}
@@ -20,11 +20,11 @@ namespace frumul {
 		return pos;
 	}
 
-	const bst::str& Lang::getName() const {
+	const FString& Lang::getName() const {
 		return name;
 	}
 
-	bool Lang::operator == (const bst::str& other) const {
+	bool Lang::operator == (const FString& other) const {
 		/* true if other
 		 * is equal to name
 		 */
@@ -38,11 +38,11 @@ namespace frumul {
 		return name == other.name;
 	}
 
-	bst::str Lang::toString() const {
+	FString Lang::toString() const {
 		/* Return a string
 		 * representation of the instance
 		 */
-		bst::str s{"<LANG|"};
+		FString s{"<LANG|"};
 		s += name + ">\n";
 		s += pos.toString();
 		return s;
@@ -94,7 +94,7 @@ namespace frumul {
 	}
 
 	// getters
-	bool OneValue::hasLang (const bst::str& lang) const {
+	bool OneValue::hasLang (const FString& lang) const {
 		/* true if lang can be found
 		 * in languages 
 		 */
@@ -145,7 +145,7 @@ namespace frumul {
 
 	// use
 
-	E::any OneValue::execute(const bst::str& lang,const std::vector<E::any>& args) {
+	E::any OneValue::execute(const FString& lang,const std::vector<E::any>& args) {
 		/* Execute value
 		 */
 		// compile if necessary
@@ -169,10 +169,10 @@ namespace frumul {
 
 	// display
 
-	bst::str OneValue::toString() const {
+	FString OneValue::toString() const {
 		/* Representation of the instance
 		 */
-		bst::str s{"<OneValue>\nLanguages: "};
+		FString s{"<OneValue>\nLanguages: "};
 		for (const auto& l : langs)
 			s += l.getName() + ".\n";
 		if (pos)
@@ -199,7 +199,7 @@ namespace frumul {
 #pragma message "Parent points to garbage, but when ?"
 	}
 
-	E::any Value::execute(const bst::str& lang, const std::vector<E::any>& args) {
+	E::any Value::execute(const FString& lang, const std::vector<E::any>& args) {
 		/* Execute requested value
 		 * and return its return value
 		 */
@@ -224,7 +224,7 @@ namespace frumul {
 		return langs;
 	}
 
-	OneValue& Value::getValue(const bst::str& lang,bool every) {
+	OneValue& Value::getValue(const FString& lang,bool every) {
 		/* Return requested value or every
 		 */
 		assert((hasLang(lang) || every) && "Lang not found");
@@ -242,7 +242,7 @@ namespace frumul {
 	}
 
 
-	bool Value::hasLang(const bst::str& lang) const {
+	bool Value::hasLang(const FString& lang) const {
 		/* true if lang can be found
 		 */
 		for (const auto& v : values)
@@ -257,7 +257,7 @@ namespace frumul {
 		return hasLang("every");
 	}
 
-	bool Value::canExecuteWith(const bst::str& lang) const {
+	bool Value::canExecuteWith(const FString& lang) const {
 		/* true if lang requested can match a lang
 		 * or value has every
 		 */
@@ -301,10 +301,10 @@ namespace frumul {
 		return values.back();
 	}
 
-	bst::str Value::toString() const {
+	FString Value::toString() const {
 		/* representation of Value
 		 */
-		bst::str s{"<Value>\n"};
+		FString s{"<Value>\n"};
 		for (const auto& v : values)
 			s += v.toString();
 		return s;

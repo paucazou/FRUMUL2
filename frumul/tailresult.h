@@ -11,21 +11,21 @@ namespace frumul {
 			TailResult(Symbol&);
 			TailResult(const TailResult&);
 
-			void setParameterName(const bst::str&);
-			void setPrivilegedArgument(const bst::str&);
+			void setParameterName(const FString&);
+			void setPrivilegedArgument(const FString&);
 			void setSymbol(Symbol&);
 
 			Symbol& getSymbol();
-			const bst::str& getParameterName() const;
-			const bst::str& getPrivilegedArgument() const;
+			const FString& getParameterName() const;
+			const FString& getPrivilegedArgument() const;
 
 			bool hasParameterName() const;
 			bool hasPrivilegedArgument() const;
 
 		private:
 			Symbol* symbol{nullptr};
-			bst::str parm_name;
-			bst::str priv_arg;
+			FString parm_name;
+			FString priv_arg;
 	};
 }
 #endif

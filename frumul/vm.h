@@ -8,7 +8,7 @@
 #include <cassert>
 #include <experimental/any>
 #include <tuple>
-#include "bstrlib/bstrwrap.h"
+#include "fstring.h"
 #include "bytecode.h"
 #include "exception.h"
 #include "functions.inl"
@@ -33,7 +33,7 @@ namespace frumul {
 		 * and checked before
 		 */
 		public:
-			VM(ByteCode&,const bst::str& nlang,const std::vector<E::any>& args);
+			VM(ByteCode&,const FString& nlang,const std::vector<E::any>& args);
 			template <typename T> // probably useless
 				T run() {
 					/* Run the VM and return T
@@ -79,16 +79,16 @@ namespace frumul {
 			// stacks. The first element of the stack matching with the return type is the return value
 			rstack<E::any> stack;
 			std::vector<E::any> variables; // index 0 represents the return value
-			const bst::str& lang;
+			const FString& lang;
 	};
-	//using Arg = std::tuple<ExprType,bst::str,E::any>; // <type,name(if necessary),value>
+	//using Arg = std::tuple<ExprType,FString,E::any>; // <type,name(if necessary),value>
 	struct Arg {
 		/* This struct is used to share
 		 * the arguments of a value
 		 * inside values
 		 */
 		ExprType type;
-		bst::str name;
+		FString name;
 		E::any value;
 		Position pos;
 	};

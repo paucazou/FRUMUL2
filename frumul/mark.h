@@ -30,7 +30,7 @@ namespace frumul {
 			int afterArgsNumber() const;
 			// representation
 			const PosVect& getPositions() const;
-			bst::str toString() const;
+			FString toString() const;
 			friend std::ostream& operator<<(std::ostream& out,const Mark& m);
 		private:
 			int val{0};

@@ -12,16 +12,16 @@ namespace frumul {
 		/* Transpiles a string into another one
 		 */
 		public:
-			Transpiler(const bst::str& nsource, const bst::str& nfilepath,const bst::str& nlang);
+			Transpiler(const FString& nsource, const FString& nfilepath,const FString& nlang);
 
-			const bst::str& getOutput();
-			const bst::str& getLang()const;
+			const FString& getOutput();
+			const FString& getLang()const;
 			Parser& getParser();
-			void append(const bst::str& part);
+			void append(const FString& part);
 		private:
 			std::unique_ptr<Parser> parser;
-			bst::str output;
-			bst::str lang;
+			FString output;
+			FString lang;
 	};
 }
 #endif

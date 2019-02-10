@@ -14,7 +14,7 @@ namespace frumul {
 		return sstr.str();
 	}
 
-	bst::str readfile(const bst::str& path) {
+	FString readfile(const FString& path) {
 		/* Load and read the full content
 		 * of a file
 		 */
@@ -55,16 +55,16 @@ namespace frumul {
 		return negative_index(index,length);
 	}
 
-	bool is_whitespace(const bst::str& s) {
+	bool is_whitespace(const FString& s) {
 		/* true if s is a whitespace
 		 */
-		static const bst::str unbreakable_space { L'\u00A0' };
+		static const FString unbreakable_space { L'\u00A0' };
 		assert(s.uLength() == 1&&"String entered is not a single character");
 		const auto raw_char { static_cast<unsigned int>(s.uRawAt(0)) };
 		return std::iswspace(raw_char) || s == unbreakable_space;
 	}
 
-	bst::str remove_trailing_whitespaces(const bst::str& s) {
+	FString remove_trailing_whitespaces(const FString& s) {
 		/* Remove the trailing whitespace
 		 */
 		for (int i{s.uLength()-1}; i >= 0; --i) {

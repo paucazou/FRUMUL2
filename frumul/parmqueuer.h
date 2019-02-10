@@ -16,9 +16,9 @@ namespace frumul {
 		 * of the parameters when a symbol is called
 		 */
 		public:
-			explicit ParmQueuer(ParmVect&, const bst::str& lang);
+			explicit ParmQueuer(ParmVect&, const FString& lang);
 			Parameter& operator () (const Arg&);
-			Parameter& operator () (const bst::str& val, const Position& pos, const bst::str& name = "");
+			Parameter& operator () (const FString& val, const Position& pos, const FString& name = "");
 			bool areParametersFilled () const;
 			bool areNonDefaultParametersFilled() const;
 			bool hasUnfilledDefault() const;
@@ -30,7 +30,7 @@ namespace frumul {
 			unsigned int pos{0};
 			ParmVect& parms;
 			std::vector<bool> checked;
-			const bst::str& lang;
+			const FString& lang;
 			std::unordered_map<CRParameter,unsigned int> call_number;
 			// functions
 			Parameter& select_parm(const Arg&);

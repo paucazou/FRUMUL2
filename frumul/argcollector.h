@@ -17,7 +17,7 @@ namespace frumul {
 		 * checks them and return them to a call
 		 */
 		public:
-			ArgCollector(Symbol&,const bst::str&);
+			ArgCollector(Symbol&,const FString&);
 			~ArgCollector();
 			// setters
 			void collect(const Node&);
@@ -38,7 +38,7 @@ namespace frumul {
 			const Mark& mark;
 			Parameters& parameters;
 			ParmQueuer queue;
-			const bst::str& lang;
+			const FString& lang;
 			std::vector<E::any> args;
 			bool must_finish_mul_parm{false};
 			bool is_next_arg_named{false};

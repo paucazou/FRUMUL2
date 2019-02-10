@@ -5,7 +5,7 @@
 namespace frumul {
 
 	/*
-	Compiler::Compiler(Symbol& s, const bst::str& lang) :
+	Compiler::Compiler(Symbol& s, const FString& lang) :
 		symbol{s}, val{s.getValue().getValue(lang)};
 #pragma message("Parameters are not yet used")
 	{
@@ -23,7 +23,7 @@ namespace frumul {
 
 	// __compiler
 
-	__compiler::__compiler (const Node& n, const ExprType& rt, Symbol& s,const bst::str& nlang) :
+	__compiler::__compiler (const Node& n, const ExprType& rt, Symbol& s,const FString& nlang) :
 		node{n}, return_type{rt}, bytecode{s}, rtc{rt != ET::TEXT}, parent{s}, lang{nlang}, unsafe_args_remainder{s.getMark().afterArgsNumber()}
 	{
 	}
@@ -121,7 +121,7 @@ namespace frumul {
 		 * create it
 		 * return a reference to it
 		 */
-		const bst::str& name{var.getValue()};
+		const FString& name{var.getValue()};
 		// variable already declared
 		if (symbol_table->contains(name)) {
 			VarSymbol& v_s{symbol_table->getVarSymbol(name)};
@@ -226,7 +226,7 @@ namespace frumul {
 					if (t2 != ET::INT)
 						throwInconsistentType(ET::INT,t2,n.get("left"),n.get("right"));
 
-					static std::map<bst::str,BT::Instruction> types{ {"+",BT::INT_ADD},{"-",BT::INT_SUB}, {"*",BT::INT_MUL},{"/",BT::INT_DIV},{"%",BT::INT_MOD}};
+					static std::map<FString,BT::Instruction> types{ {"+",BT::INT_ADD},{"-",BT::INT_SUB}, {"*",BT::INT_MUL},{"/",BT::INT_DIV},{"%",BT::INT_MOD}};
 					code.push_back(types[n.getValue()]);
 					// handling division by zero
 					if (n.getValue() == "/" || n.getValue() == "%")
@@ -256,7 +256,7 @@ namespace frumul {
 					ExprType t2{visit(n.get("left"))};
 					if (t2 != ET::BOOL)
 						throwInconsistentType(ET::BOOL,t2,n.get("left"),n.get("right"));
-					static std::map<bst::str,BT::Instruction> types {
+					static std::map<FString,BT::Instruction> types {
 						{"&",BT::BOOL_AND},
 						{"|",BT::BOOL_OR},
 					};
@@ -285,7 +285,7 @@ namespace frumul {
 	void __compiler::visit_compare_op(const Node& n) {
 		/* Visit compare op
 		 */
-		static std::map<bst::str,BT::Instruction> instructions {
+		static std::map<FString,BT::Instruction> instructions {
 			{"=",BT::BOOL_EQUAL},
 			{"<",BT::BOOL_INFERIOR},
 			{">",BT::BOOL_SUPERIOR},
@@ -416,7 +416,7 @@ namespace frumul {
 		 * expects a node with numbered children.
 		 * first one is the index, last one the
 		 */
-		const bst::str& name {n.getValue()};
+		const FString& name {n.getValue()};
 		const NodeVector& fields{n.getNumberedChildren()};
 
 		checkVariable(name,n); // variable checks
@@ -510,7 +510,7 @@ namespace frumul {
 
 		for (unsigned int i{1}; i < n.size();++i) {
 			if (visit(n.get(static_cast<int>(i))) != elt_type)
-				throw iexc(exc::InconsistantType,bst::str(i) + " element is of different type than the previous elements of the list. First element: ",n.get(0).getPosition(),"Element of other type",n.get(static_cast<int>(i)).getPosition());
+				throw iexc(exc::InconsistantType,FString(i) + " element is of different type than the previous elements of the list. First element: ",n.get(0).getPosition(),"Element of other type",n.get(static_cast<int>(i)).getPosition());
 			appendInstructions(BT::LIST_APPEND);
 		}
 
@@ -667,7 +667,7 @@ namespace frumul {
 	ExprType __compiler::visit_litbool(const Node& n) {
 		/* Return true or false
 		 */
-		static const std::map<bst::str,bool> bools{
+		static const std::map<FString,bool> bools{
 			{"false",false},
 			{"true",true}};
 		appendAndPushConstant<bool>(bools.at(n.getValue()));
@@ -693,8 +693,8 @@ namespace frumul {
 			appendAndPushConstant<RSymbol>(s);
 			return ExprType(ET::SYMBOL,s.get().getReturnType());
 
-		} catch (const bst::str& path) { // if error
-			throw exc(exc::NameError,bst::str("Name not found: ") + n.getValue(),n.getPosition());
+		} catch (const FString& path) { // if error
+			throw exc(exc::NameError,FString("Name not found: ") + n.getValue(),n.getPosition());
 		}
 	}
 
@@ -872,15 +872,15 @@ namespace frumul {
 		 */
 		if (n.has(0))
 			return visit_index(n);
-		appendAndPushConstant<bst::str>(n.getValue());
+		appendAndPushConstant<FString>(n.getValue());
 		return ET::TEXT;
 	}
 
 	void __compiler::throwInconsistentType(const ExprType& t1, const ExprType& t2, const Position& n1, const Position& n2) {
 		/* Throw an inconsistent error
 		 */
-		bst::str msg1 {t1.toString() + " can not be used with " + t2.toString()};
-		bst::str msg2 {t2.toString() + " defined here: "};
+		FString msg1 {t1.toString() + " can not be used with " + t2.toString()};
+		FString msg2 {t2.toString() + " defined here: "};
 		throw iexc(exc::InconsistantType,msg1,n1, msg2, n2);
 	}
 
@@ -918,7 +918,7 @@ namespace frumul {
 
 		constexpr unsigned int max_arguments_possible{256};
 		if (arguments.size() > max_arguments_possible)
-			throw exc(exc::ArgumentNBError,bst::str("Max number of arguments is ") + max_arguments_possible,arguments.getPosition());
+			throw exc(exc::ArgumentNBError,FString("Max number of arguments is ") + max_arguments_possible,arguments.getPosition());
 
 		for (auto it{arguments.rbegin()}; it != arguments.rend(); ++it) {
 			const bool is_arg_named{ it->type() == Node::NAMED_ARG};
@@ -928,7 +928,7 @@ namespace frumul {
 				};
 			// push name on stack if necessary
 			if (is_arg_named)
-				appendAndPushConstant<bst::str>(it->get("name").getValue());
+				appendAndPushConstant<FString>(it->get("name").getValue());
 
 			arg_keepsake.push_back({type,is_arg_named,it->getPosition()});
 		}
@@ -960,7 +960,7 @@ namespace frumul {
 		/* Compile a unary expression: -,+,!
 		 */
 		ExprType rt{visit(n.get("expr"))};
-		static const std::map<bst::str,BT::Instruction> instructions {
+		static const std::map<FString,BT::Instruction> instructions {
 			{"+",BT::INT_POS},
 			{"-",BT::INT_NEG},
 			{"!",BT::BOOL_NOT},
@@ -1006,7 +1006,7 @@ namespace frumul {
 	ExprType __compiler::visit_variable_assignment(const Node& n) {
 		/* Assign a value to a variable
 		 */
-		const bst::str& name {n.get("name").getValue()};
+		const FString& name {n.get("name").getValue()};
 		if (!symbol_table->contains(name))
 			throw exc(exc::NameError,"Name not defined",n.get("name").getPosition());
 
@@ -1027,8 +1027,8 @@ namespace frumul {
 		/* Declare a variable
 		 * and set it
 		 */
-		const bst::str& name{n.get("name").getValue()};
-		bst::str type{n.get("type").getValue()};
+		const FString& name{n.get("name").getValue()};
+		FString type{n.get("type").getValue()};
 		// check: already defined ?
 		if (symbol_table->contains(name,true)) // true for current scope only
 			throw iexc(exc::NameAlreadyDefined,"This name has already been defined here:",symbol_table->getPosition(name),"Name defined another time here: ",n.getPosition());
@@ -1081,7 +1081,7 @@ namespace frumul {
 	ExprType __compiler::visit_variable_name(const Node& n) {
 		/* compile a call to a variable
 		 */
-		const bst::str& name {n.getValue()};
+		const FString& name {n.getValue()};
 		// checks
 		checkVariable(name,n);
 		// with index
@@ -1146,7 +1146,7 @@ namespace frumul {
 		}
 	}
 
-	void __compiler::checkVariable(const bst::str& name, const Node& n) {
+	void __compiler::checkVariable(const FString& name, const Node& n) {
 		/* Checks that variable name has already
 		 * been defined 
 		 */

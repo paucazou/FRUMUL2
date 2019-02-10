@@ -18,19 +18,19 @@
 namespace frumul {
 	class VarSymbol{
 		public:
-			VarSymbol(const bst::str& nname,const ExprType& ntype,int nnb,int nscope, const Position& npos);
+			VarSymbol(const FString& nname,const ExprType& ntype,int nnb,int nscope, const Position& npos);
 			// getters
-			const bst::str& getName() const;
+			const FString& getName() const;
 			const ExprType& getType() const;
 			int getIndex() const;
 			const Position& getPosition() const;
 			int getScope() const;
 			// setters
-			bst::str toString() const;
+			FString toString() const;
 			STDOUT(VarSymbol)
 		private:
 
-			bst::str name;
+			FString name;
 			ExprType type;
 			const int nb;
 			int scope{0};
@@ -43,18 +43,18 @@ namespace frumul {
 		public:
 			SymbolTab();
 			// getters
-			const VarSymbol& getVarSymbol(const bst::str& name,bool current_scope_only=false) const;
-			VarSymbol& getVarSymbol(const bst::str& name,bool current_scope_only=false);
-			int getIndex(const bst::str& name) const;
-			const ExprType& getType(const bst::str& name) const;
-			bool contains(const bst::str& name,bool current_scope_only=false) const;
-			const Position& getPosition(const bst::str& name) const;
+			const VarSymbol& getVarSymbol(const FString& name,bool current_scope_only=false) const;
+			VarSymbol& getVarSymbol(const FString& name,bool current_scope_only=false);
+			int getIndex(const FString& name) const;
+			const ExprType& getType(const FString& name) const;
+			bool contains(const FString& name,bool current_scope_only=false) const;
+			const Position& getPosition(const FString& name) const;
 			int variableNumber() const;
 			int getCurrentScope() const;
 			// setters
 			VarSymbol& append(const VarSymbol& nsymbol);
-			VarSymbol& append(const bst::str& name, const ExprType& type, const Position& pos);
-			VarSymbol& append(const bst::str& name, const ExprType& type, const Position& pos, int scope);
+			VarSymbol& append(const FString& name, const ExprType& type, const Position& pos);
+			VarSymbol& append(const FString& name, const ExprType& type, const Position& pos, int scope);
 			int& operator++();
 			int& operator--();
 			static int next();

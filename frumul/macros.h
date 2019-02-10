@@ -5,7 +5,7 @@
  */
 #include <cstdint>
 #include <iostream>
-#include "bstrlib/bstrwrap.h"
+#include "fstring.h"
 
 /*****************
 *  enum to strings
@@ -19,8 +19,8 @@
 	enum NAME_ENUM { \
 		LIST(GENERATE_ENUM) \
 	}; \
-	static const bst::str typeToString (NAME_ENUM t) { \
-		static const bst::str enumstring[] = { \
+	static const FString typeToString (NAME_ENUM t) { \
+		static const FString enumstring[] = { \
 			LIST(GENERATE_STRING) \
 		}; \
 		return enumstring[t]; \
@@ -63,7 +63,7 @@ namespace std {
 	using byte = uint_fast8_t;
 }
 namespace frumul {
-	const bst::str unsafe_name { "0_unsafe_arg_" };
+	const FString unsafe_name { "0_unsafe_arg_" };
 }
 
 #ifdef DEBUG

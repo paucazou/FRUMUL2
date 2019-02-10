@@ -35,29 +35,29 @@ namespace frumul {
 			// getters-setters
 			Symbol& getChild(const Node& node);
 			// getters
-			Symbol& getChild(const bst::str& name) ;
+			Symbol& getChild(const FString& name) ;
 			bool hasChildren() const;
 			operator bool () const;
-			bool hasChild(const bst::str& name) const;
+			bool hasChild(const FString& name) const;
 			bool hasChild(const Node& node) const;
 			bool hasParent() const;
 			std::vector<Symbol*> sortChildrenByLongName();
 			// finders
 
-			TailResult find(const bst::str& path, const PathFlag flag=PathFlag::No) ;
+			TailResult find(const FString& path, const PathFlag flag=PathFlag::No) ;
 			// const getters
-			const Symbol& getChild(const bst::str& name) const;
+			const Symbol& getChild(const FString& name) const;
 			const std::list<Symbol>& getChildren() const;
 			// setters
 			Symbol& addChild(const Symbol& s);
 			Symbol& appendChild();
-			Symbol& appendChild(const bst::str& name);
+			Symbol& appendChild(const FString& name);
 
 		private:
 			Symbol* parent{nullptr};
 			std::list<Symbol> children;
 			// functions
-			TailResult _findRestOfTail(const bst::str&,const PathFlag flag=PathFlag::No);
+			TailResult _findRestOfTail(const FString&,const PathFlag flag=PathFlag::No);
 	};
 }
 #endif

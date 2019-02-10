@@ -8,12 +8,12 @@
 
 namespace frumul {
 	// VarSymbol
-	VarSymbol::VarSymbol(const bst::str& nname, const ExprType& ntype, int nnb, int nscope, const Position& npos) :
+	VarSymbol::VarSymbol(const FString& nname, const ExprType& ntype, int nnb, int nscope, const Position& npos) :
 		name{nname}, type{ntype}, nb{nnb}, scope{nscope}, pos{npos}
 	{
 	}
 
-	const bst::str& VarSymbol::getName() const {
+	const FString& VarSymbol::getName() const {
 		return name;
 	}
 
@@ -33,11 +33,11 @@ namespace frumul {
 		return pos;
 	}
 
-	bst::str VarSymbol::toString() const {
-		bst::str s{"<VarSymbol|"};
-		s += name + bst::str(" - ");
+	FString VarSymbol::toString() const {
+		FString s{"<VarSymbol|"};
+		s += name + FString(" - ");
 		s += type.toString();
-		s += "Index: " + bst::str(nb) + '\n';
+		s += "Index: " + FString(nb) + '\n';
 		s += pos.toString();
 		return s;
 	}
@@ -47,7 +47,7 @@ namespace frumul {
 	SymbolTab::SymbolTab() {
 	}
 
-	VarSymbol& SymbolTab::getVarSymbol(const bst::str& name, bool current_scope_only) {
+	VarSymbol& SymbolTab::getVarSymbol(const FString& name, bool current_scope_only) {
 		/* return symbol requested
 		 */
 		if (current_scope < 0)
@@ -63,7 +63,7 @@ namespace frumul {
 		throw BackException(exc::VarSymbolUnknown);
 	}
 
-	const VarSymbol& SymbolTab::getVarSymbol(const bst::str& name,bool current_scope_only) const{
+	const VarSymbol& SymbolTab::getVarSymbol(const FString& name,bool current_scope_only) const{
 		if (current_scope < 0)
 			throw BackException(exc::VarSymbolUnknown);
 
@@ -77,19 +77,19 @@ namespace frumul {
 		throw BackException(exc::VarSymbolUnknown);
 	}
 
-	int SymbolTab::getIndex(const bst::str& name) const {
+	int SymbolTab::getIndex(const FString& name) const {
 		/* Return the index matching with name
 		 */
 		return getVarSymbol(name).getIndex();
 	}
 
-	const ExprType& SymbolTab::getType(const bst::str& name) const {
+	const ExprType& SymbolTab::getType(const FString& name) const {
 		/* Return the type matching with name
 		 */
 		return getVarSymbol(name).getType();
 	}
 
-	bool SymbolTab::contains(const bst::str& name, bool current_scope_only) const {
+	bool SymbolTab::contains(const FString& name, bool current_scope_only) const {
 		/* true if *this contains name required
 		 * and is available in the current scope
 		 */
@@ -101,7 +101,7 @@ namespace frumul {
 		}
 	}
 
-	const Position& SymbolTab::getPosition(const bst::str& name) const {
+	const Position& SymbolTab::getPosition(const FString& name) const {
 		/* return position of required value
 		 */
 		return getVarSymbol(name).getPosition();
@@ -127,13 +127,13 @@ namespace frumul {
 		return content.back();
 	}
 
-	VarSymbol& SymbolTab::append(const bst::str& name, const ExprType& type, const Position& pos) {
+	VarSymbol& SymbolTab::append(const FString& name, const ExprType& type, const Position& pos) {
 		/* Create a new symbol in current scope
 		 */
 		return append(name,type,pos,current_scope);
 	}
 
-	VarSymbol& SymbolTab::append(const bst::str& name, const ExprType& type, const Position& pos, int scope) {
+	VarSymbol& SymbolTab::append(const FString& name, const ExprType& type, const Position& pos, int scope) {
 		/* Create a new symbol and install it
 		 * Please call contains before
 		 * Note that this should not be done, except for a special reason.

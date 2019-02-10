@@ -42,7 +42,7 @@ namespace frumul {
 		return *val;
 	}
 
-	const bst::str& Alias::getPath() const {
+	const FString& Alias::getPath() const {
 		/* return path
 		 * value
 		 */
@@ -134,11 +134,11 @@ namespace frumul {
 		return parameters;
 	}
 
-	std::vector<bst::str> Symbol::getChildrenNames() {
+	std::vector<FString> Symbol::getChildrenNames() {
 		/* Return a vector of names used by the immediate
 		 * children of *this
 		 */
-		std::vector<bst::str> names;
+		std::vector<FString> names;
 		for (const auto& child : children->getChildren()) {
 			const Name& child_n{child.getName()};
 			if (child_n.hasLong())
@@ -264,7 +264,7 @@ namespace frumul {
 	}
 
 	// use
-	bst::str Symbol::call(const std::vector<E::any>& args, const bst::str& lang) {
+	FString Symbol::call(const std::vector<E::any>& args, const FString& lang) {
 		/* Call the symbol
 		 * The args must be formatted first
 		 */
@@ -275,10 +275,10 @@ namespace frumul {
 
 		// execution
 		E::any r{value->execute(lang,args)};
-		return E::any_cast<bst::str>(r);
+		return E::any_cast<FString>(r);
 	}
 	
-	E::any Symbol::any_call(const std::vector<Arg>& args, const bst::str& lang) {
+	E::any Symbol::any_call(const std::vector<Arg>& args, const FString& lang) {
 		/* Calls the symbol
 		 * and return an any value
 		 * Return type check should have be done before
@@ -295,7 +295,7 @@ namespace frumul {
 		return value->execute(lang,formatted_args);
 	}
 
-	void Symbol::checkCall(const bst::str& lang) {
+	void Symbol::checkCall(const FString& lang) {
 		/* Does the checks for a call
 		 * Does not the return type check
 		 */
@@ -306,16 +306,16 @@ namespace frumul {
 
 
 	// display
-	bst::str Symbol::toString() const {
+	FString Symbol::toString() const {
 		/* String representation of
 		 * a symbol
 		 */
-		bst::str s{"<Symbol>\n"};
+		FString s{"<Symbol>\n"};
 		// name
 		s += name.names() + '\n';
 
 		// mark
-		s += "Number of tags expected: " + bst::str(mark.get()) + '\n';
+		s += "Number of tags expected: " + FString(mark.get()) + '\n';
 
 		// return type
 		if (return_type.pos) {
@@ -325,7 +325,7 @@ namespace frumul {
 		}
 
 		// parent
-		s += "Parent: " + bst::str(parent ? "Yes":"No") + '\n';
+		s += "Parent: " + FString(parent ? "Yes":"No") + '\n';
 
 		// alias
 		if (alias.hasPath())

@@ -68,7 +68,7 @@ namespace frumul {
 		return statics;
 	}
 
-	/*bst::str ByteCode::typeToString(BT::ExprType e) {
+	/*FString ByteCode::typeToString(BT::ExprType e) {
 		* Return a string representation of type
 		 *
 		switch (e) {
@@ -88,17 +88,17 @@ namespace frumul {
 		return "nothing"; // to silent clang
 	}
 
-	bst::str ByteCode::listToString(ExprType e) {
+	FString ByteCode::listToString(ExprType e) {
 		/ String representation of a list
 		 *
-		bst::str s{"LIST "};
+		FString s{"LIST "};
 		// depth
 		int depth{0};
 		while (e >= LIST) {
 			e = static_cast<ExprType>(e - LIST);
 			depth += 1;
 		}
-		s += bst::str(depth) + " ";
+		s += FString(depth) + " ";
 		// type
 		s += typeToString(e);
 		return s;

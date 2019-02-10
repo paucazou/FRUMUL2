@@ -10,7 +10,7 @@
 #include <memory>
 #include <sstream>
 #include <stack>
-#include "bstrlib/bstrwrap.h"
+#include "fstring.h"
 #include "exception.h"
 
 namespace E = std::experimental;
@@ -63,7 +63,7 @@ namespace frumul {
 
 	
 	template <typename T>
-		bool can_be_cast_to(const bst::str& s) {
+		bool can_be_cast_to(const FString& s) {
 			/* Check that s can be converted 
 			 * to T
 			 */
@@ -122,7 +122,7 @@ namespace frumul {
 
 	// overloaded functions: from text to T
 	template <typename T>
-		T text_to(const bst::str& s) {
+		T text_to(const FString& s) {
 			return T(s);
 		}
 

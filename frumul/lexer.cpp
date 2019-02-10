@@ -19,11 +19,11 @@ namespace frumul {
 	// class members
 	// public functions
 
-	Lexer::Lexer (const bst::str& nsource, const bst::str& nfilepath):
+	Lexer::Lexer (const FString& nsource, const FString& nfilepath):
 		source{nsource}, filepath{nfilepath}, current_char{nsource.uAt(0)}, raw_current_char{nsource.uRawAt(0)}
 	{}
 
-	void Lexer::setOpeningTags(const std::vector<bst::str>& new_opening_tags) {
+	void Lexer::setOpeningTags(const std::vector<FString>& new_opening_tags) {
 		/* Set the opening tags
 		 */
 		if (!new_opening_tags.empty())
@@ -106,7 +106,7 @@ namespace frumul {
 
 			else {
 				// values to return
-				bst::str val;
+				FString val;
 				Token::Type t{Token::MAX_TYPES_VALUES}; // initial value to silent -Wsometimes-unitialized
 				if (current_char == "(") {
 					val = ")";
@@ -133,7 +133,7 @@ namespace frumul {
 
 		if (intokl(Token::MAX_TYPES_TEXT,expected)) {
 			// tokenize the text 
-			bst::str val;
+			FString val;
 			int oldpos {pos};
 
 			// tail
@@ -255,7 +255,7 @@ namespace frumul {
 		return oldpos != pos;
 	}
 
-	bst::str Lexer::escape () {
+	FString Lexer::escape () {
 		/* Manages all escape characters
 		 * BUG TODO new line is not handled actually
 		 */
@@ -288,18 +288,18 @@ namespace frumul {
 			default:
 				Position errorpos {pos-1,pos,filepath,source};
 				throw BaseException(BaseException::SyntaxError,
-						bst::str{"Unrecognized espaced sequence: \\"} + current_char,
+						FString{"Unrecognized espaced sequence: \\"} + current_char,
 						errorpos);
 
 		}
 	}
 
-	bool Lexer::recognizeCaselessID (const bst::str& candidate) {
+	bool Lexer::recognizeCaselessID (const FString& candidate) {
 		/* True if candidate can be found in source
 		 * at pos position.
 		 * candidate must be an ASCII string.
 		 */
-		bst::str c, d;
+		FString c, d;
 		tempos = pos;
 		for (int cpos{0};
 				cpos < candidate.uLength() && 
@@ -324,7 +324,7 @@ namespace frumul {
 		 * , then the value is lowercased.
 		 */
 		//std::setlocale(LC_ALL,std::locale("").name().data()); WARNING do not forget to set locale
-		bst::str value;
+		FString value;
 		int start{pos};
 		while (!std::iswspace(static_cast<wint_t>(raw_current_char)) && current_char != unbreakable_space && current_char != "") {
 			value += current_char;
@@ -346,7 +346,7 @@ namespace frumul {
 	Token Lexer::tokenizeNamespaceValue (std::initializer_list<Token::Type> expected) {
 		/* Lexicalize namespace values
 		 */
-		bst::str val;
+		FString val;
 		int oldpos{pos};
 		Token::Type t;
 		skipNoToken();
@@ -402,7 +402,7 @@ namespace frumul {
 	Token Lexer::tokenizeLangValue (std::initializer_list<Token::Type> expected) {
 		/* Lexicalize inside lang values
 		 */
-		bst::str val;
+		FString val;
 		int oldpos{pos};
 		Token::Type t;
 		if (intokl(Token::LANGNAME,expected)) {
@@ -448,7 +448,7 @@ namespace frumul {
 		}
 		// basic case : regular string, and litteral text
 		if (toklists({Token::VAL_TEXT,Token::LITTEXT},expected)) {
-			bst::str val;
+			FString val;
 			int start = pos;
 			while (current_char != "»" && current_char != "") {
 				if (current_char == "\\")
@@ -486,7 +486,7 @@ namespace frumul {
 		// programmatic parts
 		if (std::iswdigit(static_cast<wint_t>(raw_current_char))) {
 			// manages numbers
-			bst::str val;
+			FString val;
 			int oldpos{pos};
 			while (iswdigit(static_cast<wint_t>(raw_current_char))) {
 				val += current_char;
@@ -495,7 +495,7 @@ namespace frumul {
 			return Token(Token::NUMBER,val,Position(oldpos,pos-1,filepath,source));
 		}
 		if (std::iswalnum(static_cast<wint_t>(raw_current_char)) || current_char == "_") {
-			bst::str val;
+			FString val;
 			int oldpos{pos};
 			while (iswalnum(static_cast<wint_t>(raw_current_char)) || current_char == "_") {
 				val += current_char;
@@ -503,7 +503,7 @@ namespace frumul {
 			}
 			return Token{Token::VARIABLE,val,Position(oldpos,pos-1,filepath,source)};
 		}
-		bst::str val;
+		FString val;
 		Token::Type t;
 		if (current_char == "[") {
 			val = "[";
@@ -614,7 +614,7 @@ namespace frumul {
 		 */
 		int remaining_length { source.uLength() - pos };
 		int oldpos{pos};
-		bst::str chosen;
+		FString chosen;
 		for (const auto& tag : opening_tags) {
 			int taglen {tag.uLength()};
 			if (remaining_length >= taglen)
@@ -622,7 +622,7 @@ namespace frumul {
 					chosen = tag;
 		}
 		if (!chosen) {
-			bst::str msg{"An opening tag was expected but wasn't found.\nHere is the list of the tags found in the header:\n"};
+			FString msg{"An opening tag was expected but wasn't found.\nHere is the list of the tags found in the header:\n"};
 			for (const auto& tag : opening_tags)
 				msg += tag + "\n";
 			throw BaseException(BaseException::TagNotFound,msg,Position(pos,pos,filepath,source));
@@ -635,12 +635,12 @@ namespace frumul {
 	BaseException Lexer::createUnexpectedToken(std::initializer_list<Token::Type> expected) {
 			/* Instanciates an UnexpectedToken exception
 			 */
-			bst::str tokensexpected{"Following tokens were expected:\n"};
+			FString tokensexpected{"Following tokens were expected:\n"};
 			for (const auto & tok : expected)
 				tokensexpected += Token::typeToString(tok) + "\n";
 			return BaseException(BaseException::UnexpectedToken,tokensexpected,
 					Position(pos,pos,filepath,source));
 			}
 
-	const bst::str Lexer::unbreakable_space{L'\u00A0'}; // unbreakable space isn't considered a space
+	const FString Lexer::unbreakable_space{L'\u00A0'}; // unbreakable space isn't considered a space
 }// namespace

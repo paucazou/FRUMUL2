@@ -14,8 +14,8 @@ namespace frumul {
 		/* Tokenize the document
 		 */
 		public:
-			Lexer (const bst::str& nsource, const bst::str& nfilepath);
-			void setOpeningTags(const std::vector<bst::str>& new_opening_tags);
+			Lexer (const FString& nsource, const FString& nfilepath);
+			void setOpeningTags(const std::vector<FString>& new_opening_tags);
 			Token getNextToken(std::initializer_list<Token::Type> expected);
 
 			Token peekToken (std::initializer_list<Token::Type> expected, unsigned int rank=0);
@@ -32,27 +32,27 @@ namespace frumul {
 			void test();
 		private:
 			//attributes
-			const bst::str& source;
-			const bst::str& filepath;
+			const FString& source;
+			const FString& filepath;
 			int pos{0}; // used to get the current position in the source
 			int tempos{0}; // used to get temporary look further
 			//int line{1}; // current line and column
 			//int column{1};
 
-			bst::str current_char; 
+			FString current_char; 
 			cpUcs4 raw_current_char;
 
-			std::vector<bst::str> opening_tags {}; // contains every opening tag discovered
+			std::vector<FString> opening_tags {}; // contains every opening tag discovered
 			// static attributes
-			static const bst::str unbreakable_space;
+			static const FString unbreakable_space;
 			//functions
 			void advanceBy (int step=1); 
 			void advanceTo (int npos);
 			bool skipComment (); // test and skip comments
 			bool skipWhiteSpace (); 
 			bool skipNoToken ();
-			bst::str escape ();
-			bool recognizeCaselessID (const bst::str& candidate);
+			FString escape ();
+			bool recognizeCaselessID (const FString& candidate);
 			Token getID (Token::Type t = Token::ID, bool kwExpected = false);
 			Token getID (bool kwExpected);
 			Token tokenizeNamespaceValue(std::initializer_list<Token::Type> expected);

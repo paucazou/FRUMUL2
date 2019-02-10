@@ -7,7 +7,7 @@
 #include "vmtypes.h"
 
 namespace frumul {
-	ParmQueuer::ParmQueuer (ParmVect& p, const bst::str& nlang) :
+	ParmQueuer::ParmQueuer (ParmVect& p, const FString& nlang) :
 	parms{p}, lang{nlang}
 	{
 		/* Constructor
@@ -17,7 +17,7 @@ namespace frumul {
 
 	}
 
-	Parameter& ParmQueuer::operator() (const bst::str& val, const Position& pos, const bst::str& name) {
+	Parameter& ParmQueuer::operator() (const FString& val, const Position& pos, const FString& name) {
 		/* This overloaded function
 		 * is a simple wrapper.
 		 * It creates a temporary Arg
@@ -67,7 +67,7 @@ namespace frumul {
 					return p;
 				}
 			}
-			throw exc(exc::NameError,bst::str("No parameter with name '") + arg.name + "'",arg.pos);
+			throw exc(exc::NameError,FString("No parameter with name '") + arg.name + "'",arg.pos);
 		}
 		// with no name
 		// is the parameter already checked ?

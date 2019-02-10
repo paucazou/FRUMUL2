@@ -71,25 +71,25 @@ namespace frumul {
 #ifdef DEBUG
 			Token ();
 #endif
-			Token (Type ntype, const bst::str& nvalue, const Position& pos);
-			Token (Type ntype, const bst::str& nvalue,
+			Token (Type ntype, const FString& nvalue, const Position& pos);
+			Token (Type ntype, const FString& nvalue,
 					int c1, int l1, int c2, int l2,
-				       	const bst::str& filepath, const bst::str& filecontent);
-			Token (Type ntype, const bst::str& nvalue,
+				       	const FString& filepath, const FString& filecontent);
+			Token (Type ntype, const FString& nvalue,
 					const Point& start, const Point& end,
-				       	const bst::str& filepath, const bst::str& filecontent);
+				       	const FString& filepath, const FString& filecontent);
 			//getters
 			const Position& getPosition() const;
 			Type getType() const;
-			const bst::str& getValue() const;
+			const FString& getValue() const;
 			//overload
 			friend std::ostream& operator << (std::ostream& out, const Token& tok);
 			//other functions
-			bst::str toString() const;
+			FString toString() const;
 
 		private:
 			const Type type;
-			const bst::str value;
+			const FString value;
 			const Position position;
 
 	};

@@ -24,8 +24,8 @@ namespace frumul {
 		 * the AST
 		 */
 		public:
-			Parser (const bst::str& nsource,const bst::str& nfilepath,const Token::Type next_token=Token::MAX_TYPES_HEADER,Transpiler* ntranspiler=nullptr);
-			Parser (const bst::str& nsource,const bst::str& nfilepath,Transpiler& ntranspiler);
+			Parser (const FString& nsource,const FString& nfilepath,const Token::Type next_token=Token::MAX_TYPES_HEADER,Transpiler* ntranspiler=nullptr);
+			Parser (const FString& nsource,const FString& nfilepath,Transpiler& ntranspiler);
 			~Parser();
 			Node& parse (); 
 			const Symbol& getHeaderSymbol() const;
@@ -35,11 +35,11 @@ namespace frumul {
 			const Transpiler& getTranspiler() const;
 		private:
 			//static attributes
-			static std::map<bst::str,bst::str> files; // files already loaded
+			static std::map<FString,FString> files; // files already loaded
 			//attributes
 			bool alreadyparsed{false};
-			const bst::str& source;
-			const bst::str& filepath;
+			const FString& source;
+			const FString& filepath;
 			std::shared_ptr<Symbol> header_symbol{nullptr};
 			Lexer lex;
 			Transpiler* transpiler{nullptr};
@@ -84,7 +84,7 @@ namespace frumul {
 
 			Node options ();
 			Node simple_option(Token::Type, Node::Type,std::function<Node(Parser&)> f=std::function<Node(Parser&)>());
-			std::map<bst::str,Node> lang_option ();
+			std::map<FString,Node> lang_option ();
 			std::vector<Node> param_option ();
 			Node param_value ();
 			std::vector<Node> arg_number ();
@@ -99,8 +99,8 @@ namespace frumul {
 			Node left_bin_op(std::initializer_list<Token::Type>::iterator);
 
 			int _end_of_arg();
-			void _manage_privileged_parameter(const bst::str&, const Position&, ArgCollector&);
-			void _manage_parameter_name_rest_of_tail(const bst::str&, const Position&,ArgCollector&);
+			void _manage_privileged_parameter(const FString&, const Position&, ArgCollector&);
+			void _manage_parameter_name_rest_of_tail(const FString&, const Position&,ArgCollector&);
 
 			template <typename ...T>
 				Node bin_op(T ...ops) {

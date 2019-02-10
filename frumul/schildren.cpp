@@ -42,7 +42,7 @@ namespace frumul {
 		return *s;
 	}
 
-	Symbol& Schildren::getChild(const bst::str& name) {
+	Symbol& Schildren::getChild(const FString& name) {
 		/* name can be a long or a short name
 		 */
 		for (auto& child : children)
@@ -64,7 +64,7 @@ namespace frumul {
 		return hasChildren();
 	}
 
-	bool Schildren::hasChild (const bst::str& name) const {
+	bool Schildren::hasChild (const FString& name) const {
 		/* true if child of name exists
 		 */
 		for (const auto& child : children)
@@ -113,7 +113,7 @@ namespace frumul {
 
 	// finders
 	
-	TailResult Schildren::find(const bst::str& path, const PathFlag flag) {
+	TailResult Schildren::find(const FString& path, const PathFlag flag) {
 		/* Looks in children to find a requested symbol.
 		 * Order : long name, short name, separation dots.
 		 * If it has a remain, transmits it to the child
@@ -125,7 +125,7 @@ namespace frumul {
 			if (path.uAt(0) == "§") {
 				if (!(*parent).hasParent()) // error: no parent
 					throw path;
-				bst::str npath {path.uRange(1,path.uLength()-1)};
+				FString npath {path.uRange(1,path.uLength()-1)};
 				if (npath)
 					return (*parent).getParent().getChildren().find(npath,flag);
 				return (*parent).getParent();
@@ -140,7 +140,7 @@ namespace frumul {
 		// try to find a long name
 		for (auto child_ptr : sortChildrenByLongName()) {
 			auto& child {*child_ptr};
-			const bst::str& name {child.getName().getLong()};
+			const FString& name {child.getName().getLong()};
 			
 			if (!name || name.uLength() > path.uLength())
 				continue;
@@ -149,14 +149,14 @@ namespace frumul {
 
 				if (name.uLength() == path.uLength())
 					return child;
-				bst::str npath{path.uRange(name.uLength(),path.uLength() -1)};
+				FString npath{path.uRange(name.uLength(),path.uLength() -1)};
 				return child.getChildren().find(npath,flag);
 				
 			}
 		}
 		// try to find a short name. Yes, lot of duplicates
 		for (auto& child : children) {
-			const bst::str& name {child.getName().getShort()};
+			const FString& name {child.getName().getShort()};
 
 			if (!name)
 				continue;
@@ -165,7 +165,7 @@ namespace frumul {
 				if (path.uLength() == 1)
 					return child;
 
-				bst::str npath{path.uRange(1,path.uLength() - 1) };
+				FString npath{path.uRange(1,path.uLength() - 1) };
 				return child.getChildren().find(npath,flag);
 			}
 		}
@@ -175,7 +175,7 @@ namespace frumul {
 			if (path.uLength() > 1) {
 				try {
 					return find(path.uRange(1,path.uLength() -1),flag);
-				} catch (const bst::str&) {
+				} catch (const FString&) {
 					return _findRestOfTail(path,flag);
 				}
 			}
@@ -188,7 +188,7 @@ namespace frumul {
 
 	// const getters
 
-	const Symbol& Schildren::getChild(const bst::str& name) const {
+	const Symbol& Schildren::getChild(const FString& name) const {
 		/* get Child in constant context
 		 */
 		for (const auto& child : children)
@@ -220,7 +220,7 @@ namespace frumul {
 		return children.back();
 	}
 
-	Symbol& Schildren::appendChild(const bst::str& name) {
+	Symbol& Schildren::appendChild(const FString& name) {
 		/* Creates a new child with name
 		 * This should not be used by the regular
 		 * interpreter engine since it cannot trace
@@ -231,7 +231,7 @@ namespace frumul {
 		return s;
 	}
 
-	TailResult Schildren::_findRestOfTail(const bst::str& path, const PathFlag flag) {
+	TailResult Schildren::_findRestOfTail(const FString& path, const PathFlag flag) {
 		/* Manages the end of the tail and return the correct result
 		 */
 		auto result { TailResult(*parent) };

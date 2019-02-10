@@ -53,27 +53,27 @@ namespace frumul {
 		public:
 			ENUM(Type,EXCEPTIONS_LIST)
 
-			BaseException (Type ntype,const bst::str& ninfo,const Position& npos);
-			virtual const bst::str what () const noexcept; // return a custom message
+			BaseException (Type ntype,const FString& ninfo,const Position& npos);
+			virtual const FString what () const noexcept; // return a custom message
 			Type getType() const;
 		protected:
 			const Type type;
-			const bst::str addinfo;		// infos entered while creating the instance
+			const FString addinfo;		// infos entered while creating the instance
 			const Position pos;		// where the error has occured
 	};
 
 	class InconsistantException : public BaseException {
 		public:
-			InconsistantException (Type ntype, const bst::str& ninfo,const Position& npos, const bst::str& ninfo2, const std::vector<Position> npositions);
-			//InconsistantException (Type ntype, const bst::str ninfo,const Position& npos, const bst::str ninfo2, const std::vector<Position> npositions);
-			InconsistantException (Type ntype, const bst::str& ninfo, const std::vector<Position> npos1, const bst::str& ninfo2, const std::vector<Position> npositions2);
+			InconsistantException (Type ntype, const FString& ninfo,const Position& npos, const FString& ninfo2, const std::vector<Position> npositions);
+			//InconsistantException (Type ntype, const FString ninfo,const Position& npos, const FString ninfo2, const std::vector<Position> npositions);
+			InconsistantException (Type ntype, const FString& ninfo, const std::vector<Position> npos1, const FString& ninfo2, const std::vector<Position> npositions2);
 
-			InconsistantException (Type ntype, const bst::str& ninfo1, const Position& npos1, const bst::str& ninfo2, const Position& npos2);
+			InconsistantException (Type ntype, const FString& ninfo1, const Position& npos1, const FString& ninfo2, const Position& npos2);
 
-			virtual const bst::str what () const noexcept;
+			virtual const FString what () const noexcept;
 		protected:
 			std::vector<Position> positions1;
-			const bst::str info2; // this info will be print just before 'positions2'
+			const FString info2; // this info will be print just before 'positions2'
 			std::vector<Position> positions2;
 	};
 

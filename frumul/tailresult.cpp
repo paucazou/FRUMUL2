@@ -17,12 +17,12 @@ namespace frumul {
 	{
 	}
 
-	void TailResult::setParameterName(const bst::str& s) {
+	void TailResult::setParameterName(const FString& s) {
 		assert(!parm_name&&"Parameter name already set");
 		parm_name = s;
 	}
 
-	void TailResult::setPrivilegedArgument(const bst::str& s) {
+	void TailResult::setPrivilegedArgument(const FString& s) {
 		assert(!priv_arg&&"Privileged argument already set");
 		priv_arg = s;
 	}
@@ -37,12 +37,12 @@ namespace frumul {
 		return *symbol;
 	}
 
-	const bst::str& TailResult::getParameterName() const {
+	const FString& TailResult::getParameterName() const {
 		assert(parm_name&&"No parm name");
 		return parm_name;
 	}
 
-	const bst::str& TailResult::getPrivilegedArgument() const {
+	const FString& TailResult::getPrivilegedArgument() const {
 		assert(priv_arg&&"No privileged argument");
 		return priv_arg;
 	}

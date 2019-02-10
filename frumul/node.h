@@ -72,12 +72,12 @@ namespace frumul {
 			ENUM(Type,LIST_NODES)
 			
 			// constructors
-			Node (const Type ntype, const Position& npos, const std::map<bst::str,Node>& nattr,const bst::str& nvalue);
-			Node (const Type ntype, const Position& npos, const std::vector<Node>& nattr, const bst::str& nvalue);
+			Node (const Type ntype, const Position& npos, const std::map<FString,Node>& nattr,const FString& nvalue);
+			Node (const Type ntype, const Position& npos, const std::vector<Node>& nattr, const FString& nvalue);
 
-			Node (const Type ntype, const Position& npos, const bst::str& nvalue);
+			Node (const Type ntype, const Position& npos, const FString& nvalue);
 
-			Node (const Type ntype, const Position& npos, const std::map<bst::str,Node>& nattr);
+			Node (const Type ntype, const Position& npos, const std::map<FString,Node>& nattr);
 			Node (const Type ntype, const Position& npos, const std::vector<Node>& nattr={});
 
 			Node (const Node& n);
@@ -88,40 +88,40 @@ namespace frumul {
 			//getters
 			Type type() const;
 			bool areChildrenNamed () const;
-			bool has(const bst::str& key) const;
+			bool has(const FString& key) const;
 			bool has(int index) const;
 
 			const Position& getPosition() const;
 
-			const bst::str& getValue() const;
+			const FString& getValue() const;
 
-			const Node& get(const bst::str& key) const;
+			const Node& get(const FString& key) const;
 			const Node& get(int index) const;
 
-			const std::map<bst::str,Node>& getNamedChildren() const;
+			const std::map<FString,Node>& getNamedChildren() const;
 			const std::vector<Node>& getNumberedChildren() const;
 
 			unsigned int size() const;
 
 			// iterators
-			std::map<bst::str,Node>::reverse_iterator rbegin(bool);
+			std::map<FString,Node>::reverse_iterator rbegin(bool);
 			std::vector<Node>::const_reverse_iterator rbegin() const;
 
-			std::map<bst::str,Node>::reverse_iterator rend(bool);
+			std::map<FString,Node>::reverse_iterator rend(bool);
 			std::vector<Node>::const_reverse_iterator rend()const;
 			
 			//setters
-			void addChild(const bst::str& name, const Node& child);
+			void addChild(const FString& name, const Node& child);
 			void addChild(const Node& child);
 
-			void removeChild(const bst::str& name);
+			void removeChild(const FString& name);
 			void removeChild(const int i);
 
 			// operators
 			void operator=(const Node& n);
 
 			// display functions
-			const bst::str toString() const;
+			const FString toString() const;
 
 			friend std::ostream& operator<< (std::ostream& out, const Node& n);
 		private:
@@ -129,18 +129,18 @@ namespace frumul {
 			const Position pos;
 //#pragma message "Please use std::variant if possible" //TODO
 			union {
-				std::map<bst::str,Node> named_children;
+				std::map<FString,Node> named_children;
 				std::vector<Node> numbered_children;
 			};
-			const bst::str value{""};
+			const FString value{""};
 			const bool childrenNamed {false};
 
 	};
 
 	// aliases for widely used templates types
 	using NodeVector = std::vector<Node>;
-	using StrNodeMap = std::map<bst::str,Node>;
-	using StrNodeMMap = std::multimap<bst::str,Node>;
+	using StrNodeMap = std::map<FString,Node>;
+	using StrNodeMMap = std::multimap<FString,Node>;
 	using uNode = std::unique_ptr<Node>;
 
 }// namespace

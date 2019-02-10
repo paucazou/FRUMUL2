@@ -31,12 +31,12 @@ namespace frumul {
 	
 	//classes
 	//Base class
-	BaseException::BaseException (Type ntype, const bst::str& ninfo, const Position& npos) :
+	BaseException::BaseException (Type ntype, const FString& ninfo, const Position& npos) :
 		type{ntype}, addinfo{ninfo}, pos{npos}
 	{}
 
-	const bst::str BaseException::what () const noexcept {
-		bst::str returned{typeToString(type)};
+	const FString BaseException::what () const noexcept {
+		FString returned{typeToString(type)};
 		returned += ": " + addinfo + '\n';
 		returned += pos.toString();
 		return returned;
@@ -47,20 +47,20 @@ namespace frumul {
 	}
 
 	// Inconsistant class
-	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo, const Position& npos, const bst::str& ninfo2, const std::vector<Position> npositions) :
+	InconsistantException::InconsistantException (Type ntype, const FString& ninfo, const Position& npos, const FString& ninfo2, const std::vector<Position> npositions) :
 		BaseException(ntype,ninfo,npos), info2{ninfo2}, positions2{npositions}
 	{
 		positions1.push_back(npos);
 	}
 
-	/*InconsistantException::InconsistantException (Type ntype, const bst::str ninfo, const Position& npos, const bst::str ninfo2, const std::vector<Position> npositions) :
+	/*InconsistantException::InconsistantException (Type ntype, const FString ninfo, const Position& npos, const FString ninfo2, const std::vector<Position> npositions) :
 		BaseException(ntype,ninfo,npos), info2{ninfo2}, positions2{npositions}
 	{
 		positions1.push_back(npos);
 	}
 	*/
 
-	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo, const std::vector<Position> npos1, const bst::str& ninfo2, const std::vector<Position> npositions2) :
+	InconsistantException::InconsistantException (Type ntype, const FString& ninfo, const std::vector<Position> npos1, const FString& ninfo2, const std::vector<Position> npositions2) :
 		BaseException(ntype,ninfo,npos1.at(0)), positions1{npos1}, info2{ninfo2}, positions2{npositions2}
 	{
 		/* This constructor implies that the first vector
@@ -68,13 +68,13 @@ namespace frumul {
 		 */
 	}
 
-	InconsistantException::InconsistantException (Type ntype, const bst::str& ninfo1, const Position& npos1, const bst::str& ninfo2, const Position& npos2) :
+	InconsistantException::InconsistantException (Type ntype, const FString& ninfo1, const Position& npos1, const FString& ninfo2, const Position& npos2) :
 		BaseException(ntype,ninfo1,npos1), positions1{{npos1}}, info2{ninfo2}, positions2{{npos2}}
 	{
 	}
 
-	const bst::str InconsistantException::what () const noexcept {
-		bst::str returned{typeToString(type)};
+	const FString InconsistantException::what () const noexcept {
+		FString returned{typeToString(type)};
 		returned += ": " + addinfo + '\n';
 		for (const auto& elt : positions1)
 			returned += elt.toString();
