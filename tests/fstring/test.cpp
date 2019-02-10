@@ -240,6 +240,12 @@ bool test_toUTF8() {
 	return true;
 }
 
+bool test_hash() {
+	FString rv { RANDOM_VALUE };
+	assert(rv.hash() == std::hash<FString>()(rv));
+	return true;
+}
+
 bool test_operator_plus() {
 	// every argument is supposed to be constant
 	const FString fs {"FSTRING"};
@@ -352,6 +358,7 @@ int main () {
 	test_iterator(s);
 	// casts
 	test_cast();
+	test_hash();
 
 	// FStringException
 	test_fstring_exception();

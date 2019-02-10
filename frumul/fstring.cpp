@@ -204,6 +204,10 @@ namespace frumul {
 		return _pos >= 0 && _pos < _str.length();
 	}
 
+	int32_t FString::hash() const {
+		return _str.hashCode();
+	}
+
 	std::ostream& operator << (std::ostream& out, const FString& fs) {
 		out << fs._str;
 		return out;
@@ -256,8 +260,10 @@ namespace frumul {
 	FString operator * (int nb, const FString& s) {
 		return s * nb;
 	}
+}
 
-
-
-
+namespace std {
+	size_t hash<frumul::FString>::operator () (const frumul::FString& s) const {
+		return static_cast<size_t>(s.hash());
+	}
 }

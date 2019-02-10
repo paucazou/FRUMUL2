@@ -18,4 +18,5 @@ $compiler test.cpp \
 	-L$icu_path/usr/local/lib/ \
 	-Wl,-R$frumul_path/icu/usr/local/lib/ \
 	-licuuc -licudata -licuio -licui18n \
+	-DRANDOM_VALUE=${RANDOM} \
 	&& valgrind ./a.out

@@ -34,6 +34,7 @@ namespace frumul {
 			// cast
 			operator int ()const;
 			operator bool ()const;
+			int32_t hash() const;
 
 			// setters 
 			FString& operator += (const FString&);
@@ -94,5 +95,12 @@ namespace frumul {
 	FString operator * (int, const FString&);
 
 	using fsexc = FStringException;
+}
+
+namespace std {
+	template <> struct hash<frumul::FString>
+	{
+		size_t operator() (const frumul::FString& s) const;
+	};
 }
 #endif
