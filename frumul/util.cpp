@@ -60,7 +60,7 @@ namespace frumul {
 		 */
 		static const FString unbreakable_space { L'\u00A0' };
 		assert(s.uLength() == 1&&"String entered is not a single character");
-		const auto raw_char { static_cast<unsigned int>(s.uRawAt(0)) };
+		const auto raw_char { static_cast<unsigned int>(s.rawAt(0)) };
 		return std::iswspace(raw_char) || s == unbreakable_space;
 	}
 

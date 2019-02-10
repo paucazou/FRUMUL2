@@ -20,7 +20,7 @@ namespace frumul {
 	// public functions
 
 	Lexer::Lexer (const FString& nsource, const FString& nfilepath):
-		source{nsource}, filepath{nfilepath}, current_char{nsource.uAt(0)}, raw_current_char{nsource.uRawAt(0)}
+		source{nsource}, filepath{nfilepath}, current_char{nsource.uAt(0)}, raw_current_char{nsource.rawAt(0)}
 	{}
 
 	void Lexer::setOpeningTags(const std::vector<FString>& new_opening_tags) {
@@ -201,7 +201,7 @@ namespace frumul {
 		 */
 		if (npos < source.uLength()) {
 			current_char = source.uAt(npos);
-			raw_current_char = source.uRawAt(npos);
+			raw_current_char = source.rawAt(npos);
 		}
 		else {// end of input 
 			current_char = "";
