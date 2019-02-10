@@ -3,6 +3,8 @@
 
 namespace frumul {
 
+	const FString& language{__language};
+
 	cxxopts::Options get_options() {
 		/* get the options expected
 		 * in the command line

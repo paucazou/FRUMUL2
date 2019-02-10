@@ -3,12 +3,13 @@
 #include <initializer_list>
 #include <vector>
 #include "cxxopts.hpp"
-#include "unicode/unistr.h"
-#include "unicode/ustream.h"
+#include "fstring.h"
 
 namespace frumul {
 	using String = icu::UnicodeString;
 	using ParametersList = std::initializer_list<std::vector<std::string>>;
+	static FString __language;
+	extern const FString& language;
 
 	cxxopts::Options get_options();
 	void manage_args(cxxopts::Options&, int argc, char ** argv);
