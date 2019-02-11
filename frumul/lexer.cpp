@@ -307,9 +307,9 @@ namespace frumul {
 				++cpos, ++tempos
 		    ) {
 			c = source.uAt(tempos);
-			c.tolower();
+			c.toLower();
 			d = candidate.uAt(cpos);
-			d.tolower();
+			d.toLower();
 			if (c != d)
 				return false;
 		}
@@ -332,7 +332,7 @@ namespace frumul {
 		}
 		int end{pos-1};
 		if (kwExpected)
-			value.tolower();
+			value.toLower();
 		return Token{t,value,Position(start,end,filepath,source)};
 
 	}
