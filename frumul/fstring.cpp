@@ -134,6 +134,11 @@ namespace frumul {
 		return *this;
 	}
 
+	FString& FString::operator = (const FString& other) {
+		_str = other._str;
+		return *this;
+	}
+
 	void FString::insert(int pos, const FString& other) {
 		/* insert other at pos position
 		 */

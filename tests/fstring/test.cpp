@@ -221,6 +221,15 @@ bool test_insert() {
 	return true;
 }
 
+bool test_assignment() {
+	FString s {str};
+	assert(s == str);
+	constexpr char new_val[] { "New value" };
+	s = new_val;
+	assert(s == new_val);
+	return true;
+}
+
 bool test_extract() {
 	FString fs { "Home, sweet home" };
 	assert(fs.extract(0,3) == "Home");
@@ -353,6 +362,7 @@ int main () {
 	// setters
 	test_plus_equal();
 	test_insert();
+	test_assignment();
 	
 	// iterators
 	test_iterator(s);

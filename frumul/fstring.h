@@ -39,6 +39,7 @@ namespace frumul {
 			// setters 
 			FString& operator += (const FString&);
 			void insert(int,const FString&);
+			FString& operator = (const FString&);
 
 			// to new strings
 			FString extract(int,int) const;
