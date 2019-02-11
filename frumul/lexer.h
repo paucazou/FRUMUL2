@@ -40,7 +40,7 @@ namespace frumul {
 			//int column{1};
 
 			FString current_char; 
-			cpUcs4 raw_current_char;
+			UnicodePoint raw_current_char;
 
 			std::vector<FString> opening_tags {}; // contains every opening tag discovered
 			// static attributes

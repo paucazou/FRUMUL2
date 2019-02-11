@@ -260,15 +260,15 @@ namespace frumul {
 		 * BUG TODO new line is not handled actually
 		 */
 		// returned unmodified
-		static const cpUcs4 lquote {171}; // «
-		static const cpUcs4 rquote {187}; // »
-		static const cpUcs4 lbrace {123}; // {
-		static const cpUcs4 rbrace {125}; // }
-		static const cpUcs4 slash {47}; // /
-		static const cpUcs4 antislash {92}; // \ /
+		static const UnicodePoint lquote {171}; // «
+		static const UnicodePoint rquote {187}; // »
+		static const UnicodePoint lbrace {123}; // {
+		static const UnicodePoint rbrace {125}; // }
+		static const UnicodePoint slash {47}; // /
+		static const UnicodePoint antislash {92}; // \ /
 		// returned modified
-		static const cpUcs4 newline {110}; // \n
-		static const cpUcs4 tab {116}; // \t
+		static const UnicodePoint newline {110}; // \n
+		static const UnicodePoint tab {116}; // \t
 		advanceBy();
 		auto raw_char_to_change{raw_current_char};
 		auto char_to_change{current_char};
