@@ -247,6 +247,10 @@ namespace frumul {
 		return s + FString (i);
 	}
 
+	FString operator + (const FString& s, unsigned int i) {
+		return s + FString (i);
+	}
+
 	FString operator + (const char c, const FString& s) {
 		return FString(c) + s;
 	}

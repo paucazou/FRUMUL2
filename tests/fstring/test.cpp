@@ -284,6 +284,10 @@ bool test_operator_plus() {
 	assert(fs + 0 == "FSTRING0");
 	assert(fs + -1 == "FSTRING-1");
 
+	// FString + unsigned int
+	const unsigned int j { 55 };
+	assert(fs + j == "FSTRING55");
+
 	// char + FString
 	const char c{ 'c' };
 	assert(c + fs2 == "c2");

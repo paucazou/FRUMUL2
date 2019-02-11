@@ -90,12 +90,14 @@ namespace frumul {
 	FString operator + (const FString&, const char*);
 	FString operator + (const char*, const FString&);
 	FString operator + (const FString&, int);
+	FString operator + (const FString&, unsigned int);
 	FString operator + (const char,const FString&);
 	FString operator + (const FString&, const char);
 	FString operator * (const FString&, int);
 	FString operator * (int, const FString&);
 
 	using fsexc = FStringException;
+	using UnicodePoint = char16_t;
 }
 
 namespace std {
