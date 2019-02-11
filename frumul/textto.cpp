@@ -14,7 +14,7 @@ namespace frumul {
 
                         try {
                                 return static_cast<int>(s);
-                        } catch (bst::CBStringException& e) {
+                        } catch (FStringException& e) {
                                 throw BackException(exc::TypeError);
                         }
                 }

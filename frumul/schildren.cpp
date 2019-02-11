@@ -125,7 +125,7 @@ namespace frumul {
 			if (path.uAt(0) == "§") {
 				if (!(*parent).hasParent()) // error: no parent
 					throw path;
-				FString npath {path.uRange(1,path.length()-1)};
+				FString npath {path.extract(1,path.length()-1)};
 				if (npath)
 					return (*parent).getParent().getChildren().find(npath,flag);
 				return (*parent).getParent();
@@ -135,7 +135,7 @@ namespace frumul {
 			if (path.uAt(0) == "\\")
 				// BUG if a symbol named '§' follows another named '\', as in : \\§. Corner case
 				if (path.length() >= 2 && (path.uAt(1) == "§" || path.uAt(1) == "\\")) 
-					return find(path.uRange(1,path.length()-1),flag);
+					return find(path.extract(1,path.length()-1),flag);
 		}
 		// try to find a long name
 		for (auto child_ptr : sortChildrenByLongName()) {
@@ -145,11 +145,11 @@ namespace frumul {
 			if (!name || name.length() > path.length())
 				continue;
 
-			if (path.uRange(0,name.length() -1) == name) {
+			if (path.extract(0,name.length() -1) == name) {
 
 				if (name.length() == path.length())
 					return child;
-				FString npath{path.uRange(name.length(),path.length() -1)};
+				FString npath{path.extract(name.length(),path.length() -1)};
 				return child.getChildren().find(npath,flag);
 				
 			}
@@ -165,7 +165,7 @@ namespace frumul {
 				if (path.length() == 1)
 					return child;
 
-				FString npath{path.uRange(1,path.length() - 1) };
+				FString npath{path.extract(1,path.length() - 1) };
 				return child.getChildren().find(npath,flag);
 			}
 		}
@@ -174,7 +174,7 @@ namespace frumul {
 		if (path.uAt(0) == ".")
 			if (path.length() > 1) {
 				try {
-					return find(path.uRange(1,path.length() -1),flag);
+					return find(path.extract(1,path.length() -1),flag);
 				} catch (const FString&) {
 					return _findRestOfTail(path,flag);
 				}

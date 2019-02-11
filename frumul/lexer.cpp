@@ -224,7 +224,7 @@ namespace frumul {
 		try {
 			while (!(source.uAt(tempos) == "*" && source.uAt(tempos+1) == "/" && source.uAt(tempos+2) == "/"))
 				++tempos;
-		} catch (bst::CBStringException) {
+		} catch (FStringException) {
 			int start{pos};
 			advanceTo(tempos);
 			int end{pos-1};
@@ -602,7 +602,7 @@ namespace frumul {
 		for (const auto & tag : opening_tags) {
 			int taglen {tag.length()};
 			if (remaining_length >= taglen) {
-				if (source.uRange(pos,pos + taglen-1) == tag)
+				if (source.extract(pos,pos + taglen-1) == tag)
 					return true;
 			}
 		}
@@ -618,7 +618,7 @@ namespace frumul {
 		for (const auto& tag : opening_tags) {
 			int taglen {tag.length()};
 			if (remaining_length >= taglen)
-				if (source.uRange(pos,pos + taglen - 1) == tag && taglen > chosen.length())
+				if (source.extract(pos,pos + taglen - 1) == tag && taglen > chosen.length())
 					chosen = tag;
 		}
 		if (!chosen) {
