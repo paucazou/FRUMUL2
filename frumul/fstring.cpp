@@ -139,6 +139,13 @@ namespace frumul {
 		return *this;
 	}
 
+	FString& FString::toLower() {
+		/* To lower case following current locale
+		 */
+		_str.toLower();
+		return *this;
+	}
+
 	void FString::insert(int pos, const FString& other) {
 		/* insert other at pos position
 		 */
