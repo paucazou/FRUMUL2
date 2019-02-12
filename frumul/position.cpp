@@ -70,9 +70,9 @@ namespace frumul {
 				if (startcol >= curline.length())
 					curline += red;
 				else
-					curline.uInsert(startcol,red);
+					curline.insert(startcol,red);
 				if (cline == endp.getLine())
-					curline.uInsert(endp.getColumn() + red.length(), reset);
+					curline.insert(endp.getColumn() + red.length(), reset);
 				returned += FString(cline) + " " + curline + '\n';
 				continue;
 			}
@@ -80,7 +80,7 @@ namespace frumul {
 				if (endp.getColumn() >= curline.length())
 					curline += reset;
 				else
-					curline.uInsert(endp.getColumn(),reset);
+					curline.insert(endp.getColumn(),reset);
 			}
 
 			returned += reset + FString(cline) + red + " " + curline + '\n';
@@ -111,10 +111,10 @@ namespace frumul {
 		 * not the start of the following one.
 		 */
 		int line{1};
-		int column{(string.uAt(pos) == "\n")};
+		int column{(string[pos] == "\n")};
 		int i,lastline; // lastline is the last position of a newline
 		for (i=0, lastline=0; i <= pos; ++i)
-			if (string.uAt(i) == "\n" && i != pos) {
+			if (string[i] == "\n" && i != pos) {
 				++line;
 				lastline = i;
 			}
