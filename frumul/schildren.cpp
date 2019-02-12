@@ -122,7 +122,7 @@ namespace frumul {
 		assert(path&&"path is empty");
 		// relative path allowed ?
 		if (flag & PathFlag::Relative) {
-			if (path.uAt(0) == "§") {
+			if (path[0] == "§") {
 				if (!(*parent).hasParent()) // error: no parent
 					throw path;
 				FString npath {path.extract(1,path.length()-1)};
@@ -132,9 +132,9 @@ namespace frumul {
 			}
 
 			// remove \ if necessary
-			if (path.uAt(0) == "\\")
+			if (path[0] == "\\")
 				// BUG if a symbol named '§' follows another named '\', as in : \\§. Corner case
-				if (path.length() >= 2 && (path.uAt(1) == "§" || path.uAt(1) == "\\")) 
+				if (path.length() >= 2 && (path[1] == "§" || path[1] == "\\")) 
 					return find(path.extract(1,path.length()-1),flag);
 		}
 		// try to find a long name
@@ -161,7 +161,7 @@ namespace frumul {
 			if (!name)
 				continue;
 
-			if (path.uAt(0) == name) {
+			if (path[0] == name) {
 				if (path.length() == 1)
 					return child;
 
@@ -171,7 +171,7 @@ namespace frumul {
 		}
 
 		// is there a dot ?
-		if (path.uAt(0) == ".")
+		if (path[0] == ".")
 			if (path.length() > 1) {
 				try {
 					return find(path.extract(1,path.length() -1),flag);
