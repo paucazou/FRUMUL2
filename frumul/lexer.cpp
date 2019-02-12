@@ -20,7 +20,7 @@ namespace frumul {
 	// public functions
 
 	Lexer::Lexer (const FString& nsource, const FString& nfilepath):
-		source{nsource}, filepath{nfilepath}, current_char{nsource.uAt(0)}, raw_current_char{nsource.rawAt(0)}
+		source{nsource}, filepath{nfilepath}, current_char{nsource[0]}, raw_current_char{nsource.rawAt(0)}
 	{}
 
 	void Lexer::setOpeningTags(const std::vector<FString>& new_opening_tags) {
@@ -200,7 +200,7 @@ namespace frumul {
 		 * by advancing to npos
 		 */
 		if (npos < source.length()) {
-			current_char = source.uAt(npos);
+			current_char = source[npos];
 			raw_current_char = source.rawAt(npos);
 		}
 		else {// end of input 
@@ -218,11 +218,11 @@ namespace frumul {
 		 * Return true if is a comment.
 		 */
 		// Test
-		if (pos+2 >= source.length() || !(source.uAt(pos+1) == "/" && source.uAt(pos+2) == "*"))
+		if (pos+2 >= source.length() || !(source[pos+1] == "/" && source[pos+2] == "*"))
 			return false;
 
 		try {
-			while (!(source.uAt(tempos) == "*" && source.uAt(tempos+1) == "/" && source.uAt(tempos+2) == "/"))
+			while (!(source[tempos] == "*" && source[tempos+1] == "/" && source[tempos+2] == "/"))
 				++tempos;
 		} catch (FStringException) {
 			int start{pos};
@@ -306,9 +306,9 @@ namespace frumul {
 				tempos < source.length();
 				++cpos, ++tempos
 		    ) {
-			c = source.uAt(tempos);
+			c = source[tempos];
 			c.toLower();
-			d = candidate.uAt(cpos);
+			d = candidate[cpos];
 			d.toLower();
 			if (c != d)
 				return false;
