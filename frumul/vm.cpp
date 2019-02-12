@@ -435,7 +435,7 @@ namespace frumul {
 			int i{pop<int>()};
 			FString s {pop<FString>()};
 			stack.push(
-				static_cast<unsigned int>(s.uAt(
+				static_cast<unsigned int>(s.operator[](
 						static_cast<int>(negative_index(i,static_cast<unsigned int>(s.length()),true)))
 				)
 				);
@@ -450,13 +450,13 @@ namespace frumul {
 			if (t & ET::CONSTANT) {
 				const FString& s{E::any_cast<const FString&>(bt.getConstant(data_nb))};
 				auto ls{static_cast<unsigned int>(s.length())};
-				stack.push(s.uAt(static_cast<int>(negative_index(data_index,ls,true))));
+				stack.push(s.operator[](static_cast<int>(negative_index(data_index,ls,true))));
 			}
 			// from variable
 			else {
 				FString& s{E::any_cast<FString&>(variables[data_nb])};
 				auto ls{static_cast<unsigned int>(s.length())};
-				stack.push(s.uAt(static_cast<int>(negative_index(data_index,ls,true))));
+				stack.push(s.operator[](static_cast<int>(negative_index(data_index,ls,true))));
 			}
 		}
 
@@ -482,7 +482,7 @@ namespace frumul {
 		// index error is catched thanks to negative_index
 		auto ls{static_cast<unsigned int>(var.length())};
 		int neg_idx { static_cast<int>(negative_index(index,ls,true)) };
-		var.uReplace(neg_idx,c);
+		var.replace(neg_idx,c);
 	}
 
 	void VM::list_set_elt() {
@@ -528,7 +528,7 @@ namespace frumul {
 				throw BackException(exc::ValueError);
 
 			// index error is catched thanks to negative_index
-			text_ptr->uReplace(static_cast<int>(negative_index(last_index,static_cast<unsigned int>(text_ptr->length())),true),c);
+			text_ptr->replace(static_cast<int>(negative_index(last_index,static_cast<unsigned int>(text_ptr->length())),true),c);
 
 		}
 		else {

@@ -31,14 +31,18 @@ namespace frumul {
 			bool operator != (const char) const;
 			char16_t rawAt(int) const;
 			FString operator [] (int) const;
+			const char16_t * data(); // TODO not tested
+
 			// cast
 			operator int ()const;
+			operator unsigned int () const; // TODO not implemented
 			operator bool ()const;
 			int32_t hash() const;
 
 			// setters 
 			FString& operator += (const FString&);
 			void insert(int,const FString&);
+			void replace(int,const FString&); // TODO not implemented
 			FString& operator = (const FString&);
 			FString& toLower();
 

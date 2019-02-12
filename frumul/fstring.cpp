@@ -77,6 +77,13 @@ namespace frumul {
 		return utfconverter.to_bytes(rawAt(i));
 	}
 
+	const char16_t * FString::data() {
+		/* Return a constant pointer to
+		 * the internal buffer
+		 */
+		return _str.getTerminatedBuffer();
+	}
+
 	FString FString::getLine(int i) const {
 		/* Return the line at i
 		 * i must be > 0 < linesNumber()
@@ -152,6 +159,15 @@ namespace frumul {
 		assert(pos > -1 && "Insert: pos is under zero");
 		assert(pos <= length() && "Insert: pos it too large");
 		_str.insert(pos,other._str);
+	}
+
+	void FString::replace(int pos, const FString& other) {
+		/* Replace the char at pos by other
+		 */
+		assert(pos > -1 && "Replace: pos under zero");
+		assert(pos <= length() && "Replace: pos too large");
+		constexpr int len {0}; // we don't need more
+		_str.replace(pos,len,other._str);
 	}
 
 	FString FString::extract(int start, int end) const {

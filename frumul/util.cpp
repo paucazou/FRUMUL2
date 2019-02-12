@@ -68,7 +68,7 @@ namespace frumul {
 		/* Remove the trailing whitespace
 		 */
 		for (int i{s.length()-1}; i >= 0; --i) {
-			if (!is_whitespace(s.uAt(i))) {
+			if (!is_whitespace(s[i])) {
 				return s.extract(0,i);
 			}
 		}

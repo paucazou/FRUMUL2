@@ -823,9 +823,9 @@ namespace frumul {
 		 * or a RAQUOTE (other values)
 		 */
 		// load file
-		fs::path calling_file_path(reinterpret_cast<char*>(filepath.data));
+		fs::path calling_file_path(reinterpret_cast<char*>(filepath.data()));
 		fs::path parent {calling_file_path.parent_path()};
-		fs::path real_path {parent.append(reinterpret_cast<char*>(path_node.getValue().data))};
+		fs::path real_path {parent.append(reinterpret_cast<char*>(path_node.getValue().data()))};
 		try {
 		Parser::files[path_node.getValue()] = readfile(real_path.native());
 		} catch (std::system_error)
