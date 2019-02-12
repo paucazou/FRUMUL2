@@ -221,6 +221,24 @@ bool test_insert() {
 	return true;
 }
 
+bool test_lower() {
+	// french
+	std::locale fr { "fr_FR.UTF-8" };
+	std::locale::global(fr);
+
+	FString fr_s { "ÀÉÙËtVv"};
+	assert(fr_s.toLower() == "àéùëtvv");
+
+	// russian
+	std::locale ru { "ru_RU.UTF-8" }; // you must enable this locale to make the test pass
+	std::locale::global(ru);
+
+	FString ru_s { "ЙйАБЦДЕЁР" };
+	assert(ru_s.toLower() == "ййабцдеёр" );
+
+	return true;
+}
+
 bool test_assignment() {
 	FString s {str};
 	assert(s == str);
@@ -367,6 +385,7 @@ int main () {
 	test_plus_equal();
 	test_insert();
 	test_assignment();
+	test_lower();
 	
 	// iterators
 	test_iterator(s);
