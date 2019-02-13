@@ -90,7 +90,7 @@ namespace frumul {
 
 		FString temp_line;
 		int max_length{0};
-		for (int cline{0}; cline <= returned.linesNumber() ; ++cline) {
+		for (int cline{1}; cline <= returned.linesNumber() ; ++cline) {
 			temp_line = returned.getLine(cline);
 			if (temp_line.length() > max_length)
 				max_length = temp_line.length();

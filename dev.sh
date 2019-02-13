@@ -50,7 +50,8 @@ compile () {
 		/usr/lib/gcc/x86_64-linux-gnu/6/libstdc++fs.a\
 		-isystem frumul/icu/usr/local/include\
 		-isystem frumul/cxxopts/include\
-		-licuuc -licudata -licuio -licui18n\
+		-licuuc -licudata -licuio -licui18n \
+		-Lfrumul/icu/usr/local/lib \
 		-Wl,-Rfrumul/icu/usr/local/lib\
 		$@
 }
