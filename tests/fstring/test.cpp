@@ -101,8 +101,8 @@ bool test_cast() {
 	assert(static_cast<bool>(not_empty) == true);
 
 	// int
-	FString one{"1"};
-	assert(static_cast<int>(one) == 1);
+	FString min_one{"-1"};
+	assert(static_cast<int>(min_one) == -1);
 
 	FString one_and_more {"1+"};
 	try {
@@ -111,7 +111,16 @@ bool test_cast() {
 	} catch (const fsexc& e) {
 		// we should land here
 	}
+
+	constexpr char err_msg[] { "Cast should'nt have been performed" };
 	FString void_and_one {" 1"};
+	test_exc<fsexc>([&]() {assert(static_cast<int>(void_and_one) == 1);},err_msg);
+
+	// unsigned int
+	FString thousand { "1000" };
+	assert(static_cast<unsigned int>(thousand) == 1000);
+	test_exc<fsexc>([&]() { assert(static_cast<unsigned int>(min_one) == -1);},err_msg);
+
 
 	return true;
 }
@@ -148,6 +157,23 @@ bool test_equality() {
 
 
 	return true;
+}
+
+bool test_lower_than() {
+	FString s;
+	FString ss;
+	assert(s < ss == false);
+
+	s = "0";
+	ss = "1";
+	assert( s < ss == true);
+	assert( ss < s == false);
+
+	s = "01";
+	assert( s < ss == true);
+
+	s = "10";
+	assert( s < ss == false);
 }
 
 bool test_getLine() {
@@ -235,6 +261,20 @@ bool test_lower() {
 
 	FString ru_s { "ЙйАБЦДЕЁР" };
 	assert(ru_s.toLower() == "ййабцдеёр" );
+
+	return true;
+}
+
+bool test_replace() {
+	FString base {"aàa"};
+	base.replace(1,"è");
+	assert(base == "aèa");
+
+	base.replace(0,"ou");
+	assert(base == "ouèa");
+
+	base.replace(3,"ët");
+	assert(base == "ouèët");
 
 	return true;
 }
@@ -363,6 +403,9 @@ int main () {
 
 	// // equality
 	test_equality();
+	// // operator <
+	test_lower_than();
+
 	// output
 	std::stringstream out;
 	out << s;
@@ -386,6 +429,7 @@ int main () {
 	test_insert();
 	test_assignment();
 	test_lower();
+	test_replace();
 	
 	// iterators
 	test_iterator(s);

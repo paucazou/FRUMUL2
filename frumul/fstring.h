@@ -23,26 +23,26 @@ namespace frumul {
 			FString(const FString&&);
 
 			// getters
-			int length() const;
+			int length() const; // WARNING maybe not to be trusted (see ICU doc)
 			int linesNumber() const;
 			bool operator ==(const FString&) const;
 			bool operator == (const char) const;
 			bool operator !=(const FString&) const;
 			bool operator != (const char) const;
+			bool operator < (const FString&) const; 
 			char16_t rawAt(int) const;
 			FString operator [] (int) const;
-			const char16_t * data(); // TODO not tested
 
 			// cast
 			operator int ()const;
-			operator unsigned int () const; // TODO not implemented
+			operator unsigned int () const; 
 			operator bool ()const;
 			int32_t hash() const;
 
 			// setters 
 			FString& operator += (const FString&);
 			void insert(int,const FString&);
-			void replace(int,const FString&); // TODO not implemented
+			void replace(int,const FString&); 
 			FString& operator = (const FString&);
 			FString& toLower();
 
@@ -81,6 +81,8 @@ namespace frumul {
 		private:
 			icu::UnicodeString _str ;
 			FString& that{*this};
+
+			std::string _check_digits(bool signed_t = true) const; 
 	};
 
 	class FStringException {

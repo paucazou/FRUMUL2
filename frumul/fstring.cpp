@@ -10,41 +10,49 @@ namespace frumul {
 	FString::FString():
 		_str{icu::UnicodeString()}
 	{
+		
 	}
 
 	FString::FString(const std::string& s) :
 		_str{s.data()}
 	{
+		
 	}
 
 	FString::FString(const char * s) :
 		_str{s}
 	{
+		
 	}
 
 	FString::FString(const char c) :
 		_str{c}
 	{
+		
 	}
 
 	FString::FString(const int i) :
 		FString(std::to_string(i).data())
 	{
+		
 	}
 
 	FString::FString(unsigned int i) :
 		FString(std::to_string(i).data())
 	{
+		
 	}
 
 	FString::FString(const FString& other) :
 		_str{other._str}
 	{
+		
 	}
 
 	FString::FString(const FString&& other) :
 		_str{std::move(other._str)}
 	{
+		
 	}
 
 	int FString::length() const {
@@ -67,6 +75,10 @@ namespace frumul {
 		return !(*this == other);
 	}
 
+	bool FString::operator< (const FString& other) const {
+		return _str < other._str;
+	}
+
 	char16_t FString::rawAt(int i) const {
 		return _str[i];
 	}
@@ -75,13 +87,6 @@ namespace frumul {
 		if (i >= length())
 			throw fsexc("FString: index out of range. Index: " + FString(i) + "Length: " + length());
 		return utfconverter.to_bytes(rawAt(i));
-	}
-
-	const char16_t * FString::data() {
-		/* Return a constant pointer to
-		 * the internal buffer
-		 */
-		return _str.getTerminatedBuffer();
 	}
 
 	FString FString::getLine(int i) const {
@@ -117,17 +122,17 @@ namespace frumul {
 	FString::operator int() const {
 		/* Return an int only if every codepoint is a digit
 		 */
-		// check that every codepoint is a digit
-		for (int i{0}; i < length(); ++i) {
-			if (!iswdigit(_str[i]))
-				throw fsexc("Operator int: impossible to cast string to int. String is: " + that);
-		}
-
-		// convert to std::string
-		std::string str;
-		_str.toUTF8String(str);
+		std::string str {_check_digits()};
 
 		return std::stoi(str);
+	}
+
+	FString::operator unsigned int () const {
+		/* Return an unsigned int if every codepoint is
+		 * a digit
+		 */
+		std::string str { _check_digits(false)};
+		return std::stoul(str);
 	}
 
 	FString::operator bool () const {
@@ -138,11 +143,13 @@ namespace frumul {
 
 	FString& FString::operator += (const FString& other) {
 		_str += other._str;
+		
 		return *this;
 	}
 
 	FString& FString::operator = (const FString& other) {
 		_str = other._str;
+		
 		return *this;
 	}
 
@@ -150,6 +157,7 @@ namespace frumul {
 		/* To lower case following current locale
 		 */
 		_str.toLower();
+		
 		return *this;
 	}
 
@@ -159,6 +167,7 @@ namespace frumul {
 		assert(pos > -1 && "Insert: pos is under zero");
 		assert(pos <= length() && "Insert: pos it too large");
 		_str.insert(pos,other._str);
+		
 	}
 
 	void FString::replace(int pos, const FString& other) {
@@ -166,8 +175,9 @@ namespace frumul {
 		 */
 		assert(pos > -1 && "Replace: pos under zero");
 		assert(pos <= length() && "Replace: pos too large");
-		constexpr int len {0}; // we don't need more
+		constexpr int len {1}; // we don't need more
 		_str.replace(pos,len,other._str);
+		
 	}
 
 	FString FString::extract(int start, int end) const {
@@ -239,6 +249,27 @@ namespace frumul {
 	std::ostream& operator << (std::ostream& out, const FString& fs) {
 		out << fs._str;
 		return out;
+	}
+
+	std::string FString::_check_digits(bool signed_t) const {
+		/* Check that every code point
+		 * is a digit and return a string containing
+		 * the codepoints
+		 */
+
+		constexpr int first_char {0};
+		// check that every codepoint is a digit
+		for (int i{0}; i < length(); ++i) {
+			if (signed_t && i == first_char && (_str[i] == '+' || _str[i] == '-'))
+				continue;
+			if (!iswdigit(_str[i]))
+				throw fsexc("Impossible to cast string to a number. String is: " + that);
+		}
+
+		// convert to std::string
+		std::string str;
+		_str.toUTF8String(str);
+		return str;
 	}
 
 	// FStringException

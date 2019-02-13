@@ -18,7 +18,8 @@ namespace frumul {
 		/* Load and read the full content
 		 * of a file
 		 */
-		std::ifstream fileopened (reinterpret_cast<char*>(path.data));
+		//std::ifstream fileopened { reinterpret_cast<const char*>(path.data()) };
+		std::ifstream fileopened {path.toUTF8String<std::string>().data() };
 		if (!fileopened)
 			throw std::system_error(std::make_error_code(std::io_errc::stream),"File error");
 		return slurp(fileopened);

@@ -5,6 +5,7 @@ namespace frumul {
                 int text_to<int>(const FString& s) {
                         /* Text to Int
                          */
+#pragma message "Erreur: si le nombre est négatif, impossible de convertir"
 			// checks that all characters are digits
 			for (int i{0}; i < s.length(); ++i) {
 				const auto elt { static_cast<unsigned int>(s.rawAt(i)) };
