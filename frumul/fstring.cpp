@@ -251,6 +251,11 @@ namespace frumul {
 		return out;
 	}
 
+	std::istream& operator >> (std::istream& in, FString& fs) {
+		in >> fs._str;
+		return in;
+	}
+
 	std::string FString::_check_digits(bool signed_t) const {
 		/* Check that every code point
 		 * is a digit and return a string containing

@@ -8,6 +8,9 @@
 
 #define printl(elt) std::cout << elt << std::endl
 #define printerr(elt) std::cerr << elt << std::endl
+#define ARRAY_SIZE(a)                               \
+     ((sizeof(a) / sizeof(*(a))) /                     \
+     static_cast<size_t>(!(sizeof(a) % sizeof(*(a)))))
 
 using namespace frumul;
 
@@ -15,6 +18,7 @@ std::wstring_convert<std::codecvt_utf8<char32_t>,char32_t> utfconverter;
 
 
 constexpr char str[] {"ù@à κόσμε блф"};
+constexpr int str_size { ARRAY_SIZE(str) };
 constexpr int str_codes[] {249, 64, 224, 32, 954, 8057, 963, 956, 949, 32, 1073, 1083, 1092};
 
 template <typename classexc>
@@ -410,6 +414,22 @@ int main () {
 	std::stringstream out;
 	out << s;
 	assert(out.str() == str);
+
+	// input
+	{
+		std::stringstream in;
+		in.write(str,str_size);
+		FString s;
+		assert(s == "");
+		in >> s;
+
+		std::stringstream in_bis;
+		in_bis.write(str,str_size);
+		std::string std_s;
+		in_bis >> std_s;
+
+		assert(s == std_s.data());
+	}
 	
 	// iterators
 	// // begin \ end
