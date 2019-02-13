@@ -47,13 +47,9 @@ compile () {
 		frumul/warning.cpp\
 		-o out\
 		$odir/token.o\
-		$bstrlib/bstrlib.o\
-		$bstrlib/bstrwrap.o\
-		$bstrlib/buniutil.o\
-		$bstrlib/utf8util.o\
 		/usr/lib/gcc/x86_64-linux-gnu/6/libstdc++fs.a\
-		-Ifrumul/icu/usr/local/include\
-		-Ifrumul/cxxopts/include\
+		-isystem frumul/icu/usr/local/include\
+		-isystem frumul/cxxopts/include\
 		-licuuc -licudata -licuio -licui18n\
 		-Wl,-Rfrumul/icu/usr/local/lib\
 		$@

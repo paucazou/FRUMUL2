@@ -15,7 +15,7 @@ namespace ftest {
 		if (parent.getValue())
 			std::cout << "VALUE: " << parent.getValue() << "\n";
 		std::cout << "Enter a name of a child, or 'parent' for the parent: ";
-		bst::str answer;
+		frumul::FString answer;
 		std::cin >> answer;
 		if (answer == "parent")
 			return;
@@ -41,7 +41,7 @@ namespace ftest {
 	back: // yes, another goto, because I'm the worst coder ever !!!
 		std::cout << s;
 		std::cout << "Enter the name of a child, '--parent','--alias'. 'value' to print value. 'quit' to quit: ";
-		bst::str answer;
+		frumul::FString answer;
 		std::cin >> answer;
 		if (answer == "quit")
 			return true;

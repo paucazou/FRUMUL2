@@ -58,6 +58,7 @@ namespace frumul {
 
 			// output
 			friend std::ostream& operator << (std::ostream&, const FString&);
+			friend std::istream& operator >> (std::istream&, FString&);
 
 			// subclasses
 			class iterator {
