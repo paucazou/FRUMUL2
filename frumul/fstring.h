@@ -104,6 +104,10 @@ namespace frumul {
 	FString operator * (const FString&, int);
 	FString operator * (int, const FString&);
 
+	// string litteral which is directly translated into an FString
+	// example: "A string"_FS == FString("A string")
+	FString operator "" _FS(const char*, size_t);
+
 	using fsexc = FStringException;
 	using UnicodePoint = char16_t;
 }

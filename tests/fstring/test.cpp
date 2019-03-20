@@ -5,6 +5,7 @@
 #include <locale>
 #include <sstream>
 #include <string>
+#include <typeinfo>
 
 #define printl(elt) std::cout << elt << std::endl
 #define printerr(elt) std::cerr << elt << std::endl
@@ -70,6 +71,15 @@ bool test_constructors() {
 
 bool test_length(const FString& fs,int ex_len) {
 	assert(fs.length() == ex_len);
+	return true;
+}
+
+bool test_litteral_FString() {
+	const std::type_info& litteral { typeid("A String"_FS) };
+	const std::type_info& symbol   { typeid(FString("A String")) };
+	assert(
+		litteral.hash_code() == symbol.hash_code()
+	      );
 	return true;
 }
 
@@ -379,6 +389,9 @@ bool test_operator_plus() {
 int main () {
 
 	test_constructors();
+	// litterals
+	test_litteral_FString();
+
 	// getters
 	// // length
 	FString s { str };
