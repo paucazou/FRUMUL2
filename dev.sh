@@ -8,13 +8,12 @@ compile () {
 	else
 		compiler='g++'
 	fi
-	$compiler -std=c++14\
+	$compiler -std=c++17\
 		-Wextra -Wall -pedantic\
 		-pedantic-errors\
 		-Wfatal-errors\
 		-Wsign-conversion\
 		-D DEBUG\
-		-D CXXOPTS_USE_UNICODE\
 		-g\
 		tests/astbrowser.cpp\
 		tests/tests.cpp\
@@ -49,7 +48,7 @@ compile () {
 		$odir/token.o\
 		/usr/lib/gcc/x86_64-linux-gnu/6/libstdc++fs.a\
 		-isystem frumul/icu/usr/local/include\
-		-isystem frumul/cxxopts/include\
+		-isystem frumul/include\
 		-licuuc -licudata -licuio -licui18n \
 		-Lfrumul/icu/usr/local/lib \
 		-Wl,-Rfrumul/icu/usr/local/lib\
@@ -58,12 +57,12 @@ compile () {
 
 objectify () {
 	cd $odir
-	g++ -std=c++14\
+	g++ -std=c++17\
 		-Wextra -Wall -pedantic\
 		-pedantic-errors\
 		-Wsign-conversion\
 		-isystem ../frumul/icu/usr/local/include\
-		-isystem ../frumul/cxxopts/include\
+		-isystem ../frumul/include\
 		-D DEBUG\
 		-g\
 		-c ../$1
