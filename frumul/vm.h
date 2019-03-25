@@ -6,7 +6,7 @@
  */
 
 #include <cassert>
-#include <experimental/any>
+#include <any>
 #include <tuple>
 #include "fstring.h"
 #include "bytecode.h"
@@ -33,15 +33,15 @@ namespace frumul {
 		 * and checked before
 		 */
 		public:
-			VM(ByteCode&,const FString& nlang,const std::vector<E::any>& args);
+			VM(ByteCode&,const FString& nlang,const std::vector<std::any>& args);
 			template <typename T> // probably useless
 				T run() {
 					/* Run the VM and return T
 					 */
 					main_loop();
-					return E::any_cast<T>(variables[0]);
+					return std::any_cast<T>(variables[0]);
 				}
-			E::any run();
+			std::any run();
 		private:
 			// functions
 			void main_loop();
@@ -71,17 +71,17 @@ namespace frumul {
 					printl(stack.top().type().name());
 #endif
 
-					return E::any_cast<T>(stack.pop());
+					return std::any_cast<T>(stack.pop());
 				}
 			// attributes
 			ByteCode& bt;
 			std::vector<byte>::iterator it; // each method is responsible to modify the iterator for its own needs and must stay at the last position she used.
 			// stacks. The first element of the stack matching with the return type is the return value
-			rstack<E::any> stack;
-			std::vector<E::any> variables; // index 0 represents the return value
+			rstack<std::any> stack;
+			std::vector<std::any> variables; // index 0 represents the return value
 			const FString& lang;
 	};
-	//using Arg = std::tuple<ExprType,FString,E::any>; // <type,name(if necessary),value>
+	//using Arg = std::tuple<ExprType,FString,std::any>; // <type,name(if necessary),value>
 	struct Arg {
 		/* This struct is used to share
 		 * the arguments of a value
@@ -89,7 +89,7 @@ namespace frumul {
 		 */
 		ExprType type;
 		FString name;
-		E::any value;
+		std::any value;
 		Position pos;
 	};
 }

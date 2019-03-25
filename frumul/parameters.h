@@ -9,7 +9,7 @@
 
 
 #include <cassert>
-#include <experimental/any>
+#include <any>
 #include <memory>
 #include <tuple>
 #include <utility>
@@ -26,7 +26,7 @@
 //#include "vm.h"
 #include "vmtypes.h"
 
-namespace E = std::experimental;
+
 
 namespace frumul {
 	class ByteCode;
@@ -35,7 +35,7 @@ namespace frumul {
 	class VM;
 	struct Arg;
 
-	//using Arg = std::tuple<ExprType,FString,E::any>; // see vm.h for more
+	//using Arg = std::tuple<ExprType,FString,std::any>; // see vm.h for more
 
 	class Parameter {
 		/* One parameter of the values
@@ -59,8 +59,8 @@ namespace frumul {
 			const Node& getChoices() const;
 			const ExprType& getType() const;
 			const FString& getName() const;
-			bool choiceMatch(const E::any& elt,const FString& lang);
-			E::any getDefault(const FString&);
+			bool choiceMatch(const std::any& elt,const FString& lang);
+			std::any getDefault(const FString&);
 			int getIndex() const;
 			// // min/max
 			int getMin(const FString&) ;
@@ -115,8 +115,8 @@ namespace frumul {
 			int max{-1};
 			uNode def;
 			uNode choices;
-			std::unique_ptr<std::vector<E::any>> _choices{nullptr};
-			std::unique_ptr<E::any> _def{nullptr};
+			std::unique_ptr<std::vector<std::any>> _choices{nullptr};
+			std::unique_ptr<std::any> _def{nullptr};
 			std::vector<Position> pos;
 			Symbol* parent;
 			int index{-1};
@@ -124,7 +124,7 @@ namespace frumul {
 			Limit::Comparison comparisonValue(const FString&)const;
 			void calculateMinMax(const FString&);
 			void calculateMinMaxWithOneLimit(int,Limit::Comparison) ;
-			bool _list_match(const E::any&,const E::any&, const ExprType&);
+			bool _list_match(const std::any&,const std::any&, const ExprType&);
 
 
 	};
@@ -148,11 +148,11 @@ namespace frumul {
 			std::vector<Parameter>::iterator begin();
 			std::vector<Parameter>::iterator end();
 			// use
-			std::vector<E::any> formatArgs(const std::vector<Arg>&,const FString&);
+			std::vector<std::any> formatArgs(const std::vector<Arg>&,const FString&);
 		private:
 			std::vector<Parameter> parms;
 			Symbol* parent;
-			E::any get_multiple_args(const std::vector<Arg>&, size_t&, const FString&,Parameter&);
+			std::any get_multiple_args(const std::vector<Arg>&, size_t&, const FString&,Parameter&);
 	};
 
 	using CRParameter = std::reference_wrapper<const Parameter>;

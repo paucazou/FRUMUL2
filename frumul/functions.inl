@@ -4,7 +4,7 @@
  * function templates
  */
 #include <deque>
-#include <experimental/any>
+#include <any>
 #include <functional>
 #include <map>
 #include <memory>
@@ -13,7 +13,7 @@
 #include "fstring.h"
 #include "exception.h"
 
-namespace E = std::experimental;
+
 
 namespace std {
 	template <typename T>
@@ -129,11 +129,11 @@ namespace frumul {
 
 	// cast equal
 	template <typename T>
-		bool cast_equal(const E::any& first, const E::any& second) {
+		bool cast_equal(const std::any& first, const std::any& second) {
 			/* true if first and second, cast to T,
 			 * are equal
 			 */
-			return E::any_cast<T>(first) == E::any_cast<T>(second);
+			return std::any_cast<T>(first) == std::any_cast<T>(second);
 		}
 	
 	// Random access Stack

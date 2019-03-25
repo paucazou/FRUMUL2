@@ -4,7 +4,7 @@
  */
 
 #include <cassert>
-#include <experimental/any>
+#include <any>
 #include <memory>
 #include <ostream>
 #include <vector>
@@ -14,7 +14,7 @@
 #include "position.h"
 #include "vm.h"
 
-namespace E = std::experimental;
+
 
 namespace frumul {
 	class ValueCompiler;
@@ -58,7 +58,7 @@ namespace frumul {
 			void setNode(const Node& node);
 			void setLangs(std::vector<Lang>& nlangs);
 			// use
-			E::any execute(const FString& lang,const std::vector<E::any>& args);
+			std::any execute(const FString& lang,const std::vector<std::any>& args);
 			// display
 			FString toString() const;
 			friend std::ostream& operator<< (std::ostream& out, const OneValue val);
@@ -81,7 +81,7 @@ namespace frumul {
 			Value (Symbol& nparent);
 			Value (const Value& other);
 			//const FString execute(const FString& lang, args?) const;// execute the value with the arguments. How to do that ?
-			E::any execute(const FString& lang,const std::vector<E::any>& args);
+			std::any execute(const FString& lang,const std::vector<std::any>& args);
 			// getters
 			operator bool () const; // true if value is set
 			const std::vector<Lang> getLangs() const;

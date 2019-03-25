@@ -5,7 +5,7 @@
  */
 
 #include <cassert>
-#include <experimental/any>
+#include <any>
 #include <functional>
 #include <map>
 #include <memory>
@@ -22,7 +22,7 @@
 #include "value.h"
 #include "vmtypes.h"
 
-namespace E = std::experimental;
+
 
 namespace frumul {
 
@@ -92,8 +92,8 @@ namespace frumul {
 			bool hasChildren () const;
 			bool hasValue() const;
 			// use
-			FString call(const std::vector<E::any>& args, const FString& lang);
-			E::any any_call(const std::vector<Arg>& args, const FString& lang);
+			FString call(const std::vector<std::any>& args, const FString& lang);
+			std::any any_call(const std::vector<Arg>& args, const FString& lang);
 			// display
 			FString toString() const;
 			STDOUT(Symbol)

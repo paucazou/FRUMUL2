@@ -3,14 +3,14 @@
 /* This file defines the types used in the Virtual Machine
  */
 #include <cassert>
-#include <experimental/any>
+#include <any>
 #include <map>
 #include <memory>
 #include "exception.h"
 #include "macros.h"
 #include "node.h"
 
-namespace E = std::experimental;
+
 
 #define EXPR_TYPES(T)\
 	T(MIN_PRIMITIVE)\

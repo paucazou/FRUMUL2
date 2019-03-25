@@ -7,7 +7,7 @@
 
 #include <cassert>
 #include <cstdint>
-#include <experimental/any>
+#include <any>
 #include <functional>
 #include <map>
 #include <utility>
@@ -19,7 +19,7 @@
 #include "vmtypes.h"
 
 
-namespace E = std::experimental;
+
 
 namespace frumul {
 	class Symbol;
@@ -109,17 +109,17 @@ namespace frumul {
 			const ExprType& getReturnType() const;
 			Symbol& getParent() ;
 			
-			const E::any& getConstant(size_t) const;
-			std::vector<E::any>& getConstants();
+			const std::any& getConstant(size_t) const;
+			std::vector<std::any>& getConstants();
 			std::vector<byte>& getCode();
-			const std::map<unsigned int,E::any>& getStatics() const;
+			const std::map<unsigned int,std::any>& getStatics() const;
 			const Position& getEltPosition(unsigned int i) const;
 			void setEltPosition(const Position& npos);
 
 			void addVariable(int i=1);
 			void addStaticVar(unsigned int);
-			void addStaticVar(unsigned int,const E::any&);
-			void setStatics(const std::vector<E::any>&);
+			void addStaticVar(unsigned int,const std::any&);
+			void setStatics(const std::vector<std::any>&);
 			void addRuntimeError(const BaseException&);
 			void throwRuntimeError(unsigned int i, exc::Type t);
 
@@ -136,9 +136,9 @@ namespace frumul {
 					int i{0};
 					for (auto it{constants.begin()}; it != constants.end(); ++it,++i) {
 						try {
-							if (E::any_cast<T&>(*it) == new_const)
+							if (std::any_cast<T&>(*it) == new_const)
 								return i;
-						} catch (E::bad_any_cast& bac) {
+						} catch (std::bad_any_cast& bac) {
 							continue;
 						}
 					}
@@ -154,7 +154,7 @@ namespace frumul {
 			Symbol& parent;
 			std::vector<byte> code;
 			// constants
-			std::vector<E::any> constants;
+			std::vector<std::any> constants;
 			// number of variables
 			int v_nb{0};
 			// errors at runtime
@@ -162,10 +162,10 @@ namespace frumul {
 			// store positions of elements that must be found at runtime
 			std::map<unsigned int, Position> element_positions;
 			// static variables
-			std::map<unsigned int, E::any> statics;
+			std::map<unsigned int, std::any> statics;
 	};
 	using BT = ByteCode;
-	using AnyVector = std::vector<E::any>;
+	using AnyVector = std::vector<std::any>;
 	using IntExcPair = std::pair<unsigned int, BaseException::Type>;
 	
 	// functions related to the bytecode

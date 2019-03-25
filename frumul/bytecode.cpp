@@ -48,7 +48,7 @@ namespace frumul {
 		return parent;
 	}
 
-	const E::any& ByteCode::getConstant(size_t i) const {
+	const std::any& ByteCode::getConstant(size_t i) const {
 		/* Return the value matching
 		 * with i in constants
 		 */
@@ -56,7 +56,7 @@ namespace frumul {
 		return constants[i];
 	}
 
-	std::vector<E::any>& ByteCode::getConstants() {
+	std::vector<std::any>& ByteCode::getConstants() {
 		return constants;
 	}
 
@@ -64,7 +64,7 @@ namespace frumul {
 		return code;
 	}
 
-	const std::map<unsigned int,E::any>& ByteCode::getStatics() const {
+	const std::map<unsigned int,std::any>& ByteCode::getStatics() const {
 		return statics;
 	}
 
@@ -114,17 +114,17 @@ namespace frumul {
 		/* Add a static variable with an empty value
 		 */
 		assert(statics.count(i) == 0&&"Value already set");
-		statics[i] = E::any();
+		statics[i] = std::any();
 	}
 
-	void ByteCode::addStaticVar(unsigned int i, const E::any& val) {
+	void ByteCode::addStaticVar(unsigned int i, const std::any& val) {
 		/* Add a static variable and give it a value
 		 */
 		assert(statics.count(i) == 0&&"Value already set");
 		statics[i] = val;
 	}
 
-	void ByteCode::setStatics(const std::vector<E::any>& variables) {
+	void ByteCode::setStatics(const std::vector<std::any>& variables) {
 		/* Set the static variables
 		 */
 		for (size_t i{0}; i<variables.size(); ++i) {

@@ -80,7 +80,7 @@ namespace frumul {
 	void ArgCollector::_collect (const Node& n, Parameter& parm) {
 		// format the arg to match the type
 		// and checks it matches
-		E::any value { format_arg(parm,n) };
+		std::any value { format_arg(parm,n) };
 		
 		if (multiple_parm && &parm != multiple_parm)
 			finishMultipleArgs();
@@ -109,7 +109,7 @@ namespace frumul {
 	}
 
 
-	void ArgCollector::_finish_arg(const Node& n,const E::any& value, Parameter& parm) {
+	void ArgCollector::_finish_arg(const Node& n,const std::any& value, Parameter& parm) {
 		/* Finish to enter the value
 		 * in the args
 		 */
@@ -122,7 +122,7 @@ namespace frumul {
 		args.at(static_cast<size_t>(parm.getIndex())) = value;
 	}
 
-	const std::vector<E::any>& ArgCollector::getArgs() const {
+	const std::vector<std::any>& ArgCollector::getArgs() const {
 		return args;
 	}
 
@@ -175,11 +175,11 @@ namespace frumul {
 		collect(n);
 	}
 
-	void ArgCollector::operator >> (std::vector<E::any>& arg_list) const {
+	void ArgCollector::operator >> (std::vector<std::any>& arg_list) const {
 		arg_list = getArgs();
 	}
 
-	E::any ArgCollector::format_arg(const Parameter& parm,const Node& n) {
+	std::any ArgCollector::format_arg(const Parameter& parm,const Node& n) {
 		/* Try to cast the value of the node
 		 * into the type expected
 		 */

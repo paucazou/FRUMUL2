@@ -59,9 +59,6 @@
 /***********************
  * Definition of aliases
  * *********************/
-namespace std {
-	using byte = uint_fast8_t;
-}
 namespace frumul {
 	const FString unsafe_name { "0_unsafe_arg_" };
 }
