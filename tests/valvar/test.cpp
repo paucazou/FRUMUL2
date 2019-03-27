@@ -63,6 +63,11 @@ bool test_get_underlying_value() {
 	auto adress = &vsym.as<VV::SYMBOL>().get();
 	assert (adress == &sym);
 
+	// with const
+	VV::INT ci { 33 };
+	const ValVar cvi { ci };
+	assert(cvi.as<VV::INT>() == ci);
+
 	return true;
 }
 

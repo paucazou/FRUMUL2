@@ -21,6 +21,9 @@ namespace frumul {
 			using LIST = std::vector<ValVar>;
 
 		public: // constructors
+			ValVar(){
+				/* empty constructor */
+			}
 			template <typename T>
 				ValVar(const T& elt) : data_ { elt }
 			{
@@ -33,7 +36,11 @@ namespace frumul {
 
 		public: // getters
 			template <typename T>
-				T as() {
+				T& as() {
+					return std::get<T>(data_);
+				}
+			template <typename T>
+				const T& as() const {
 					return std::get<T>(data_);
 				}
 
