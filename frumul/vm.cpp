@@ -29,7 +29,7 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 			throw BackException(exc::DivisionByZero);\
 			)
 
-#define LIST_PUSH(T) std::any_cast<std::vector<T>>(list).push_back(pop<T>())
+#define LIST_PUSH(T) ValVar_cast<std::vector<T>>(list).push_back(pop<T>())
 
 /* COMPARE syntax
  * 	COMPARISON_TYPE (BOOL_EQUAL,BOOL_INFERIOR,etc.)
@@ -66,7 +66,7 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 	} while (false)
 	
 namespace frumul {
-	VM::VM(ByteCode& nbt,const FString& nlang,const std::vector<std::any>& args) :
+	VM::VM(ByteCode& nbt,const FString& nlang,const std::vector<ValVar>& args) :
 		bt{nbt}, it{nbt.getBegin()}, lang{nlang}
 	{
 		// resize variables vector
@@ -93,7 +93,7 @@ namespace frumul {
 
 	}
 
-	std::any VM::run() {
+	ValVar VM::run() {
 		/* run vm and return value
 		 */
 		try {
@@ -170,14 +170,14 @@ namespace frumul {
 		 */
 		// prepare elements
 		int len{-1};
-		std::any elt{stack.pop()};
+		ValVar elt{stack.pop()};
 		// find length
 		switch (*++it) {
 			case ET::LIST:
-				len = std::any_cast<AnyVector&>(elt).size();
+				len = ValVar_cast<AnyVector&>(elt).size();
 				break;
 			case ET::TEXT:
-				len = std::any_cast<FString&>(elt).length();
+				len = ValVar_cast<FString&>(elt).length();
 				break;
 			default:
 				assert(false&&"Type expected: text or list.");
@@ -277,7 +277,7 @@ namespace frumul {
 			// get the position
 			const Position& pos{bt.getEltPosition(std::distance(bt.getBegin(),it))};
 			// get the value
-			std::any value{stack.pop()};
+			ValVar value{stack.pop()};
 
 			args.push_back({type,name,value,pos});
 		}
@@ -286,7 +286,7 @@ namespace frumul {
 		Symbol& s{pop<RSymbol>().get()};
 		
 		// call and push if not void
-		std::any returned {s.any_call(args,lang)};
+		ValVar returned {s.any_call(args,lang)};
 
 		if (s.getReturnType() != ET::VOID) {
 			// check that value has actually been passed
@@ -412,7 +412,7 @@ namespace frumul {
 		 * 	push(list)
 		 */
 		// pops element and list
-		std::any elt{stack.pop()};
+		ValVar elt{stack.pop()};
 		AnyVector list{pop<AnyVector>()};
 		// append
 		list.push_back(elt);
@@ -447,13 +447,13 @@ namespace frumul {
 			
 			// get string and push element on the stack
 			if (t & ET::CONSTANT) {
-				const FString& s{std::any_cast<const FString&>(bt.getConstant(data_nb))};
+				const FString& s{ValVar_cast<const FString&>(bt.getConstant(data_nb))};
 				auto ls{static_cast<unsigned int>(s.length())};
 				stack.push(s.operator[](static_cast<int>(negative_index(data_index,ls,true))));
 			}
 			// from variable
 			else {
-				FString& s{std::any_cast<FString&>(variables[data_nb])};
+				FString& s{ValVar_cast<FString&>(variables[data_nb])};
 				auto ls{static_cast<unsigned int>(s.length())};
 				stack.push(s.operator[](static_cast<int>(negative_index(data_index,ls,true))));
 			}
@@ -476,7 +476,7 @@ namespace frumul {
 		if (c.length() != 1)
 			throw BackException(exc::ValueError);
 
-		FString& var{std::any_cast<FString&>(variables[text_var])};
+		FString& var{ValVar_cast<FString&>(variables[text_var])};
 
 		// index error is catched thanks to negative_index
 		auto ls{static_cast<unsigned int>(var.length())};
@@ -501,7 +501,7 @@ namespace frumul {
 		// get the id of the list
 		unsigned int var_i {pop<unsigned int>()};
 
-		AnyVector* list{std::any_cast<AnyVector>(&variables[var_i])};
+		AnyVector* list{ValVar_cast<AnyVector>(&variables[var_i])};
 		FString* text_ptr{nullptr};
 
 		// get the indices
@@ -510,9 +510,9 @@ namespace frumul {
 			unsigned int index{negative_index(i,list->size(),true)};
 
 			if (is_char_to_set && indices_nb == 2)
-				text_ptr = std::any_cast<FString>(&list->operator[](index));
+				text_ptr = ValVar_cast<FString>(&list->operator[](index));
 			else
-				list = std::any_cast<AnyVector>(&list->operator[](index));
+				list = ValVar_cast<AnyVector>(&list->operator[](index));
 		}
 		// get the last index 
 		int last_index {pop<int>()};
@@ -532,7 +532,7 @@ namespace frumul {
 		}
 		else {
 			// get the value
-			std::any val{stack.pop()};
+			ValVar val{stack.pop()};
 			list->operator[](negative_index(last_index,list->size(),true)) = val;
 		}
 

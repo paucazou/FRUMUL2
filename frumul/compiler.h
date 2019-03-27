@@ -5,7 +5,7 @@
  * of the symbol values
  */
 
-#include <any>
+#include "valvar.h"
 #include <initializer_list>
 #include <memory>
 #include <utility>
@@ -44,7 +44,7 @@ namespace frumul {
 			Symbol& parent;
 			const FString& lang;
 			int unsafe_args_remainder;
-			std::vector<std::any>& constants{bytecode.getConstants()};
+			std::vector<ValVar>& constants{bytecode.getConstants()};
 			std::vector<byte>& code{bytecode.getCode()};
 			std::unique_ptr<SymbolTab> symbol_table{std::make_unique<SymbolTab>()};
 			int _const_vector_pos{-1};

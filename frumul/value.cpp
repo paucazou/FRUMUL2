@@ -145,7 +145,7 @@ namespace frumul {
 
 	// use
 
-	std::any OneValue::execute(const FString& lang,const std::vector<std::any>& args) {
+	ValVar OneValue::execute(const FString& lang,const std::vector<ValVar>& args) {
 		/* Execute value
 		 */
 		// compile if necessary
@@ -199,7 +199,7 @@ namespace frumul {
 #pragma message "Parent points to garbage, but when ?"
 	}
 
-	std::any Value::execute(const FString& lang, const std::vector<std::any>& args) {
+	ValVar Value::execute(const FString& lang, const std::vector<ValVar>& args) {
 		/* Execute requested value
 		 * and return its return value
 		 */

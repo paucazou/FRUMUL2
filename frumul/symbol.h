@@ -5,7 +5,7 @@
  */
 
 #include <cassert>
-#include <any>
+#include "valvar.h"
 #include <functional>
 #include <map>
 #include <memory>
@@ -92,8 +92,8 @@ namespace frumul {
 			bool hasChildren () const;
 			bool hasValue() const;
 			// use
-			FString call(const std::vector<std::any>& args, const FString& lang);
-			std::any any_call(const std::vector<Arg>& args, const FString& lang);
+			FString call(const std::vector<ValVar>& args, const FString& lang);
+			ValVar any_call(const std::vector<Arg>& args, const FString& lang);
 			// display
 			FString toString() const;
 			STDOUT(Symbol)

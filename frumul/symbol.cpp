@@ -264,7 +264,7 @@ namespace frumul {
 	}
 
 	// use
-	FString Symbol::call(const std::vector<std::any>& args, const FString& lang) {
+	FString Symbol::call(const std::vector<ValVar>& args, const FString& lang) {
 		/* Call the symbol
 		 * The args must be formatted first
 		 */
@@ -274,16 +274,16 @@ namespace frumul {
 		checkCall(lang);
 
 		// execution
-		std::any r{value->execute(lang,args)};
-		return std::any_cast<FString>(r);
+		ValVar r{value->execute(lang,args)};
+		return ValVar_cast<FString>(r);
 	}
 	
-	std::any Symbol::any_call(const std::vector<Arg>& args, const FString& lang) {
+	ValVar Symbol::any_call(const std::vector<Arg>& args, const FString& lang) {
 		/* Calls the symbol
 		 * and return an any value
 		 * Return type check should have be done before
 		 */
-		std::vector<std::any> formatted_args;
+		std::vector<ValVar> formatted_args;
 		// checks
 		checkCall(lang);
 		if (args.size() == 0 && !parameters.empty())

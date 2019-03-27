@@ -7,7 +7,7 @@
 
 #include <cassert>
 #include <cstdint>
-#include <any>
+#include "valvar.h"
 #include <functional>
 #include <map>
 #include <utility>
@@ -109,17 +109,17 @@ namespace frumul {
 			const ExprType& getReturnType() const;
 			Symbol& getParent() ;
 			
-			const std::any& getConstant(size_t) const;
-			std::vector<std::any>& getConstants();
+			const ValVar& getConstant(size_t) const;
+			std::vector<ValVar>& getConstants();
 			std::vector<byte>& getCode();
-			const std::map<unsigned int,std::any>& getStatics() const;
+			const std::map<unsigned int,ValVar>& getStatics() const;
 			const Position& getEltPosition(unsigned int i) const;
 			void setEltPosition(const Position& npos);
 
 			void addVariable(int i=1);
 			void addStaticVar(unsigned int);
-			void addStaticVar(unsigned int,const std::any&);
-			void setStatics(const std::vector<std::any>&);
+			void addStaticVar(unsigned int,const ValVar&);
+			void setStatics(const std::vector<ValVar>&);
 			void addRuntimeError(const BaseException&);
 			void throwRuntimeError(unsigned int i, exc::Type t);
 
@@ -136,7 +136,7 @@ namespace frumul {
 					int i{0};
 					for (auto it{constants.begin()}; it != constants.end(); ++it,++i) {
 						try {
-							if (std::any_cast<T&>(*it) == new_const)
+							if (ValVar_cast<T&>(*it) == new_const)
 								return i;
 						} catch (std::bad_any_cast& bac) {
 							continue;
@@ -154,7 +154,7 @@ namespace frumul {
 			Symbol& parent;
 			std::vector<byte> code;
 			// constants
-			std::vector<std::any> constants;
+			std::vector<ValVar> constants;
 			// number of variables
 			int v_nb{0};
 			// errors at runtime
@@ -162,10 +162,10 @@ namespace frumul {
 			// store positions of elements that must be found at runtime
 			std::map<unsigned int, Position> element_positions;
 			// static variables
-			std::map<unsigned int, std::any> statics;
+			std::map<unsigned int, ValVar> statics;
 	};
 	using BT = ByteCode;
-	using AnyVector = std::vector<std::any>;
+	using AnyVector = std::vector<ValVar>;
 	using IntExcPair = std::pair<unsigned int, BaseException::Type>;
 	
 	// functions related to the bytecode

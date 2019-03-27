@@ -427,9 +427,9 @@ namespace frumul {
 		if (isNode) {
 			auto compiler {MonoExprCompiler(*node, ET::INT, parent,lang)};
 			auto bt {compiler.compile()};
-			auto vm {VM(bt, lang, std::vector<std::any>())};
+			auto vm {VM(bt, lang, std::vector<ValVar>())};
 			delete node;
-			i = std::any_cast<int>(vm.run());
+			i = ValVar_cast<int>(vm.run());
 			isNode = false;
 		}
 		return i;
@@ -478,7 +478,7 @@ namespace frumul {
 		return false;
 	}
 
-	bool Parameter::choiceMatch(const std::any& elt,const FString& lang) {
+	bool Parameter::choiceMatch(const ValVar& elt,const FString& lang) {
 		/* true if elt match one of the elements
 		 * of the choices list
 		 */
@@ -490,8 +490,8 @@ namespace frumul {
 		if (!_choices) {
 			auto compiler { MonoExprCompiler(*choices,ExprType(ET::LIST,type),*parent,lang)};
 			auto bt { compiler.compile() };
-			auto vm { VM(bt, lang, std::vector<std::any>()) };
-			_choices = std::make_unique<std::vector<std::any>>(std::any_cast<std::vector<std::any>>(vm.run()) );
+			auto vm { VM(bt, lang, std::vector<ValVar>()) };
+			_choices = std::make_unique<std::vector<ValVar>>(ValVar_cast<std::vector<ValVar>>(vm.run()) );
 			choices.reset();
 		}
 		// checks that elt match one of _choices
@@ -529,7 +529,7 @@ namespace frumul {
 		return false;
 	}
 
-	std::any Parameter::getDefault(const FString& lang) {
+	ValVar Parameter::getDefault(const FString& lang) {
 		/* Return the default parameter if it has one
 		 */
 		assert((def||_def) && "No default set. Please use Parameter::hasDefault to check it");
@@ -537,12 +537,12 @@ namespace frumul {
 			ExprType real_type {getMax(lang) > 1 ? ExprType(ET::LIST,type) : type};
 			auto compiler { MonoExprCompiler(*def,real_type,*parent,lang) };
 			auto bt {compiler.compile()};
-			auto vm { VM(bt,lang,std::vector<std::any>()) };
-			_def = std::make_unique<std::any>(vm.run());
+			auto vm { VM(bt,lang,std::vector<ValVar>()) };
+			_def = std::make_unique<ValVar>(vm.run());
 
 			// checks
 			if (getMax(lang) > 1) {
-				auto vect_def { std::any_cast<std::vector<std::any>>(*_def) };
+				auto vect_def { ValVar_cast<std::vector<ValVar>>(*_def) };
 				if (!between(vect_def.size(),lang))
 					throw iexc(exc::ArgumentNBError,"Default arguments doesn't match the number required by the parameter. Default defined here: ",def->getPosition(),"Argument defined here: ", pos);
 			}
@@ -552,7 +552,7 @@ namespace frumul {
 
 	}
 
-	bool Parameter::_list_match(const std::any& first, const std::any& second, const ExprType& type) {
+	bool Parameter::_list_match(const ValVar& first, const ValVar& second, const ExprType& type) {
 		/* true if first is equal to second.
 		 * if type & ET::LIST, call this function
 		 */
@@ -567,8 +567,8 @@ namespace frumul {
 				return cast_equal<RSymbol>(first,second);
 			case ET::LIST:
 				{
-					auto first_c { std::any_cast<std::vector<std::any>>(first) };
-					auto second_c { std::any_cast<std::vector<std::any>>(second) };
+					auto first_c { ValVar_cast<std::vector<ValVar>>(first) };
+					auto second_c { ValVar_cast<std::vector<ValVar>>(second) };
 					// check the size
 					if (first_c.size() != second_c.size())
 						return false;
@@ -682,10 +682,10 @@ namespace frumul {
 		return parms.end();
 	}
 
-	std::vector<std::any> Parameters::formatArgs(const std::vector<Arg>& args, const FString& lang) {
+	std::vector<ValVar> Parameters::formatArgs(const std::vector<Arg>& args, const FString& lang) {
 		/*Check the arguments and format them
 		 */
-		std::vector<std::any> formatted {parms.size()};
+		std::vector<ValVar> formatted {parms.size()};
 		auto queue { ParmQueuer(parms,lang) };
 
 		size_t arg_idx{0};
@@ -695,7 +695,7 @@ namespace frumul {
 			// get matching parameter
 			Parameter& parm{queue(arg)};
 
-			std::any value;
+			ValVar value;
 			// check type 
 			if (parm.getMax(lang) > 1)
 				value = get_multiple_args(args,arg_idx,lang,parm);
@@ -733,11 +733,11 @@ namespace frumul {
 		return formatted;
 	}
 
-	std::any Parameters::get_multiple_args(const std::vector<Arg>& args, size_t& arg_idx, const FString& lang,Parameter& parm) {
+	ValVar Parameters::get_multiple_args(const std::vector<Arg>& args, size_t& arg_idx, const FString& lang,Parameter& parm) {
 		/* Return a multiple arg
 		 */
 		const FString& arg_name { args[arg_idx].name };
-		std::vector<std::any> value;
+		std::vector<ValVar> value;
 
 		for (; arg_idx < args.size() && args[arg_idx].name == arg_name; ++arg_idx) {
 			const Arg& arg {args[arg_idx]};

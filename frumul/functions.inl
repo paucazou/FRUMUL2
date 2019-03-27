@@ -4,7 +4,7 @@
  * function templates
  */
 #include <deque>
-#include <any>
+#include "valvar.h"
 #include <functional>
 #include <map>
 #include <memory>
@@ -129,11 +129,11 @@ namespace frumul {
 
 	// cast equal
 	template <typename T>
-		bool cast_equal(const std::any& first, const std::any& second) {
+		bool cast_equal(const ValVar& first, const ValVar& second) {
 			/* true if first and second, cast to T,
 			 * are equal
 			 */
-			return std::any_cast<T>(first) == std::any_cast<T>(second);
+			return ValVar_cast<T>(first) == ValVar_cast<T>(second);
 		}
 	
 	// Random access Stack
