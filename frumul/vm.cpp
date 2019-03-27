@@ -41,16 +41,16 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 	ET::Type t{static_cast<ET::Type>(*++it)}; \
 	switch (t) { \
 		case ET::TEXT: \
-			       stack.push(pop<FString>() op pop<FString>()); \
+			       stack.push(pop<VV::STRING>() op pop<VV::STRING>()); \
 				break; \
 		case ET::INT: \
-			      stack.push(pop<int>() op pop<int>()); \
+			      stack.push(pop<VV::INT>() op pop<VV::INT>()); \
 				break; \
 		case ET::BOOL: \
-			       stack.push(pop<bool>() op pop<bool>()); \
+			       stack.push(pop<VV::BOOL>() op pop<VV::BOOL>()); \
 				break; \
 		case ET::SYMBOL: \
-				 stack.push(&pop<RSymbol>().get() op &pop<RSymbol>().get()); \
+				 stack.push(&pop<VV::SYMBOL>().get() op &pop<VV::SYMBOL>().get()); \
 				break; \
 		default: \
 			 assert(false&&"Type unknown"); \
@@ -62,7 +62,7 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 #define COMPARE_INT(op) \
 	do { \
 	++it; \
-	stack.push(pop<int>() op pop<int>()); \
+	stack.push(pop<VV::INT>() op pop<VV::INT>()); \
 	} while (false)
 	
 namespace frumul {
@@ -190,8 +190,8 @@ namespace frumul {
 	void VM::modulo() {
 		/* give the modulus
 		 */
-		auto a {pop<int>()};
-		auto b {pop<int>()};
+		auto a {pop<VV::INT>()};
+		auto b {pop<VV::INT>()};
 		if (b == 0)
 			throw BackException(exc::DivisionByZero);
 		stack.push(modulus<int>(a,b));
@@ -207,7 +207,7 @@ namespace frumul {
 		 * 	ADDRESS_2
 		 */
 		ASSERT_ADDRESS_SIZE;
-		if (pop<bool>())
+		if (pop<VV::BOOL>())
 			jump();
 		else
 			it += 2; // skip the address and go on
@@ -222,7 +222,7 @@ namespace frumul {
 		 * 	ADDRESS_2
 		 */
 		ASSERT_ADDRESS_SIZE;
-		if (pop<bool>())
+		if (pop<VV::BOOL>())
 			it += 2;
 		else
 			jump();
@@ -272,7 +272,7 @@ namespace frumul {
 			ExprType type{getRealType()};
 
 			// get the name (if necessary)
-			FString name{ (*++it ? pop<FString>() : "") };
+			FString name{ (*++it ? pop<VV::STRING>() : "") };
 
 			// get the position
 			const Position& pos{bt.getEltPosition(std::distance(bt.getBegin(),it))};
@@ -283,7 +283,7 @@ namespace frumul {
 		}
 
 		// get the symbol to call
-		Symbol& s{pop<RSymbol>().get()};
+		Symbol& s{pop<VV::SYMBOL>().get()};
 		
 		// call and push if not void
 		ValVar returned {s.any_call(args,lang)};
@@ -317,7 +317,7 @@ namespace frumul {
 				switch (target_t) {
 					case ET::INT:
 						{
-						FString s{pop<FString>()};
+						FString s{pop<VV::STRING>()};
 						if (!can_be_cast_to<int>(s))
 							throw BackException(exc::CastError);
 
@@ -326,7 +326,7 @@ namespace frumul {
 						break;
 					case ET::BOOL:
 						{
-							FString s{pop<FString>()};	
+							FString s{pop<VV::STRING>()};	
 							if (s == "1" || s == "true")
 								stack.push(true);
 							else if (s == "0" || s == "false")
@@ -339,7 +339,7 @@ namespace frumul {
 					case ET::SYMBOL:
 						{
 							// get the string
-							FString s{pop<FString>()};
+							FString s{pop<VV::STRING>()};
 							Symbol& parent{bt.getParent()};
 							// get the real type
 							
@@ -363,11 +363,11 @@ namespace frumul {
 			case ET::INT:
 				switch (target_t) {
 					case ET::TEXT:
-						stack.push(FString(pop<int>()));
+						stack.push(FString(pop<VV::INT>()));
 						break;
 					case ET::BOOL:
 						{
-						int i{pop<int>()};
+						int i{pop<VV::INT>()};
 						if (i != 1 && i != 0)
 							throw BackException(exc::CastError);
 						stack.push(static_cast<bool>(i));
@@ -381,7 +381,7 @@ namespace frumul {
 				switch(target_t) {
 					case ET::TEXT:
 						{
-						bool b{pop<bool>()};
+						bool b{pop<VV::BOOL>()};
 						const FString True{"true"}, False{"false"};
 						if (b)
 							stack.push(True);
@@ -390,7 +390,7 @@ namespace frumul {
 						}
 						break;
 					case ET::INT:
-						stack.push(static_cast<int>(pop<bool>()));
+						stack.push(static_cast<int>(pop<VV::BOOL>()));
 						break;
 					default:
 						assert(false&&"Type unknown");
@@ -431,8 +431,8 @@ namespace frumul {
 		// get type
 		ET::Type t{static_cast<ET::Type>(*++it)};
 		if (t & ET::STACK_ELT) {
-			int i{pop<int>()};
-			FString s {pop<FString>()};
+			int i{pop<VV::INT>()};
+			FString s {pop<VV::STRING>()};
 			stack.push(
 				static_cast<unsigned int>(s.operator[](
 						static_cast<int>(negative_index(i,static_cast<unsigned int>(s.length()),true)))
@@ -443,7 +443,7 @@ namespace frumul {
 		{
 			// get references
 			auto data_nb { pop<unsigned int>() };
-			int data_index { pop<int>() }; 	
+			int data_index { pop<VV::INT>() }; 	
 			
 			// get string and push element on the stack
 			if (t & ET::CONSTANT) {
@@ -470,7 +470,7 @@ namespace frumul {
 		 * 	pop(char)
 		 */
 		auto text_var {pop<unsigned int>()};
-		auto index{pop<int>()};
+		auto index{pop<VV::INT>()};
 		const FString c{pop<const FString>()};
 		// check that c has a 1 length
 		if (c.length() != 1)
@@ -506,7 +506,7 @@ namespace frumul {
 
 		// get the indices
 		for (;indices_nb > 1; --indices_nb) {
-			int i{pop<int>()};
+			int i{pop<VV::INT>()};
 			unsigned int index{negative_index(i,list->size(),true)};
 
 			if (is_char_to_set && indices_nb == 2)
@@ -515,7 +515,7 @@ namespace frumul {
 				list = ValVar_cast<AnyVector>(&list->operator[](index));
 		}
 		// get the last index 
-		int last_index {pop<int>()};
+		int last_index {pop<VV::INT>()};
 
 
 		if (is_char_to_set) {
@@ -551,7 +551,7 @@ namespace frumul {
 		 */
 		
 		// get index
-		int index{pop<int>()};
+		int index{pop<VV::INT>()};
 		// get list
 		AnyVector list{pop<AnyVector>()};
 		// push element on the stack
