@@ -8,3 +8,4 @@ out
 *cxxopt*
 *icu*
 *include*
+*.gch
