@@ -289,7 +289,7 @@ namespace frumul {
 						break;
 					}
 				}
-			} catch (std::out_of_range){
+			} catch (std::out_of_range&){
 				throw exc(exc::RequiredOptionNotSet,"Mark option not set nor inherited",node.getPosition());
 			}
 		}
@@ -305,7 +305,7 @@ namespace frumul {
 						break;
 					}
 				}
-			} catch (std::out_of_range) {
+			} catch (std::out_of_range&) {
 				throw exc(exc::RequiredOptionNotSet,"Lang option not set nor inherited",node.getPosition());
 			}
 		}

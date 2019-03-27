@@ -50,7 +50,7 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 			       stack.push(pop<bool>() op pop<bool>()); \
 				break; \
 		case ET::SYMBOL: \
-				 stack.push(&pop<RSymbol&>() op &pop<RSymbol&>()); \
+				 stack.push(&pop<RSymbol>().get() op &pop<RSymbol>().get()); \
 				break; \
 		default: \
 			 assert(false&&"Type unknown"); \
@@ -411,7 +411,6 @@ namespace frumul {
 		 * 	pop(list)
 		 * 	push(list)
 		 */
-#pragma message "This function doesn't work with gcc 6.3.0: AnyVector has weird behaviour. This works with clang++ 3.8.1"
 		// pops element and list
 		std::any elt{stack.pop()};
 		AnyVector list{pop<AnyVector>()};

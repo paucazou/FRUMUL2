@@ -10,7 +10,7 @@ fi
 
 $compiler test.cpp \
 	-g \
-	-std=c++14 \
+	-std=c++17 \
 	-Wno-unused-value \
 	$frumul_path/fstring.cpp \
 	-I$frumul_path/icu/usr/local/include \

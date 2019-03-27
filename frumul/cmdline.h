@@ -2,7 +2,7 @@
 #define CMDLINE_H
 #include <initializer_list>
 #include <vector>
-#include "cxxopts.hpp"
+#include "CLI11.hpp"
 #include "fstring.h"
 
 namespace frumul {

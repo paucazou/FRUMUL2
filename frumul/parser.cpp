@@ -828,7 +828,7 @@ namespace frumul {
 		fs::path real_path { parent.append(path_node.getValue().toUTF8String<std::string>()) };
 		try {
 		Parser::files[path_node.getValue()] = readfile(real_path.native());
-		} catch (std::system_error)
+		} catch (std::system_error&)
 		{
 			throw BaseException{exc::FileError,"Invalid file path.",path_node.getPosition()};
 		}

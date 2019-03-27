@@ -46,7 +46,7 @@ compile () {
 		frumul/warning.cpp\
 		-o out\
 		$odir/token.o\
-		/usr/lib/gcc/x86_64-linux-gnu/6/libstdc++fs.a\
+		/usr/lib/gcc/x86_64-linux-gnu/8/libstdc++fs.a\
 		-isystem frumul/icu/usr/local/include\
 		-isystem frumul/include\
 		-licuuc -licudata -licuio -licui18n \

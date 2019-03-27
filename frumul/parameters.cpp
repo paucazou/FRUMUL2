@@ -283,18 +283,23 @@ namespace frumul {
 			case Limit::EQUAL:
 				min = limit;
 				max = limit;
+				break;
 			case Limit::SUPERIOR:
 				min = limit +1;
 				max = INT_MAX;
+				break;
 			case Limit::INFERIOR:
 				min = absolute_min;
 				max = limit-1;
+				break;
 			case Limit::SEQUAL:
 				min = limit;
 				max = INT_MAX;
+				break;
 			case Limit::IEQUAL:
 				min = absolute_min;
 				max = limit;
+				break;
 
 		};
 	}
