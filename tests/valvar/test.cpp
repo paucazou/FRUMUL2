@@ -5,13 +5,23 @@
  * changes.
  */
 #include <cassert>
-#include "symbol.h"
+#include <iostream>
 #include "valvar.h"
+#define printl(elt) std::cout << elt << std::endl
+
+namespace frumul {
+	class Symbol {
+		/* This class mocks the real class
+		 */
+	};
+}
 
 
 using namespace frumul;
 
 bool test_constructor() {
+	// empty
+	ValVar empty;
 	// with int
 	ValVar v_int { 1 };
 	// with bool
