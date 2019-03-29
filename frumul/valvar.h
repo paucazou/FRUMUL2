@@ -44,6 +44,15 @@ namespace frumul {
 					return std::get<T>(data_);
 				}
 
+		public: // observers
+			template <typename T>
+				bool is() const {
+					/* true if the underlying value
+					 * is of T type
+					 */
+					return std::holds_alternative<T>(data_);
+				}
+
 		private:
 			std::variant<INT,
 				    BOOL,

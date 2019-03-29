@@ -6,13 +6,14 @@
  */
 
 #include <cassert>
-#include "valvar.h"
 #include <tuple>
 #include "fstring.h"
 #include "bytecode.h"
 #include "exception.h"
 #include "functions.inl"
+#include "stackvar.h"
 #include "symbol.h"
+#include "valvar.h"
 //#include "header.h"
 // TODO 8to16.cpp -> transform an int in char and reverse
 //
@@ -39,7 +40,7 @@ namespace frumul {
 					/* Run the VM and return T
 					 */
 					main_loop();
-					return ValVar_cast<T>(variables[0]);
+					return variables[0].as<T>();
 				}
 			ValVar run();
 		private:
@@ -64,20 +65,13 @@ namespace frumul {
 				T pop() {
 					/* pops the last elements of the stack
 					 */
-#if DEBUG && 0
-					printl("Position: ");
-					printl(std::distance(bt.getBegin(),it));
-					printl("Top of stack:");
-					printl(stack.top().type().name());
-#endif
-
-					return ValVar_cast<T>(stack.pop());
+					return stack.pop().as<T>();
 				}
 			// attributes
 			ByteCode& bt;
 			std::vector<byte>::iterator it; // each method is responsible to modify the iterator for its own needs and must stay at the last position she used.
 			// stacks. The first element of the stack matching with the return type is the return value
-			rstack<ValVar> stack;
+			rstack<StackVar> stack;
 			std::vector<ValVar> variables; // index 0 represents the return value
 			const FString& lang;
 	};

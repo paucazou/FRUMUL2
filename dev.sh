@@ -34,6 +34,7 @@ compile () {
 		frumul/position.cpp\
 		frumul/retchecker.cpp\
 		frumul/schildren.cpp\
+		frumul/stackvar.cpp\
 		frumul/symbol.cpp\
 		frumul/symboltab.cpp\
 		frumul/tailresult.cpp\

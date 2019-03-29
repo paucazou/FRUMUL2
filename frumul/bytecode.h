@@ -136,9 +136,9 @@ namespace frumul {
 					int i{0};
 					for (auto it{constants.begin()}; it != constants.end(); ++it,++i) {
 						try {
-							if (ValVar_cast<T&>(*it) == new_const)
+							if (it->as<T>() == new_const)
 								return i;
-						} catch (std::bad_any_cast& bac) {
+						} catch (std::bad_variant_access& bva) {
 							continue;
 						}
 					}

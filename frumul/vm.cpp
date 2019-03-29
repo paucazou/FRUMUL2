@@ -29,7 +29,8 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 			throw BackException(exc::DivisionByZero);\
 			)
 
-#define LIST_PUSH(T) ValVar_cast<std::vector<T>>(list).push_back(pop<T>())
+#define LIST_PUSH(T) list.as<std::vector<T>>().push_back(pop<T>())
+//any_cast<std::vector<T>>(list).push_back(pop<T>())
 
 /* COMPARE syntax
  * 	COMPARISON_TYPE (BOOL_EQUAL,BOOL_INFERIOR,etc.)
@@ -170,14 +171,14 @@ namespace frumul {
 		 */
 		// prepare elements
 		int len{-1};
-		ValVar elt{stack.pop()};
+		ValVar elt = stack.pop();
 		// find length
 		switch (*++it) {
 			case ET::LIST:
-				len = ValVar_cast<AnyVector&>(elt).size();
+				len = elt.as<AnyVector>().size();
 				break;
 			case ET::TEXT:
-				len = ValVar_cast<FString&>(elt).length();
+				len = elt.as<VV::STRING>().length();
 				break;
 			default:
 				assert(false&&"Type expected: text or list.");
@@ -277,7 +278,7 @@ namespace frumul {
 			// get the position
 			const Position& pos{bt.getEltPosition(std::distance(bt.getBegin(),it))};
 			// get the value
-			ValVar value{stack.pop()};
+			ValVar value = stack.pop();
 
 			args.push_back({type,name,value,pos});
 		}
@@ -412,7 +413,7 @@ namespace frumul {
 		 * 	push(list)
 		 */
 		// pops element and list
-		ValVar elt{stack.pop()};
+		ValVar elt=stack.pop();
 		AnyVector list{pop<AnyVector>()};
 		// append
 		list.push_back(elt);
@@ -447,13 +448,13 @@ namespace frumul {
 			
 			// get string and push element on the stack
 			if (t & ET::CONSTANT) {
-				const FString& s{ValVar_cast<const FString&>(bt.getConstant(data_nb))};
+				const FString& s{ bt.getConstant(data_nb).as<VV::STRING>() };
 				auto ls{static_cast<unsigned int>(s.length())};
 				stack.push(s.operator[](static_cast<int>(negative_index(data_index,ls,true))));
 			}
 			// from variable
 			else {
-				FString& s{ValVar_cast<FString&>(variables[data_nb])};
+				FString& s{ variables[data_nb].as<VV::STRING>() };
 				auto ls{static_cast<unsigned int>(s.length())};
 				stack.push(s.operator[](static_cast<int>(negative_index(data_index,ls,true))));
 			}
@@ -471,12 +472,12 @@ namespace frumul {
 		 */
 		auto text_var {pop<unsigned int>()};
 		auto index{pop<VV::INT>()};
-		const FString c{pop<const FString>()};
+		const FString c{pop<FString>()};
 		// check that c has a 1 length
 		if (c.length() != 1)
 			throw BackException(exc::ValueError);
 
-		FString& var{ValVar_cast<FString&>(variables[text_var])};
+		FString& var{ variables[text_var].as<VV::STRING>() };
 
 		// index error is catched thanks to negative_index
 		auto ls{static_cast<unsigned int>(var.length())};
@@ -501,7 +502,7 @@ namespace frumul {
 		// get the id of the list
 		unsigned int var_i {pop<unsigned int>()};
 
-		AnyVector* list{ValVar_cast<AnyVector>(&variables[var_i])};
+		AnyVector* list{ &variables[var_i].as<AnyVector>() };
 		FString* text_ptr{nullptr};
 
 		// get the indices
@@ -510,9 +511,9 @@ namespace frumul {
 			unsigned int index{negative_index(i,list->size(),true)};
 
 			if (is_char_to_set && indices_nb == 2)
-				text_ptr = ValVar_cast<FString>(&list->operator[](index));
+				text_ptr = &list->operator[](index).as<VV::STRING>();
 			else
-				list = ValVar_cast<AnyVector>(&list->operator[](index));
+				list = &list->operator[](index).as<AnyVector>();
 		}
 		// get the last index 
 		int last_index {pop<VV::INT>()};
@@ -520,7 +521,7 @@ namespace frumul {
 
 		if (is_char_to_set) {
 			// get the value
-			const FString c{pop<const FString>()};
+			const FString c{pop<FString>()};
 			
 			// check that c has a 1 length
 			if (c.length() != 1)
@@ -532,7 +533,7 @@ namespace frumul {
 		}
 		else {
 			// get the value
-			ValVar val{stack.pop()};
+			ValVar val=stack.pop();
 			list->operator[](negative_index(last_index,list->size(),true)) = val;
 		}
 

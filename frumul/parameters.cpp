@@ -429,7 +429,7 @@ namespace frumul {
 			auto bt {compiler.compile()};
 			auto vm {VM(bt, lang, std::vector<ValVar>())};
 			delete node;
-			i = ValVar_cast<int>(vm.run());
+			i = vm.run().as<int>();
 			isNode = false;
 		}
 		return i;
@@ -491,7 +491,8 @@ namespace frumul {
 			auto compiler { MonoExprCompiler(*choices,ExprType(ET::LIST,type),*parent,lang)};
 			auto bt { compiler.compile() };
 			auto vm { VM(bt, lang, std::vector<ValVar>()) };
-			_choices = std::make_unique<std::vector<ValVar>>(ValVar_cast<std::vector<ValVar>>(vm.run()) );
+			_choices = std::make_unique<std::vector<ValVar>>(
+					vm.run().as<std::vector<ValVar>>());
 			choices.reset();
 		}
 		// checks that elt match one of _choices
@@ -542,7 +543,7 @@ namespace frumul {
 
 			// checks
 			if (getMax(lang) > 1) {
-				auto vect_def { ValVar_cast<std::vector<ValVar>>(*_def) };
+				auto vect_def { _def->as<std::vector<ValVar>>() };
 				if (!between(vect_def.size(),lang))
 					throw iexc(exc::ArgumentNBError,"Default arguments doesn't match the number required by the parameter. Default defined here: ",def->getPosition(),"Argument defined here: ", pos);
 			}
@@ -567,8 +568,8 @@ namespace frumul {
 				return cast_equal<RSymbol>(first,second);
 			case ET::LIST:
 				{
-					auto first_c { ValVar_cast<std::vector<ValVar>>(first) };
-					auto second_c { ValVar_cast<std::vector<ValVar>>(second) };
+					const auto first_c { first.as<std::vector<ValVar>>() };
+					const auto second_c { second.as<std::vector<ValVar>>() };
 					// check the size
 					if (first_c.size() != second_c.size())
 						return false;
@@ -685,7 +686,10 @@ namespace frumul {
 	std::vector<ValVar> Parameters::formatArgs(const std::vector<Arg>& args, const FString& lang) {
 		/*Check the arguments and format them
 		 */
-		std::vector<ValVar> formatted {parms.size()};
+		
+		std::vector<ValVar> formatted;
+		formatted.reserve(parms.size());
+
 		auto queue { ParmQueuer(parms,lang) };
 
 		size_t arg_idx{0};

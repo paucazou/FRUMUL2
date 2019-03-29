@@ -133,7 +133,7 @@ namespace frumul {
 			/* true if first and second, cast to T,
 			 * are equal
 			 */
-			return ValVar_cast<T>(first) == ValVar_cast<T>(second);
+			return first.as<T>() == second.as<T>();
 		}
 	
 	// Random access Stack

@@ -275,7 +275,7 @@ namespace frumul {
 
 		// execution
 		ValVar r{value->execute(lang,args)};
-		return ValVar_cast<FString>(r);
+		return r.as<VV::STRING>();
 	}
 	
 	ValVar Symbol::any_call(const std::vector<Arg>& args, const FString& lang) {
