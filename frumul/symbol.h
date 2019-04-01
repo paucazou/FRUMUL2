@@ -10,6 +10,7 @@
 #include <map>
 #include <memory>
 #include <tuple>
+#include "alias.h"
 #include "bytecode.h"
 #include "exception.h"
 #include "macros.h"
@@ -32,30 +33,6 @@ namespace frumul {
 	class Value;
 	struct Arg;
 
-	class Alias {
-		/* Simple class which handles
-		 * a pointer to another Symbol
-		 * and a Position
-		 */
-		public:
-			Alias();
-			Alias(const Alias& other);
-			//getters
-			operator bool () const; // true if it has a valid alias
-			bool hasPath() const; // true if path has been set before
-			const Position& getPosition() const;
-			const Symbol& getVal() const;
-			const FString& getPath() const;
-
-			// setters
-			void setPath(const Node& node);
-			void setVal(const Symbol& nalias);
-			void setPosition(const Position& npos);
-		protected:
-			const Symbol* val{nullptr};
-			FString path;
-			std::unique_ptr<Position> pos;
-	};
 
 	class Symbol {
 		public:
