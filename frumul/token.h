@@ -68,9 +68,7 @@ namespace frumul {
 		public:
 			ENUM(Type,TOKENS_LIST)
 			//constructors
-#ifdef DEBUG
 			Token ();
-#endif
 			Token (Type ntype, const FString& nvalue, const Position& pos);
 			Token (Type ntype, const FString& nvalue,
 					int c1, int l1, int c2, int l2,
