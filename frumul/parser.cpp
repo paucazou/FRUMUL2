@@ -1,6 +1,7 @@
 #include <cassert>
 #include <filesystem>
 #include <system_error>
+#include "dynloader.h"
 #include "parser.h"
 #include "tailresult.h"
 
@@ -818,25 +819,39 @@ namespace frumul {
 	Node Parser::file_content (const Node& path_node) {
 		/* Manages the content of a header file
 		 * Return a Declaration Node 
-		 * TODO include standard lib
 		 * TODO eat the last token manually: it can be a RPAREN (namespace)
 		 * or a RAQUOTE (other values)
 		 */
 		// load file
 		fs::path calling_file_path { filepath.toUTF8String<std::string>() };
 		fs::path parent {calling_file_path.parent_path()};
-		fs::path real_path { parent.append(path_node.getValue().toUTF8String<std::string>()) };
+		fs::path file_path { path_node.getValue().toUTF8String<std::string>() };
+		fs::path real_path;
 		try {
-		Parser::files[path_node.getValue()] = readfile(real_path.native());
-		} catch (std::system_error&)
-		{
+			real_path = get_path(file_path,parent);
+		} catch (std::system_error& ) {
 			throw BaseException{exc::FileError,"Invalid file path.",path_node.getPosition()};
 		}
-		std::map<FString,FString>::iterator i{Parser::files.find(path_node.getValue())};
-		const FString& path = i->first;
-		// create parser
-		Parser p{Parser::files[path],path,Token::ID};
-		return p.declaration(false);
+		catch (const BackException& e) {
+			throw BaseException(e.type,"Invalid name: do not include the extension", path_node.getPosition());
+		}
+
+		if (real_path.extension() == ".h") {
+			// text file
+			Parser::files[path_node.getValue()] = readfile(real_path.native());
+			std::map<FString,FString>::iterator i{Parser::files.find(path_node.getValue())};
+			const FString& path = i->first;
+			// create parser
+			Parser p{Parser::files[path],path,Token::ID};
+			return p.declaration(false);
+		}
+		// binary file
+		try {
+			Parser::binary_files[path_node.getValue()] = load_lib(real_path);
+		} catch (const BackException& e) {
+			throw BaseException{e.type,"Impossible to load library",path_node.getPosition()};
+		}
+		return Node(Node::BINARY_LIB,path_node.getPosition(),path_node.getValue());
 	}
 
 	Node Parser::namespace_value (const int start) {
@@ -1379,5 +1394,6 @@ namespace frumul {
 	}
 
 	std::map<FString,FString>Parser::files {};
+	std::map<FString,std::unique_ptr<Symbol>>Parser::binary_files {};
 
 } // namespace
