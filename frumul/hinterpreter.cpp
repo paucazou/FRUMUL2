@@ -1,5 +1,6 @@
 #include <cassert>
 #include "hinterpreter.h"
+#include "parser.h"
 #include "tailresult.h"
 #if DEBUG
 #include "../tests/tests.h"
@@ -94,8 +95,9 @@ namespace frumul {
 
 	// Hinterpreter
 
-	Hinterpreter::Hinterpreter (const Node& nheader) :
-		header{nheader}
+	Hinterpreter::Hinterpreter (const Node& nheader,const std::map<FString,std::unique_ptr<Symbol>>& binary_files_) :
+		header{nheader},
+		binary_files{binary_files_}
 	{
 	}
 
@@ -144,7 +146,6 @@ namespace frumul {
 
 	void Hinterpreter::visit_declaration(const Node& node, Symbol& parent,Fdeclaration& forward_declaration) {
 		/* Manages the declaration node
-		 * TODO not yet alias, 
 		 */
 		if (forward_declaration) {// we must check if the name has been declared before
 			forward_declaration.match(node.get("name"));
@@ -193,6 +194,14 @@ namespace frumul {
 					// add alias to the stack in order to interpret the path
 					aliases.push(std::ref(symbol));
 
+				}
+				break;
+
+			case Node::BINARY_LIB:
+				{
+					// get symbol
+					Symbol& sym = *binary_files.at(value.getValue()) ;
+					printl(sym);
 				}
 				break;
 			default:

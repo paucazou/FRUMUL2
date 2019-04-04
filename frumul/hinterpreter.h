@@ -7,6 +7,8 @@
  */
 #include <cassert>
 #include <functional>
+#include <map>
+#include <memory>
 #include <stdexcept>
 #include "fdeclaration.h"
 #include "functions.inl"
@@ -62,7 +64,7 @@ namespace frumul {
 		 * tree
 		 */
 		public:
-			Hinterpreter (const Node& nheader);
+			Hinterpreter (const Node& nheader,const std::map<FString,std::unique_ptr<Symbol>>&);
 			std::shared_ptr<Symbol> getSymbolTree();
 		private:
 			//attributes
@@ -70,6 +72,7 @@ namespace frumul {
 			const Node& header;
 			rstack<InheritedOptions> inherited_stack;
 			std::stack<RSymbol> aliases;
+			const std::map<FString,std::unique_ptr<Symbol>>& binary_files;
 
 			// functions
 			void visit(const Node& node, Symbol& parent);

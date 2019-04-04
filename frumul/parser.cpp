@@ -106,7 +106,7 @@ namespace frumul {
 		 * header and text
 		 */
 		AST.addChild("header",header());
-		Hinterpreter header_interpreter {AST.get("header")};
+		Hinterpreter header_interpreter {AST.get("header"), Parser::binary_files};
 		//header_symbol = std::make_unique<Symbol>(header_interpreter.getSymbolTree());
 		header_symbol = header_interpreter.getSymbolTree();
 		lex.setOpeningTags(header_symbol->getChildrenNames());
@@ -227,17 +227,21 @@ namespace frumul {
 			// RAQUOTE is eat in statement_list
 
 			Node content {file_content(path)}; // return a declaration
-			fields.insert({"value",content.get("value")});
-			if (fields.at("value").type() == Node::NAMESPACE_VALUE)
-				fields.insert({"statements",content.get("statements")});
+			if (content.type() == Node::BINARY_LIB) {
+				fields.insert({"value",content});
+			} else {
+				fields.insert({"value",content.get("value")});
+				if (fields.at("value").type() == Node::NAMESPACE_VALUE)
+					fields.insert({"statements",content.get("statements")});
 
-			if (fields.at("options").type() == Node::EMPTY) {
-				fields.erase("options");
-				fields.insert({"options",content.get("options")});
-			} else 
-				for (const auto& elt : content.get("options").getNumberedChildren())
-					fields.at("options").addChild(elt);
-			//fields.at("value").removeChild("options");TODO REMOVE?
+				if (fields.at("options").type() == Node::EMPTY) {
+					fields.erase("options");
+					fields.insert({"options",content.get("options")});
+				} else 
+					for (const auto& elt : content.get("options").getNumberedChildren())
+						fields.at("options").addChild(elt);
+				//fields.at("value").removeChild("options");TODO REMOVE?
+			}
 
 
 		} else if (current_token->getValue() == "alias") { // alias

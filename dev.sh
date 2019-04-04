@@ -194,8 +194,9 @@ build_lib () {
 		-L. \
 		-Wl,-rpath=./ \
 		$POS_ARGS[1] \
-		-o $POS_ARGS[2] \
+		-o ${FRUMUL_STDLIB}$POS_ARGS[2].hb \
 		-lfrumul \
+		-I frumul/ \
 		-isystem frumul/icu/usr/local/include\
 		-isystem frumul/cxxopts/include\
 		-licuuc -licudata -licuio -licui18n \
