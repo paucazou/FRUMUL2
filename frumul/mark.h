@@ -23,6 +23,7 @@ namespace frumul {
 			// add a value
 			void set (const Node& node);
 			void set (const Mark& other);
+			void set (int);
 			void operator ()(const Node& node);
 			// get the value
 			int get () const;

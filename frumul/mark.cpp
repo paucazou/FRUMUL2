@@ -49,6 +49,14 @@ namespace frumul {
 			positions.push_back(pos);
 	}
 
+	void Mark::set (int i) {
+		/* Set value. Should not be called without
+		 * care
+		 */
+		assert(val <= 0 && "Mark value has already been set");
+		val = i;
+	}
+
 	void Mark::operator() (const Node& node) {
 		/* Same that set
 		 */

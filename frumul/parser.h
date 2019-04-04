@@ -36,6 +36,7 @@ namespace frumul {
 		private:
 			//static attributes
 			static std::map<FString,FString> files; // files already loaded
+			static std::map<FString,std::unique_ptr<Symbol>> binary_files;
 			//attributes
 			bool alreadyparsed{false};
 			const FString& source;

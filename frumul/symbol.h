@@ -69,8 +69,8 @@ namespace frumul {
 			bool hasChildren () const;
 			bool hasValue() const;
 			// use
-			FString call(const std::vector<ValVar>& args, const FString& lang);
-			ValVar any_call(const std::vector<Arg>& args, const FString& lang);
+			virtual FString call(const std::vector<ValVar>& args, const FString& lang);
+			virtual ValVar any_call(const std::vector<Arg>& args, const FString& lang);
 			// display
 			FString toString() const;
 			STDOUT(Symbol)

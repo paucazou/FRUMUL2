@@ -40,6 +40,8 @@
 	E(DivisionByZero)\
 	E(NoReturnedValue)\
 	E(EarlyEOF)\
+	E(LIBRARY_NOT_FOUND)\
+	E(CREATE_SYMBOL_FUNCTION_NOT_FOUND)\
 	E(MAX_TYPES)\
 
 namespace frumul {

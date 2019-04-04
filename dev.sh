@@ -3,6 +3,10 @@ bstrlib=frumul/bstrlib
 odir=odir
 _compile_base=( -std=c++17 -Wextra -Wall -pedantic -pedantic-errors -Wsign-conversion )
 
+_sourcefile=`readlink -f ${${(%):-%N}}`
+export FRUMUL_STDLIB=${_sourcefile%/*}"/stdlib/"
+print Variable environment set: '$FRUMUL_STDLIB'=$FRUMUL_STDLIB
+
 _manage_parms () {
 	# modifies a parameter named NAMED_ARGS, for main parameters
 	# and POS_ARGS, for other parameters
@@ -106,6 +110,7 @@ build_main_lib () {
 		frumul/bytecode.cpp\
 		frumul/compiler.cpp\
 		frumul/exception.cpp\
+		frumul/dynloader.cpp\
 		frumul/fdeclaration.cpp\
 		frumul/fstring.cpp\
 		frumul/hinterpreter.cpp\
@@ -210,6 +215,7 @@ objectify () {
 
 	cd $odir
 	$compiler $NAMED_ARGS $_compile_base \
+		-I ../frumul \
 		-isystem ../frumul/icu/usr/local/include\
 		-isystem ../frumul/cxxopts/include\
 		-D DEBUG\

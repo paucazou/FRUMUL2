@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdlib>
 #include <cwctype>
 #include <ios>
 #include <iostream>
@@ -74,10 +75,45 @@ namespace frumul {
 			}
 		}
 		return "";
-			
+	}
+	fs::path operator + (const fs::path& first, const char* ext) {
+		/* Adds an extension to first and
+		 * return it as a new fs::path
+		 */
+		fs::path new_path{first};
+		return new_path+=ext;
+	}
+	fs::path operator + (const fs::path& first, const fs::path& second) {
+		/* Append second to first with a '/' between them
+		 * and return a new path
+		 */
+		fs::path third { first };
+		return third /= second;
+	}
 
+	fs::path get_path(const fs::path& file, const fs::path& parent) {
+		/* file is supposed to be the name of a header
+		 * this function tries to find the correct header
+		 * with the following order:
+		 * 	1 is it a user defined text header? (.h)
+		 * 	2 is it a user defined binary header? (.hb)
+		 * 	3 is it a standard text header?
+		 * 	4 is it a standard binary header?
+		 * If none of these is found, throw
+		 * a BackException
+		 */
+		fs::path stdlib { std::getenv("FRUMUL_STDLIB") };
+		assert(! stdlib.empty() && "Stdlib path is empty");
 
-		
+		fs::path real_file;
+		if (!fs::exists(real_file = parent + file + ".h") &&
+		    !fs::exists(real_file = parent + file + ".hb") &&
+		    !fs::exists(real_file = stdlib + file + ".h") &&
+		    !fs::exists(real_file = stdlib + file + ".hb")
+		   )
+			throw BackException(exc::FileError);
+
+		return real_file;
 	}
 
 } // namespace 

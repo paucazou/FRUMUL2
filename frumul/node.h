@@ -60,6 +60,9 @@
 	\
 	NOD(TEXT) \
 	NOD(SIMPLE_TEXT) \
+	\
+	NOD(BINARY_LIB)\
+	\
 	NOD(MAX_TYPES) \
 
 
