@@ -459,7 +459,7 @@ namespace frumul {
 					if (skipComment())
 						continue;
 				}
-				else if (current_char == "\n" || current_char == "\t") {
+				if (current_char == "\n" || current_char == "\t") {
 					advanceBy();
 					continue;
 				}
