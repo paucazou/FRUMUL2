@@ -59,8 +59,10 @@ namespace frumul {
 
 			// setters
 			void setParent(Symbol& nparent);
+			void changeParent(Symbol& nparent);
 			void setParameters(const Parameters&);
 			void setReturnType(const Node&);
+			void setReturnType(const ExprType&);
 			void addUnsafeArgsToParms();
 			// booleans
 			bool hasParent() const;

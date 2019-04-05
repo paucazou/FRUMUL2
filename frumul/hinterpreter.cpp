@@ -152,6 +152,7 @@ namespace frumul {
 		}
 
 		// name
+		// TODO problem here, if the class is a binary lib
 		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
 		// using value
 		const Node& value{ node.get("value") };
@@ -201,7 +202,14 @@ namespace frumul {
 				{
 					// get symbol
 					Symbol& sym = *binary_files.at(value.getValue()) ;
-					printl(sym);
+					symbol.getMark().set(sym.getMark());
+					symbol.getValue() = sym.getValue();
+					symbol.getParameters() = sym.getParameters();
+					symbol.setReturnType(sym.getReturnType());
+					for (const auto& child : sym.getChildren().getChildren()) {
+						Symbol& nchild { symbol.getChildren().addChild(child) };
+						nchild.changeParent(symbol);
+					}
 				}
 				break;
 			default:

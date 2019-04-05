@@ -151,6 +151,7 @@ namespace frumul {
 		/* Throw an error during the runtime
 		 * The error must be set by the compiler
 		 */
+#pragma message "Add compiler error: lang error"
 		throw runtime_errors.at(IntExcPair(i,t));
 	}
 

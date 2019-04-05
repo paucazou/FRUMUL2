@@ -199,6 +199,15 @@ namespace frumul {
 #pragma message "Parent points to garbage, but when ?"
 	}
 
+	Value& Value::operator = (const Value& other) {
+		/* this function does not change the parent
+		 */
+		for (const auto& elt : other.values)
+			values.push_back(elt);
+		return *this;
+	}
+
+
 	ValVar Value::execute(const FString& lang, const std::vector<ValVar>& args) {
 		/* Execute requested value
 		 * and return its return value

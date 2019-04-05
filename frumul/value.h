@@ -91,6 +91,7 @@ namespace frumul {
 			bool hasEvery() const;
 			bool canExecuteWith(const FString& lang) const;
 			//setters
+			Value& operator=(const Value&);
 			OneValue& set (std::vector<Lang>& nlangs);
 			OneValue& set (const Node& val, std::vector<Lang>& nlangs);
 			OneValue& set (const OneValue& val);

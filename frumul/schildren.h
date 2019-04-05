@@ -7,6 +7,7 @@
 
 #include <list>
 #include <utility>
+#include <vector>
 #include "node.h"
 #include "symbol.h"
 #include "tailresult.h"
@@ -47,15 +48,17 @@ namespace frumul {
 			TailResult find(const FString& path, const PathFlag flag=PathFlag::No) ;
 			// const getters
 			const Symbol& getChild(const FString& name) const;
-			const std::list<Symbol>& getChildren() const;
+			const std::vector<Symbol*> getChildren() const;
 			// setters
 			Symbol& addChild(const Symbol& s);
+			Symbol& addChildReference(Symbol& s);
 			Symbol& appendChild();
 			Symbol& appendChild(const FString& name);
 
 		private:
 			Symbol* parent{nullptr};
 			std::list<Symbol> children;
+			std::vector<Symbol*> not_owned_children;
 			// functions
 			TailResult _findRestOfTail(const FString&,const PathFlag flag=PathFlag::No);
 	};

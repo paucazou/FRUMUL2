@@ -212,6 +212,12 @@ namespace frumul {
 		return children.back();
 	}
 
+	Symbol& Schildren::addChildReference(Symbol& s) {
+		/* Does not copy s, but
+		 * add a reference to it
+		 * Does not take the ownership
+		 */
+
 	Symbol& Schildren::appendChild() {
 		/* creates a new empty child
 		 * and return a reference to it

@@ -850,12 +850,14 @@ namespace frumul {
 			return p.declaration(false);
 		}
 		// binary file
+		static unsigned int _nb_lib{0};
+		const FString lib_name { path_node.getValue() + ++_nb_lib };
 		try {
-			Parser::binary_files[path_node.getValue()] = load_lib(real_path);
+			Parser::binary_files[lib_name] = load_lib(real_path);
 		} catch (const BackException& e) {
 			throw BaseException{e.type,"Impossible to load library",path_node.getPosition()};
 		}
-		return Node(Node::BINARY_LIB,path_node.getPosition(),path_node.getValue());
+		return Node(Node::BINARY_LIB,path_node.getPosition(),lib_name);
 	}
 
 	Node Parser::namespace_value (const int start) {

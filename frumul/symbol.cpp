@@ -119,6 +119,13 @@ namespace frumul {
 		assert(parent == &nparent&&"Parent doesn't match");
 	}
 
+	void Symbol::changeParent(Symbol& nparent) {
+		/* Different than setParent: it changes the parent,
+		 * even if another one has been set before
+		 */
+		parent = &nparent;
+	}
+
 	void Symbol::setParameters(const Parameters& parms) {
 		/* Set parameters
 		 */
@@ -139,6 +146,12 @@ namespace frumul {
 		
 	}
 
+	void Symbol::setReturnType(const ExprType& e) {
+		/* Set return type, but not the position
+		 */
+		return_type.type = e;
+	}
+
 	void Symbol::addUnsafeArgsToParms() {
 		/* The unsafe arguments will be add to the parameters.
 		 * This function works only once.
@@ -153,7 +166,7 @@ namespace frumul {
 		}
 		mark_added_to_parameters = true;
 	}
-	
+
 	// booleans
 	bool Symbol::hasParent() const {
 		/* true if parent exists
