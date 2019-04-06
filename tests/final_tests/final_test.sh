@@ -14,17 +14,19 @@ for file in $file_names; do
 	file=$dir_path$file
 	print Check $file.uu...
 	# test the result
-	result=`$ex $file.uu 2>&1`
+	result=`$ex $file.uu --no-browser 2>&1`
 	if [[ $result != `cat $file.result` ]]; then
 		print Error in $file.uu
 		print Output:
 		print $result
 	else
 		# test memory leak only if no error
-		mem_leak_result=`valgrind --leak-check=yes -q $ex $file.uu 2>&1`
+		mem_leak_result=`valgrind --leak-check=yes -q $ex $file.uu --no-browser 2>&1`
 		if [[ $? != 0 ]]; then
 			print Memory leak in $file.uu
 			print $mem_leak_result
+		else
+			print OK
 		fi
 	fi
 
