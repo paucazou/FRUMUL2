@@ -18,24 +18,32 @@ int main(int argc, char* argv[])
 
 {
 	std::set_terminate(frumul::terminate);
+	bool must_browse { [&]() {
+		if (argc > 2) {
+			std::string arg2 = argv[2];
+			return arg2 != "--no-browser";
+		}
+		return true;
+	}()};
+
 	if (argc > 1) {
 		std::ifstream fileopened (argv[1]);
 		frumul::FString source {slurp(fileopened)};
-#ifndef NO_BROWSER
-		std::cout << "Source:\n";
-		std::cout << source << "\n\n";
-#endif
+		if (must_browse) { 
+			std::cout << "Source:\n";
+			std::cout << source << "\n\n";
+		}
 		frumul::FString filepath {argv[1]};
 		frumul::Transpiler transpiler{source,filepath,"every"};
 		frumul::Parser& parser{transpiler.getParser()};
-#ifndef NO_BROWSER
-		// browse ast
-		ftest::astBrowser(parser.parse());
-		// browse symbols
-		ftest::symbolBrowser (parser.getHeaderSymbol());
-		// print result
-		printl("Output:\n=======");
-#endif
+		if (must_browse) {
+			// browse ast
+			ftest::astBrowser(parser.parse());
+			// browse symbols
+			ftest::symbolBrowser (parser.getHeaderSymbol());
+			// print result
+			printl("Output:\n=======");
+		}
 		std::cout << transpiler.getOutput();
 
 	}
