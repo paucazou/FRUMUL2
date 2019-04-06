@@ -88,7 +88,8 @@ namespace frumul {
 			return true;
 		}
 #if DEBUG
-		std::cout << *current_token << std::endl;
+		if (current_token->getType() != Token::EOFILE)
+			std::cout << *current_token << std::endl;
 		std::cout << __LINE__ << std::endl;
 #endif
 		throw BaseException(BaseException::UnexpectedToken,"Token expected: "+Token::typeToString(t),Position(current_token->getPosition()));

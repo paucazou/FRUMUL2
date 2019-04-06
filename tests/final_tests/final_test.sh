@@ -19,13 +19,13 @@ for file in $file_names; do
 		print Error in $file.uu
 		print Output:
 		print $result
-	fi
-
-	# test memory leak
-	valgrind --leak-check=yes -q $ex $file.uu 2>/dev/null 1>&2
-	if [[ $? != 0 ]]; then
-		print Memory leak in $file.uu
-		valgrind --leak-check=yes $ex $file.uu
+	else
+		# test memory leak only if no error
+		mem_leak_result=`valgrind --leak-check=yes -q $ex $file.uu 2>&1`
+		if [[ $? != 0 ]]; then
+			print Memory leak in $file.uu
+			print $mem_leak_result
+		fi
 	fi
 
 done

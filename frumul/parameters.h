@@ -51,6 +51,7 @@ namespace frumul {
 			void setMinMax(const StrNodeMap& fields);
 			void setParent(Symbol&);
 			void setIndex(int);
+			void setChoices(const std::vector<ValVar>&);
 
 			// getters
 			bool operator == (const Parameter& other) const;

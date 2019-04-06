@@ -54,6 +54,14 @@ namespace frumul {
 
 				assert(false&&"StackVar can not be cast to a ValVar");
 				}
+#ifdef DEBUG
+			size_t index() const {
+				/* return the index of the underlying
+				 * variant
+				 */
+				return data_.index();
+			}
+#endif
 
 		private:
 			std::variant<VV::INT,

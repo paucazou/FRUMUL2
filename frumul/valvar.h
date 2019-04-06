@@ -52,6 +52,14 @@ namespace frumul {
 					 */
 					return std::holds_alternative<T>(data_);
 				}
+#ifdef DEBUG
+			size_t index() const {
+				/* return the index of the underlying
+				 * variant
+				 */
+				return data_.index();
+			}
+#endif
 
 		private:
 			std::variant<INT,

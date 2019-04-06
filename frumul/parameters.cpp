@@ -169,6 +169,13 @@ namespace frumul {
 		index = i;
 	}
 
+	void Parameter::setChoices(const std::vector<ValVar>& nchoices) {
+		/* Set the choices if they have'nt been set yet
+		 */
+		assert(!choices && !_choices && "choices have been defined yet");
+		_choices = std::make_unique<std::vector<ValVar>>(nchoices);
+	}
+
 	Parameter::Limit::Comparison Parameter::comparisonValue(const FString& val) const{
 		/* Return an enum
 		 * matching with val

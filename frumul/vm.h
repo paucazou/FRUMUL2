@@ -65,7 +65,15 @@ namespace frumul {
 				T pop() {
 					/* pops the last elements of the stack
 					 */
+#if DEBUG && 0
+					auto val = stack.pop();
+					printl("variant index:");
+					printl(val.index());
+					return val.as<T>();
+#else
+
 					return stack.pop().as<T>();
+#endif
 				}
 			// attributes
 			ByteCode& bt;
