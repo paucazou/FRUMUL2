@@ -31,10 +31,13 @@ namespace frumul {
 
 	IO::IO() {
 		// adding stdout
-		children->addChild(__frumul__out(std::cout,"o","stdout"));
+		children->addChildReference(out);
 		// adding stderr
-		children->addChild(__frumul__out(std::cerr,"e","stderr"));
+		children->addChildReference(err);
 	}
+
+	__frumul__out IO::out { std::cout,"o","stdout" };
+	__frumul__out IO::err { std::cerr,"e","stderr" };
 
 	std::unique_ptr<Symbol> create_symbol() {
 		return std::make_unique<IO>();

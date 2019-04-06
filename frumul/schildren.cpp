@@ -21,16 +21,16 @@ namespace frumul {
 		Symbol* s{nullptr};
 		if (hasChild(node)) {
 			if (node.type() == Node::LINKED_NAMES)
-				for (auto& child : children) {
-					if (child.getName() == node.get("short").getValue() || child.getName() == node.get("long").getValue()) {
-						s = &child;
+				for (auto child : children) {
+					if (child->getName() == node.get("short").getValue() || child->getName() == node.get("long").getValue()) {
+						s = child;
 						break;
 					}
 				}
 			else // node Short or Long
-				for (auto& child : children) {
-					if (child.getName() == node.getValue()) {
-						s = &child;
+				for (auto child : children) {
+					if (child->getName() == node.getValue()) {
+						s = child;
 						break;
 					}
 			}
@@ -45,9 +45,9 @@ namespace frumul {
 	Symbol& Schildren::getChild(const FString& name) {
 		/* name can be a long or a short name
 		 */
-		for (auto& child : children)
-			if (child.getName() == name)
-				return child;
+		for (auto child : children)
+			if (child->getName() == name)
+				return *child;
 		assert(false&&"child does not exist");
 	}
 
@@ -67,8 +67,8 @@ namespace frumul {
 	bool Schildren::hasChild (const FString& name) const {
 		/* true if child of name exists
 		 */
-		for (const auto& child : children)
-			if (child.getName() == name)
+		for (const auto child : children)
+			if (child->getName() == name)
 				return true;
 		return false;
 	}
@@ -101,8 +101,8 @@ namespace frumul {
 		 * of the children sorted by long names, the longest first
 		 */
 		std::vector<Symbol*> sorted;
-		for (auto& child : children)
-			sorted.push_back(&child);
+		for (auto child : children)
+			sorted.push_back(child);
 
 		std::sort(sorted.begin(), sorted.end(), [](Symbol* a, Symbol* b) {
 				return a->getName().getLong().length() > b->getName().getLong().length();
@@ -155,7 +155,8 @@ namespace frumul {
 			}
 		}
 		// try to find a short name. Yes, lot of duplicates
-		for (auto& child : children) {
+		for (auto child_ptr : children) {
+			auto& child = *child_ptr;
 			const FString& name {child.getName().getShort()};
 
 			if (!name)
@@ -191,13 +192,13 @@ namespace frumul {
 	const Symbol& Schildren::getChild(const FString& name) const {
 		/* get Child in constant context
 		 */
-		for (const auto& child : children)
-			if (child.getName() == name)
-				return child;
+		for (const auto child : children)
+			if (child->getName() == name)
+				return *child;
 		assert(false&&"No child of this name");
 	}
 
-	const std::list<Symbol>& Schildren::getChildren() const {
+	const std::vector<Symbol*>& Schildren::getChildren() const {
 		/* get the children
 		 */
 		return children;
@@ -208,8 +209,9 @@ namespace frumul {
 		/* Append s to children
 		 * and return a reference to its copy
 		 */
-		children.push_back(s);
-		return children.back();
+		owned_children.push_back(s);
+		children.push_back(&owned_children.back());
+		return owned_children.back();
 	}
 
 	Symbol& Schildren::addChildReference(Symbol& s) {
@@ -217,13 +219,17 @@ namespace frumul {
 		 * add a reference to it
 		 * Does not take the ownership
 		 */
+		children.push_back(&s);
+		return s;
+	}
 
 	Symbol& Schildren::appendChild() {
 		/* creates a new empty child
 		 * and return a reference to it
 		 */
-		children.emplace_back();
-		return children.back();
+		owned_children.emplace_back();
+		children.push_back(&owned_children.back());
+		return owned_children.back();
 	}
 
 	Symbol& Schildren::appendChild(const FString& name) {

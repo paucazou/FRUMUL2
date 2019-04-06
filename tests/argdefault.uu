@@ -1,5 +1,0 @@
-___header___
-one : mark «2» lang «every» arg «two:2,int» 
-	«some {} text{two} some text»
-___text___
-Some text one two one

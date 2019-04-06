@@ -151,11 +151,18 @@ namespace frumul {
 			forward_declaration.match(node.get("name"));
 		}
 
-		// name
-		// TODO problem here, if the class is a binary lib
-		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
 		// using value
 		const Node& value{ node.get("value") };
+
+		if (value.type() == Node::BINARY_LIB)
+		{
+			Symbol& sym = *binary_files.at(value.getValue()) ;
+			sym.getName().add(node.get("name"));
+			parent.getChildren().addChildReference(sym);
+			return;
+		}
+		// name
+		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
 		switch (value.type()) {
 			case Node::BASIC_VALUE:
 				{
@@ -195,21 +202,6 @@ namespace frumul {
 					// add alias to the stack in order to interpret the path
 					aliases.push(std::ref(symbol));
 
-				}
-				break;
-
-			case Node::BINARY_LIB:
-				{
-					// get symbol
-					Symbol& sym = *binary_files.at(value.getValue()) ;
-					symbol.getMark().set(sym.getMark());
-					symbol.getValue() = sym.getValue();
-					symbol.getParameters() = sym.getParameters();
-					symbol.setReturnType(sym.getReturnType());
-					for (const auto& child : sym.getChildren().getChildren()) {
-						Symbol& nchild { symbol.getChildren().addChild(child) };
-						nchild.changeParent(symbol);
-					}
 				}
 				break;
 			default:

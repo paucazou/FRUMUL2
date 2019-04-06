@@ -48,7 +48,7 @@ namespace frumul {
 			TailResult find(const FString& path, const PathFlag flag=PathFlag::No) ;
 			// const getters
 			const Symbol& getChild(const FString& name) const;
-			const std::vector<Symbol*> getChildren() const;
+			const std::vector<Symbol*>& getChildren() const;
 			// setters
 			Symbol& addChild(const Symbol& s);
 			Symbol& addChildReference(Symbol& s);
@@ -57,8 +57,8 @@ namespace frumul {
 
 		private:
 			Symbol* parent{nullptr};
-			std::list<Symbol> children;
-			std::vector<Symbol*> not_owned_children;
+			std::list<Symbol> owned_children;
+			std::vector<Symbol*> children;
 			// functions
 			TailResult _findRestOfTail(const FString&,const PathFlag flag=PathFlag::No);
 	};

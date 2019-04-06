@@ -28,6 +28,12 @@ _manage_parms () {
 				print DEBUG ON
 				shift
 				;;
+
+			-f|--file)
+				NAMED_ARGS[file]=$2;
+				shift
+				shift
+				;;
 			*)
 				POS_ARGS+=$1
 				shift
@@ -167,7 +173,8 @@ _build_main () {
 		-isystem frumul/cxxopts/include\
 		-licuuc -licudata -licuio -licui18n \
 		-Lfrumul/icu/usr/local/lib \
-		-Wl,-Rfrumul/icu/usr/local/lib
+		-Wl,-Rfrumul/icu/usr/local/lib \
+		$POS_ARGS
 	}
 
 build_main () {
@@ -186,22 +193,25 @@ build_lib () {
 	_manage_parms $@
 	compiler=$NAMED_ARGS[compiler]
 	unset "NAMED_ARGS[compiler]"
-	print File: $POS_ARGS[1]
+	input_file="frumul/stdlib/$NAMED_ARGS[file].cpp"
+	output_file="${FRUMUL_STDLIB}${NAMED_ARGS[file]}.hb"
+	print File: $input_file
 
-	$compiler $NAMED_ARGS $_compile_base \
+	$compiler $_compile_base \
 		-shared \
 		-fPIC \
 		-L. \
 		-Wl,-rpath=./ \
-		$POS_ARGS[1] \
-		-o ${FRUMUL_STDLIB}$POS_ARGS[2].hb \
+		$input_file \
+		-o $output_file \
 		-lfrumul \
 		-I frumul/ \
 		-isystem frumul/icu/usr/local/include\
 		-isystem frumul/cxxopts/include\
 		-licuuc -licudata -licuio -licui18n \
 		-Lfrumul/icu/usr/local/lib \
-		-Wl,-Rfrumul/icu/usr/local/lib
+		-Wl,-Rfrumul/icu/usr/local/lib \
+		$POS_ARGS
 }
 
 
@@ -225,7 +235,10 @@ objectify () {
 	popd
 }
 
+
 alias check_frumul="cppcheck ./frumul/ --enable=all --inconclusive --force --std=c++11 -i $bstrlib"
-alias valgrind="valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all"
+#alias valgrind="valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all"
+alias valgrind="valgrind --leak-check=yes"
+alias final_test="./tests/final_tests/final_test.sh"
 	
 

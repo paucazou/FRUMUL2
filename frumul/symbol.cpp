@@ -62,7 +62,8 @@ namespace frumul {
 		 * children of *this
 		 */
 		std::vector<FString> names;
-		for (const auto& child : children->getChildren()) {
+		for (const auto child_ptr : children->getChildren()) {
+			const auto& child = *child_ptr;
 			const Name& child_n{child.getName()};
 			if (child_n.hasLong())
 				names.push_back(child_n.getLong());
@@ -277,13 +278,19 @@ namespace frumul {
 		// children
 		if (children) {
 			s += "Children:\n";
-			for (const auto & child : children->getChildren())
-				s += child.getName().names() + ". ";
+			for (const auto child : children->getChildren())
+				s += child->getName().names() + ". ";
 			s += '\n';
 		}
 
 		return s;
 	}
+
+#ifdef DEBUG
+	void Symbol::real_type() const {
+		printl("SYMBOL");
+	}
+#endif
 }
 
 

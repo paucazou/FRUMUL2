@@ -1,5 +1,0 @@
-___header___
-i : lang «every» return «int» mark «1» «{1+1}»
-
-___text___
-i + 1 = 3

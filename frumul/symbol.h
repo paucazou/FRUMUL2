@@ -76,6 +76,9 @@ namespace frumul {
 			// display
 			FString toString() const;
 			STDOUT(Symbol)
+#ifdef DEBUG
+			virtual void real_type() const;
+#endif
 
 		protected:
 			struct {

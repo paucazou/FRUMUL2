@@ -16,8 +16,13 @@ namespace frumul {
 	class __frumul__out : public Symbol {
 		public:
 			__frumul__out(std::ostream&,const FString& short_name, const FString& long_name);
-			virtual FString call(const std::vector<ValVar>&, const FString& lang);
-			virtual ValVar any_call(const std::vector<Arg>&, const FString& lang);
+			virtual FString call(const std::vector<ValVar>&, const FString& lang) override;
+			virtual ValVar any_call(const std::vector<Arg>&, const FString& lang) override;
+#ifdef DEBUG
+			virtual void real_type() const override {
+				std::cout << "__frumul__out" << std::endl;
+			}
+#endif
 		protected:
 			std::ostream& stream_;
 	};
@@ -31,6 +36,9 @@ namespace frumul {
 		 */
 		public:
 			IO();
+		private:
+			static __frumul__out out;
+			static __frumul__out err;
 	};
 	extern "C" std::unique_ptr<Symbol> create_symbol();
 

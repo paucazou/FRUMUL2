@@ -21,17 +21,21 @@ int main(int argc, char* argv[])
 	if (argc > 1) {
 		std::ifstream fileopened (argv[1]);
 		frumul::FString source {slurp(fileopened)};
+#ifndef NO_BROWSER
 		std::cout << "Source:\n";
 		std::cout << source << "\n\n";
+#endif
 		frumul::FString filepath {argv[1]};
 		frumul::Transpiler transpiler{source,filepath,"every"};
 		frumul::Parser& parser{transpiler.getParser()};
+#ifndef NO_BROWSER
 		// browse ast
 		ftest::astBrowser(parser.parse());
 		// browse symbols
 		ftest::symbolBrowser (parser.getHeaderSymbol());
 		// print result
 		printl("Output:\n=======");
+#endif
 		std::cout << transpiler.getOutput();
 
 	}
