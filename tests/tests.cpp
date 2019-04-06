@@ -26,7 +26,7 @@ namespace ftest {
 			else 
 				astBrowser(parent.get(static_cast<int>(answer)));
 		}
-		catch (std::out_of_range) {
+		catch (std::out_of_range&) {
 			std::cerr << "No child of that name\n";
 		}
 		goto back; // yes, it's bad
