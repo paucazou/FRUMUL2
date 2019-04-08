@@ -456,8 +456,11 @@ namespace frumul {
 				else if (current_char == "{" && !intokl(Token::LITTEXT,expected))
 					break; // in this case, the lexer must break because a programmatic part is discovered
 				else if (current_char == "/") {
-					if (skipComment())
-						continue;
+					if (!skipComment()) {
+						val+= current_char;
+						advanceBy();
+					}
+					continue;
 				}
 				else if (current_char == "\n" || current_char == "\t") {
 					advanceBy();

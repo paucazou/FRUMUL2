@@ -851,8 +851,7 @@ namespace frumul {
 			return p.declaration(false);
 		}
 		// binary file
-		static unsigned int _nb_lib{0};
-		const FString lib_name { path_node.getValue() + ++_nb_lib };
+		const FString lib_name { real_path.c_str() };
 		try {
 			Parser::binary_files[lib_name] = load_lib(real_path);
 		} catch (const BackException& e) {

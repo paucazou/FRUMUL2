@@ -695,7 +695,7 @@ namespace frumul {
 		 */
 		
 		std::vector<ValVar> formatted;
-		formatted.reserve(parms.size());
+		formatted.resize(parms.size());
 
 		auto queue { ParmQueuer(parms,lang) };
 

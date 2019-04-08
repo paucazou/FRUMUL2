@@ -36,13 +36,13 @@ namespace frumul {
 		/* Print args on the standard out
 		 * and return an empty string
 		 */
-#pragma message "Add checks ?"
 		stream_ << args[0].as<VV::STRING>();
 		return "";
 	}
-	ValVar __frumul__out::any_call(const std::vector<Arg>& args, const FString&) {
-		stream_ << args[0].value.as<VV::STRING>();
-		return FString("");
+	ValVar __frumul__out::any_call(const std::vector<Arg>& args, const FString& lang) {
+		if (args.size() == 0)
+			throw BackException(exc::ArgumentNBError);
+		return call(parameters.formatArgs(args,lang),lang);
 	}
 
 #if 0
