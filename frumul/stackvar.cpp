@@ -13,6 +13,7 @@ namespace frumul {
 			copy_if_type(VV::STRING)
 			copy_if_type(VV::SYMBOL)
 			copy_if_type(VV::BOOL)
+			copy_if_type(VV::LIST)
 			assert(false&&"Type not recognized");
 #undef copy_if_type
 		}
