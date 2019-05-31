@@ -33,6 +33,7 @@ class Position {
 	 * nodes, parts of symbols, etc.
 	 */
 	private:
+		FString* special_file_content{nullptr};
 		const int start;	// first char
 		const int end; 		// last char
 		const FString& filepath;
@@ -44,8 +45,25 @@ class Position {
 		Position (const Point& p1, const Point& p2, const FString& fp, const FString& fc);
 		Position (int nstart, int nend, const FString& fp, const FString& fc); // nstart and nend are index in fc
 		Position (const Position& pos) :
-			start{pos.start}, end{pos.end}, filepath{pos.filepath}, filecontent{pos.filecontent}
+			special_file_content{ pos.special_file_content ? new FString(*special_file_content) : nullptr},
+			start{pos.start}, 
+			end{pos.end},
+			filepath{pos.filepath},
+			filecontent{pos.filecontent}
 		{}
+
+		Position(const FString& nfilepath, const FString& special) :
+			special_file_content{new FString(special)},
+			start{0},
+			end{special.length()-1},
+			filepath{nfilepath},
+			filecontent{*special_file_content}
+		{}
+
+		~Position(){
+			if (special_file_content)
+				delete special_file_content;
+		}
 
 		//getters
 		int getStart()const {
