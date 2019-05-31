@@ -1,0 +1,8 @@
+___header___
+io : file «io»
+other : mark «1» lang «every» «{§ioo («String via output»)}»
+___text___
+some text
+io.stdout out io
+other
+

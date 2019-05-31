@@ -1,0 +1,6 @@
+___header___
+io : file «io»
+fun : mark «1» lang «every» «{ §ioe («Error») }»
+___text___
+fun
+Some text in the normal output
