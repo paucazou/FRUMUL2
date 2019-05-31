@@ -8,6 +8,19 @@
 #include "valvar.h"
 
 namespace frumul {
+
+	class File : public Symbol {
+		public:
+			File();
+			virtual FString call(const std::vector<ValVar>&, const FString& lang) override;
+			virtual ValVar any_call(const std::vector<Arg>&, const FString& lang) override;
+#ifdef DEBUG
+			virtual void real_type() const override {
+				std::cout << "IO::File" << std::endl;
+			}
+#endif
+	};
+
 	
 	class Stdin : public Symbol {
 		public:
@@ -34,11 +47,11 @@ namespace frumul {
 		protected:
 			std::ostream& stream_;
 	};
-
 #if 0
-	class File : public Symbol {
+
+	class FileManager : public Symbol {
 		public:
-			File();
+			FileManager();
 			virtual FString call(const std::vector<ValVar>&, const FString& lang) override;
 			virtual ValVar any_call(const std::vector<Arg>&, const FString& lang) override;
 #ifdef DEBUG
@@ -60,7 +73,9 @@ namespace frumul {
 			static __frumul__out out;
 			static __frumul__out err;
 			static Stdin in;
+			static File file;
 	};
+
 	extern "C" std::unique_ptr<Symbol> create_symbol();
 
 }

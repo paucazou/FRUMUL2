@@ -5,6 +5,8 @@
 #include "vmtypes.h"
 
 namespace frumul {
+	
+
 	Stdin::Stdin () {
 		mark.set(1);
 		name.add("i");
@@ -45,7 +47,6 @@ namespace frumul {
 		return call(parameters.formatArgs(args,lang),lang);
 	}
 
-#if 0
 	File::File() {
 		name.add("f");
 		name.add("file");
@@ -56,7 +57,12 @@ namespace frumul {
 		Parameter path {"path",ExprType::TEXT,{},*this };
 		Parameter stream {"stream",ExprType::TEXT,{},*this};
 	}
-#endif
+
+	FString File::call(const std::vector<ValVar>& args, const FString&) {
+	}
+
+	ValVar File::any_call(const std::vector<Arg>& args, const FString& lang) {
+	}
 
 	IO::IO() {
 		// adding stdout
@@ -65,11 +71,16 @@ namespace frumul {
 		children->addChildReference(err);
 		// adding stin
 		children->addChildReference(in);
+		// adding file
+		children->addChildReference(file);
 	}
 
 	__frumul__out IO::out { std::cout,"o","stdout" };
 	__frumul__out IO::err { std::cerr,"e","stderr" };
 	Stdin IO::in;
+	File IO::file;
+
+
 
 	std::unique_ptr<Symbol> create_symbol() {
 		return std::make_unique<IO>();
