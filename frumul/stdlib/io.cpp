@@ -1,6 +1,8 @@
 #include <iostream>
+#include "exception.h"
 #include "io.h"
 #include "parameters.h"
+#include "util.h"
 #include "vm.h"
 #include "vmtypes.h"
 
@@ -55,13 +57,28 @@ namespace frumul {
 		Parameter access {"access",ExprType::TEXT,{},*this};
 		access.setChoices({ValVar('w'),ValVar('r'),ValVar('a')});
 		Parameter path {"path",ExprType::TEXT,{},*this };
-		Parameter stream {"stream",ExprType::TEXT,{},*this};
+		//Parameter stream {"stream",ExprType::TEXT,{},*this};
+
+		parameters.push_back(access);
+		parameters.push_back(path);
+		//parameters.push_back(stream);
 	}
 
 	FString File::call(const std::vector<ValVar>& args, const FString&) {
+		auto access { args[0].as<VV::STRING>() };
+		auto path { args[1].as<VV::STRING>() };
+		if (access == "r") {
+			try {
+				return readfile(path);
+			} catch (std::system_error& ) {
+				throw BackException(exc::FileError);
+			}
+		}
+		return "";
 	}
 
 	ValVar File::any_call(const std::vector<Arg>& args, const FString& lang) {
+		return call(parameters.formatArgs(args,lang),lang);
 	}
 
 	IO::IO() {
