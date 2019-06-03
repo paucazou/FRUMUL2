@@ -69,6 +69,11 @@ namespace frumul {
 					auto val = stack.pop();
 					printl("variant index:");
 					printl(val.index());
+					if (val.index() == 5)
+					{
+						printl("IN POP, SIZe");
+						printl(val.as<VV::LIST>().size());
+					}
 					return val.as<T>();
 #else
 

@@ -70,8 +70,15 @@ namespace frumul {
 	Parameter::Parameter(const Parameter& other) :
 		type{other.type},
 		name{other.name},
+		limit1{uniq_copy<Limit>(other.limit1)},
+		limit2{uniq_copy<Limit>(other.limit2)},
+		min{other.min},
+		max{other.max},
 		def{uniq_copy<Node>(other.def)},
 		choices{uniq_copy<Node>(other.choices)},
+		_choices{uniq_copy<std::vector<ValVar>>(other._choices)},
+		//_choices{ other._choices ? std::make_unique<std::vector<ValVar>>(*other._choices) : nullptr},
+		_def{ other._def ? std::make_unique<ValVar>(*other._def) : nullptr},
 		pos{other.pos},
 		parent{other.parent},
 		index{other.index}
@@ -155,11 +162,25 @@ namespace frumul {
 
 	}
 
+	void Parameter::setMinMax(int min_, int max_) {
+		/* Set min and max
+		 */
+		min = min_;
+		max = max_;
+	}
+
 
 	void Parameter::setParent(Symbol& np) {
 		/* Set a new parent
 		 */
 		parent = &np;
+	}
+
+	void Parameter::setDefault(const ValVar& value) {
+		/* Set the default value
+		 * of the parameter
+		 */
+		_def = std::make_unique<ValVar>(value);
 	}
 
 	void Parameter::setIndex(int i) {
@@ -356,7 +377,7 @@ namespace frumul {
 	bool Parameter::hasDefault() const {
 		/* true if a default value is set
 		 */
-		return static_cast<bool>(def);
+		return static_cast<bool>(def||_def);
 	}
 
 	bool Parameter::operator == (const FString& n) const {
@@ -738,7 +759,7 @@ namespace frumul {
 			std::vector<Position> pos;
 			for (const auto& arg : args)
 				pos.push_back(arg.pos);
-			throw iexc(exc::ArgumentNBError,"The number of arguments requireddoes not match the number of arguments entered. Arguments: ", pos,"Parameters defined here: ", getPositions());
+			throw iexc(exc::ArgumentNBError,"The number of arguments required does not match the number of arguments entered. Arguments: ", pos,"Parameters defined here: ", getPositions());
 		}
 
 		return formatted;

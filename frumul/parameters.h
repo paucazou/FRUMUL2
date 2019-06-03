@@ -49,7 +49,9 @@ namespace frumul {
 			// setters
 			void appendPos(const Position& npos);
 			void setMinMax(const StrNodeMap& fields);
+			void setMinMax(int min, int max);
 			void setParent(Symbol&);
+			void setDefault(const ValVar&);
 			void setIndex(int);
 			void setChoices(const std::vector<ValVar>&);
 
@@ -114,8 +116,8 @@ namespace frumul {
 			std::unique_ptr<Limit> limit2{nullptr};
 			int min{-1};
 			int max{-1};
-			uNode def;
-			uNode choices;
+			uNode def{nullptr};
+			uNode choices{nullptr};
 			std::unique_ptr<std::vector<ValVar>> _choices{nullptr};
 			std::unique_ptr<ValVar> _def{nullptr};
 			std::vector<Position> pos;

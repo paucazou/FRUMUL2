@@ -58,7 +58,7 @@ namespace frumul {
 		if (elt)
 			return std::make_unique<T>(*elt);
 
-		return std::unique_ptr<T>();
+		return std::unique_ptr<T>(nullptr);
 	}
 
 	

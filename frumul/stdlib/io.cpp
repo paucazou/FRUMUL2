@@ -57,11 +57,13 @@ namespace frumul {
 		Parameter access {"access",ExprType::TEXT,{},*this};
 		access.setChoices({ValVar('w'),ValVar('r'),ValVar('a')});
 		Parameter path {"path",ExprType::TEXT,{},*this };
-		//Parameter stream {"stream",ExprType::TEXT,{},*this};
+		Parameter stream {"stream",ExprType::TEXT,{},*this};
+		stream.setMinMax(0,1);
+		stream.setDefault("");
 
 		parameters.push_back(access);
 		parameters.push_back(path);
-		//parameters.push_back(stream);
+		parameters.push_back(stream);
 	}
 
 	FString File::call(const std::vector<ValVar>& args, const FString&) {

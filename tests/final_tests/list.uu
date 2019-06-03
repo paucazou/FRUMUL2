@@ -1,0 +1,5 @@
+___header___
+fun : mark «1» lang «every» «{x:[1,2,3],list int}{x[0]}»
+___text___
+fun
+

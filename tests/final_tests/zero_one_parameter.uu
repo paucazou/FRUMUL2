@@ -1,0 +1,10 @@
+___header___
+//* We define here a symbol with 
+a parameter which accepts 0 or 1 argument
+*//
+fun : mark «1» lang «every» arg «argument:-1,int,<=1» «Value: {argument}\n»
+___text___
+fun
+funargument 55 fun
+fun56
+

@@ -1,0 +1,9 @@
+___header___
+,, : mark «1» lang «every» namespace «1{first}2{second}» (
+	first : arg «x,int,[1,2,3]» «You entered : {x}\n»
+	second : «In second: {§first (2)}»
+)
+___text___
+,,2
+,,13
+

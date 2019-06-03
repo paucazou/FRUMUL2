@@ -3,3 +3,6 @@ comments
 static
 include_io_out
 include_io_file
+zero_one_parameter
+choices
+list

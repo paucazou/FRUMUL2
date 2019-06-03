@@ -414,7 +414,7 @@ namespace frumul {
 		 */
 		// pops element and list
 		ValVar elt=stack.pop();
-		AnyVector list{pop<AnyVector>()};
+		AnyVector list = pop<AnyVector>();
 		// append
 		list.push_back(elt);
 		// push list on stack
@@ -554,7 +554,7 @@ namespace frumul {
 		// get index
 		int index{pop<VV::INT>()};
 		// get list
-		AnyVector list{pop<AnyVector>()};
+		AnyVector list=pop<AnyVector>();
 		// push element on the stack
 		stack.push(list[negative_index(index,list.size(),true)]);
 	}
