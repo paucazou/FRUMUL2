@@ -1,4 +1,5 @@
 #include "vmtypes.h"
+#include "symbol.h"
 
 namespace frumul {
 
@@ -173,6 +174,36 @@ namespace frumul {
 		/* true if type is static
 		 */
 		return is_static;
+	}
+
+	bool ExprType::check(const ValVar& v) const {
+		/* true if v has the correct type
+		 */
+		switch (type) {
+			case Type::INT:
+				return v.is<VV::INT>();
+				break;
+			case Type::TEXT:
+				return v.is<VV::STRING>();
+				break;
+			case Type::BOOL:
+				return v.is<VV::BOOL>();
+				break;
+			case Type::SYMBOL:
+				return v.is<VV::SYMBOL>() && *contained == v.as<VV::SYMBOL>().get().getReturnType();
+				break;
+			case Type::LIST:
+				if (!v.is<VV::LIST>())
+					return false;
+				for (const auto& elt : v.as<VV::LIST>())
+					if (!contained->check(elt))
+						return false;
+				return true;
+				break;
+			default:
+				assert (false&&"Type unknown");
+				break;
+		};
 	}
 
 	ExprType::Type ExprType::getPrimitive() const {

@@ -1,4 +1,5 @@
 #include <iostream>
+#include "fstring.h"
 #include "exception.h"
 #include "io.h"
 #include "parameters.h"
@@ -55,7 +56,8 @@ namespace frumul {
 		mark.set(1);
 
 		Parameter access {"access",ExprType::TEXT,{},*this};
-		access.setChoices({ValVar('w'),ValVar('r'),ValVar('a')});
+		//access.setChoices({ValVar("w"_FS),ValVar("r"_FS),ValVar("a"_FS)});
+		access.setChoices({FString('w'),FString('r'),FString('a')});
 		Parameter path {"path",ExprType::TEXT,{},*this };
 		Parameter stream {"stream",ExprType::TEXT,{},*this};
 		stream.setMinMax(0,1);

@@ -193,6 +193,13 @@ namespace frumul {
 	void Parameter::setChoices(const std::vector<ValVar>& nchoices) {
 		/* Set the choices if they have'nt been set yet
 		 */
+#if DEBUG
+		// check that choices match with the type
+		for (const auto& choice : nchoices) {
+			if (!type.check(choice))
+				assert (false&&"Choice has not the right type");
+		}
+#endif
 		assert(!choices && !_choices && "choices have been defined yet");
 		_choices = std::make_unique<std::vector<ValVar>>(nchoices);
 	}

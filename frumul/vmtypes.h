@@ -62,6 +62,7 @@ namespace frumul {
 			bool isContainer () const;
 			bool isConst () const;
 			bool isStatic() const;
+			bool check(const ValVar&) const;
 			// getters
 			const ExprType& getContained() const;
 			ExprType& getContained() ;
