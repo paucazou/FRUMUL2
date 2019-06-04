@@ -77,6 +77,22 @@ else
 	mem_leak_result=`get_memory_leak_result`
 	check_memory_leak
 fi
+# file output
+output=$dir_path"output_file.txt"
+file=$dir_path"include_io_file_write"
+## reset $output
+print "" > $output
+print Check $file.uu...
+$ex $file.uu --no-browser 2>&1 >/dev/null
+if [[ `cat $output` != `cat $file.result` ]]; then
+	print Error in $file.uu
+	print File content:
+	cat $output
+	print ""
+else
+	mem_leak_result=`get_memory_leak_result`
+	check_memory_leak
+fi
 
 print Tests finished
 
