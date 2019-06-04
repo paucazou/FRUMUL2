@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "fstring.h"
 #include "exception.h"
 #include "io.h"
@@ -75,6 +76,14 @@ namespace frumul {
 			try {
 				return readfile(path);
 			} catch (std::system_error& ) {
+				throw BackException(exc::FileError);
+			}
+		} else if (access == "w") {
+			auto text { args[2].as<VV::STRING>() };
+			try {
+				std::ofstream stream (path.toUTF8String<std::string>().data(), std::ios::out);
+				stream << text;
+			} catch (std::system_error&) {
 				throw BackException(exc::FileError);
 			}
 		}
