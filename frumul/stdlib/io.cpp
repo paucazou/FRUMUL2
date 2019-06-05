@@ -78,14 +78,14 @@ namespace frumul {
 			} catch (std::system_error& ) {
 				throw BackException(exc::FileError);
 			}
-		} else if (access == "w") {
-			auto text { args[2].as<VV::STRING>() };
-			try {
-				std::ofstream stream (path.toUTF8String<std::string>().data(), std::ios::out);
-				stream << text;
-			} catch (std::system_error&) {
-				throw BackException(exc::FileError);
-			}
+		} 
+		auto mode { access == "w" ? std::ios::out : std::ios::app };
+		auto text { args[2].as<VV::STRING>() };
+		try {
+			std::ofstream stream (path.toUTF8String<std::string>().data(), mode);
+			stream << text;
+		} catch (std::system_error&) {
+			throw BackException(exc::FileError);
 		}
 		return "";
 	}
