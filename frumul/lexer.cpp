@@ -39,7 +39,7 @@ namespace frumul {
 		 * of importance.
 		 */
 		if (current_char == "")
-			return Token(Token::EOFILE,current_char,Position(pos,pos,filepath,source));
+			return Token(Token::EOFILE,current_char,Position(pos-2,pos-1,filepath,source));
 
 		if (intokl (Token::MAX_TYPES_LANG_VALUES,expected))
 			return tokenizeLangValue(expected);
@@ -257,7 +257,6 @@ namespace frumul {
 
 	FString Lexer::escape () {
 		/* Manages all escape characters
-		 * BUG TODO new line is not handled actually
 		 */
 		// returned unmodified
 		static const UnicodePoint lquote {171}; // «
@@ -393,8 +392,10 @@ namespace frumul {
 				val = escape();
 			}
 			else
+			{
 				val = current_char;
-			advanceBy();
+				advanceBy();
+			}
 		}
 		return Token(t,val,Position(oldpos,pos-1,filepath,source));
 	}

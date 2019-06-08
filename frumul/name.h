@@ -39,6 +39,7 @@ namespace frumul {
 			// setters
 			void add(const Node& node);
 			void add(const FString& name);
+			void add(const FString& name, const Position& pos);
 			void addShort(const Node& node);
 			void addLong(const Node& node);
 			void addBoth(const Node& node);

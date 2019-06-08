@@ -6,7 +6,6 @@
 #include "exception.h"
 #include "token.h"
 //#include "header.h"
-#pragma message ") canno't be used as a identifier inside a namespace, nor { (neither \\{, which does not work"
 
 namespace frumul {
 

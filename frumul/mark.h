@@ -24,6 +24,7 @@ namespace frumul {
 			void set (const Node& node);
 			void set (const Mark& other);
 			void set (int);
+			void addPos(const Position&);
 			void operator ()(const Node& node);
 			// get the value
 			int get () const;

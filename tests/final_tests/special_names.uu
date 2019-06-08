@@ -1,0 +1,15 @@
+___header___
+//* Outside namespace
+*//
+
+) : mark «1» lang «every» «) called\n»
+name_space : mark «1» lang «every» namespace «)\{ n{\\\{}» (
+	) : «) called from inside namespace\n»
+	{ : «\{ called from inside namespace\n»
+	\{ : «\\\{called from insided namespace\n»
+)
+___text___
+)
+name_space)
+name_space{
+name_space\{

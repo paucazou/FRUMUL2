@@ -57,6 +57,12 @@ namespace frumul {
 		val = i;
 	}
 
+	void Mark::addPos(const Position& pos) {
+		/* Add a position
+		 */
+		positions.push_back(pos);
+	}
+
 	void Mark::operator() (const Node& node) {
 		/* Same that set
 		 */

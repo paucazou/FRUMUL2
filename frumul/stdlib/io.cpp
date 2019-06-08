@@ -3,18 +3,38 @@
 #include "fstring.h"
 #include "exception.h"
 #include "io.h"
+#include "mark.h"
 #include "parameters.h"
 #include "util.h"
 #include "vm.h"
 #include "vmtypes.h"
 
 namespace frumul {
+	namespace __io__frumul {
+		const FString pseudo_file = ""
+			"mark «1» lang «every» namespace «i{stdin} o{stdout} e{stderr} f{file}»\n"
+			"	stdin 	: «{stdin value}»\n"
+			"	stdout 	: arg «stream,text» «{stdout value}»\n"
+			"	stderr	: arg «stream,text» «{stderr value}»\n"
+			"	file	: arg «access,text»,[«w»,«r»,«a»]¦\n"
+			"			path,text¦\n"
+			"			stream : «»,text,<=1»\n"
+			"			«{file value}»";
+		const FString pseudo_path = "io";
+		const Position mark_pos = Position(0,7,__io__frumul::pseudo_path,__io__frumul::pseudo_file);
+
+		Position generate_pos(int x, int y) {
+			return Position(x,y,pseudo_path,pseudo_file);
+		}
+	}
 	
 
 	Stdin::Stdin () {
 		mark.set(1);
-		name.add("i");
-		name.add("stdin");
+		mark.addPos(__io__frumul::mark_pos);
+
+		name.add("i",Position(33,33,__io__frumul::pseudo_path,__io__frumul::pseudo_file));
+		name.add("stdin",Position(35,39,__io__frumul::pseudo_path,__io__frumul::pseudo_file));
 	}
 
 	FString Stdin::call(const std::vector<ValVar>&, const FString&) {
@@ -27,14 +47,16 @@ namespace frumul {
 		return Stdin::call({},"");
 	}
 
-	__frumul__out::__frumul__out(std::ostream& stream, const FString& short_name, const FString& long_name) :
+	__frumul__out::__frumul__out(std::ostream& stream, const FString& short_name, const FString& long_name, const Position& spos, const Position& lpos,const Position& parmpos) :
 		stream_ { stream }
 	{
 		mark.set(1);
-		name.add(short_name);
-		name.add(long_name);
+		mark.addPos(__io__frumul::mark_pos);
+
+		name.add(short_name,spos);
+		name.add(long_name,lpos);
 		parameters.push_back(
-				Parameter("stream",ExprType::TEXT,{},*this)
+				Parameter("stream",ExprType::TEXT,{parmpos},*this)
 				);
 	}
 
@@ -52,15 +74,21 @@ namespace frumul {
 	}
 
 	File::File() {
-		name.add("f");
-		name.add("file");
+		name.add("f",Position(62,62,__io__frumul::pseudo_path,__io__frumul::pseudo_file));
+		name.add("file",Position(64,67,__io__frumul::pseudo_path,__io__frumul::pseudo_file));
 		mark.set(1);
+		mark.addPos(__io__frumul::mark_pos);
+		
+		// parameters positions
+		Position access_pos{200,226,__io__frumul::pseudo_path,__io__frumul::pseudo_file};
+		Position path_pos{232,240,__io__frumul::pseudo_path,__io__frumul::pseudo_file};
+		Position stream_pos{246,265,__io__frumul::pseudo_path,__io__frumul::pseudo_file};
 
-		Parameter access {"access",ExprType::TEXT,{},*this};
+		Parameter access {"access",ExprType::TEXT,{access_pos},*this};
 		//access.setChoices({ValVar("w"_FS),ValVar("r"_FS),ValVar("a"_FS)});
 		access.setChoices({FString('w'),FString('r'),FString('a')});
-		Parameter path {"path",ExprType::TEXT,{},*this };
-		Parameter stream {"stream",ExprType::TEXT,{},*this};
+		Parameter path {"path",ExprType::TEXT,{path_pos},*this };
+		Parameter stream {"stream",ExprType::TEXT,{stream_pos},*this};
 		stream.setMinMax(0,1);
 		stream.setDefault("");
 
@@ -105,8 +133,8 @@ namespace frumul {
 		children->addChildReference(file);
 	}
 
-	__frumul__out IO::out { std::cout,"o","stdout" };
-	__frumul__out IO::err { std::cerr,"e","stderr" };
+	__frumul__out IO::out { std::cout,"o","stdout",Position(42,42,__io__frumul::pseudo_path,__io__frumul::pseudo_file), Position(44,49,__io__frumul::pseudo_path,__io__frumul::pseudo_file),__io__frumul::generate_pos(112,124) };
+	__frumul__out IO::err { std::cerr,"e","stderr", Position(52,52,__io__frumul::pseudo_path,__io__frumul::pseudo_file), Position(54,59, __io__frumul::pseudo_path,__io__frumul::pseudo_file),__io__frumul::generate_pos(157,169)};
 	Stdin IO::in;
 	File IO::file;
 

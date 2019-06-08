@@ -4,6 +4,7 @@
 #include <string>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include "macros.h"
 namespace frumul {
 	
 	// constructors
@@ -41,6 +42,9 @@ namespace frumul {
 		 * of the instance
 		 * TODO manage \t; color in red the real portion
 		 */
+		// managing outside the content
+		assert((start < 0 || end < 0 || start < filecontent.length() || end < filecontent.length() )&& "start or end outside of the length");
+
 		// get the size of the terminal
 #ifdef __linux__
 		
@@ -54,12 +58,23 @@ namespace frumul {
 		const FString red("\033[0;31m");
 		const FString reset("\033[0m");
 #endif
-
-		Point startp {getLineColumn(start,filecontent)};
-		Point endp {getLineColumn(end,filecontent)};
-
 		FString returned{"File: "};
 		returned += filepath + '\n';
+		
+		// handling special case of '\n' alone
+		if (start == end && filecontent[start] == '\n') {
+			auto point {getLineColumn(start,filecontent)};
+
+			auto curline =  filecontent.getLine(point.getLine()+1);
+			returned += FString(point.getLine()) + " " + curline + "\n";
+			FString sep{FString("=")*returned.length()+ '\n'};
+			return sep + returned + sep;
+		}
+
+		Point startp {getLineColumn(start,filecontent)};
+		Point endp {getLineColumn(
+				((filecontent[end] == '\n') ? end -1:end),filecontent)};
+
 		//returned += FString{" "} * (startp.getColumn() + FString{startp.getLine()}.length() ) + "↓\n";
 
 		

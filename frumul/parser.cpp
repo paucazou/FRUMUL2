@@ -79,8 +79,7 @@ namespace frumul {
 		 * return false if type does not match.
 		 */
 #if DEBUG && 0
-		if (current_token->getType() != Token::EOFILE)
-			std::cout << *current_token << std::endl;
+		std::cout << *current_token << std::endl;
 #endif
 		if (current_token->getType() == t) {
 			delete current_token;
@@ -88,8 +87,7 @@ namespace frumul {
 			return true;
 		}
 #if DEBUG
-		if (current_token->getType() != Token::EOFILE)
-			std::cout << *current_token << std::endl;
+		std::cout << *current_token << std::endl;
 		std::cout << __LINE__ << std::endl;
 #endif
 		throw BaseException(BaseException::UnexpectedToken,"Token expected: "+Token::typeToString(t),Position(current_token->getPosition()));

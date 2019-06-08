@@ -66,6 +66,13 @@ namespace frumul {
 				assert(lname == name&&"Long name already set");
 	}
 
+	void Name::add(const FString& name, const Position& pos) {
+		/* Add a name with a position
+		 */
+		add(name);
+		const FString n = (name.length() == 1 ? "short" : "long");
+		positions.emplace(n,pos);
+	}
 
 
 	void Name::addShort(const Node& node) {
