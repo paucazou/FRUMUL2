@@ -39,7 +39,7 @@ namespace frumul {
 		 * of importance.
 		 */
 		if (current_char == "")
-			return Token(Token::EOFILE,current_char,Position(pos-2,pos-1,filepath,source));
+			return returnEOF();
 
 		if (intokl (Token::MAX_TYPES_LANG_VALUES,expected))
 			return tokenizeLangValue(expected);
@@ -153,6 +153,9 @@ namespace frumul {
 			}
 			if (val) // return token if necessary
 				return Token(Token::SIMPLE_TEXT,val,Position(oldpos,pos-1,filepath,source));
+
+			if (raw_current_char == 0)
+				return returnEOF();
 			// tag
 			return findOpeningTag();
 		}
@@ -635,6 +638,13 @@ namespace frumul {
 		advanceTo(pos+chosen.length());
 		return Token(Token::TAG,chosen,Position(oldpos,pos-1,filepath,source));
 	}
+
+	Token Lexer::returnEOF() {
+		/* Return EOF if necessary
+		 */
+		return Token(Token::EOFILE,current_char,Position(pos-2,pos-1,filepath,source));
+	}
+
 
 	BaseException Lexer::createUnexpectedToken(std::initializer_list<Token::Type> expected) {
 			/* Instanciates an UnexpectedToken exception

@@ -78,7 +78,7 @@ namespace frumul {
 		 * delete current_token and set a new one
 		 * return false if type does not match.
 		 */
-#if DEBUG && 0
+#if DEBUG && 1
 		std::cout << *current_token << std::endl;
 #endif
 		if (current_token->getType() == t) {

@@ -60,6 +60,7 @@ namespace frumul {
 
 			bool isStartOfTag();
 			Token findOpeningTag();
+			Token returnEOF();
 
 			BaseException createUnexpectedToken(std::initializer_list<Token::Type> expected);
 	};
