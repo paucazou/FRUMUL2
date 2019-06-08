@@ -1,0 +1,7 @@
+___header___
+//* Test that special characters are
+handled correctly
+*//
+val : lang «every» mark «1» «\«\»\{\}\\\/\\n\\t»
+___text___
+val
