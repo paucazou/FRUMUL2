@@ -4,10 +4,16 @@ namespace frumul {
         template <>
                 int text_to<int>(const FString& s) {
                         /* Text to Int
+			 * Only acceptable:
+			 * 	- pure digits,
+			 * 	- digits with '-' before
+			 * 	- no spaces allowed
                          */
-#pragma message "Erreur: si le nombre est négatif, impossible de convertir"
 			// checks that all characters are digits
+			// except the first one, which can be a '-'
 			for (int i{0}; i < s.length(); ++i) {
+				if (i == 0 && s[i] == "-")
+					continue;
 				const auto elt { static_cast<unsigned int>(s.rawAt(i)) };
 				if (!iswdigit(elt))
 					throw BackException(exc::TypeError);

@@ -188,6 +188,7 @@ bool test_lower_than() {
 
 	s = "10";
 	assert( s < ss == false);
+	return true;
 }
 
 bool test_getLine() {

@@ -1,5 +1,6 @@
 #include "compiler.h"
 #include "tailresult.h"
+#include "textto.h"
 // Note: do not forget that what is at right should be push in the stack first
 
 namespace frumul {
@@ -678,9 +679,9 @@ namespace frumul {
 	ExprType __compiler::visit_litint(const Node& n) {
 		/* Compile a litteral integer
 		 */
-#pragma message "use text_to<int> template function"
 		appendAndPushConstant<int>(
-					static_cast<int>(n.getValue())
+					//static_cast<int>(n.getValue())
+					text_to<int>(n.getValue())
 				);
 		return ET::INT;
 	}

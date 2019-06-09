@@ -196,7 +196,11 @@ namespace frumul {
 	Value::Value(const Value& other) :
 		values{other.values}, parent{other.parent} //parent points to garbage
 	{
+		/* This pragma message was sent, but no clue
+		 * has been found on the problem, if the problem
+		 * itself was real, which isn't sure.
 #pragma message "Parent points to garbage, but when ?"
+*/
 	}
 
 	Value& Value::operator = (const Value& other) {
@@ -235,9 +239,10 @@ namespace frumul {
 
 	OneValue& Value::getValue(const FString& lang,bool every) {
 		/* Return requested value or every
+		 * Check for the language should be done outside
+		 * this function
 		 */
 		assert((hasLang(lang) || every) && "Lang not found");
-#pragma message "Transform assert in exception ?"
 		// look for requested lang
 		for (auto& val : values)
 			if (val.hasLang(lang))
