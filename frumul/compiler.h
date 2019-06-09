@@ -134,6 +134,13 @@ namespace frumul {
 			ByteCode compile();
 	};
 
+	/* This message was displayed. It is considered 
+	 * a good impovement, but not enough necessary
+	 * to break the return type system of the compiler
+	 * Maybe we should return a generic type containing
+	 * the type and other informations, such as the position,
+	 * the value itself (or a ref to the constants array), etc.
 #pragma message "verify type cast if constant"
+*/
 }
 #endif

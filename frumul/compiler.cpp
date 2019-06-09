@@ -953,6 +953,8 @@ namespace frumul {
 		// add runtime errors
 		// Arguments number
 		bytecode.addRuntimeError(exc(exc::ArgumentNBError,"Arguments number does not match the number required",arguments.getPosition()));
+		// lang error
+		bytecode.addRuntimeError(exc(exc::LangError,"Language requested not found for this value",n.getPosition()));
 
 		return symbol_type.getContained();
 	}
