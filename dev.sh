@@ -167,7 +167,7 @@ _build_main () {
 		$files \
 		-lfrumul \
 		-ldl \
-		-o out\
+		-o $output_file\
 		/usr/lib/gcc/x86_64-linux-gnu/8/libstdc++fs.a\
 		-isystem frumul/icu/usr/local/include\
 		-isystem frumul/cxxopts/include\
@@ -180,11 +180,13 @@ _build_main () {
 
 build_main () {
 	files=(frumul/main.cpp frumul/cmdline.cpp)
+	output_file="FRUMUL"
 	_build_main $@
 }
 
 build_tests () {
 	files=(tests/astbrowser.cpp tests/tests.cpp)
+	output_file="out"
 	_build_main $@
 }
 

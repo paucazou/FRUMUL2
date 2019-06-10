@@ -160,7 +160,7 @@ namespace frumul {
 			return findOpeningTag();
 		}
 
-		return Token();
+		return returnEOF();
 	}
 
 	Token Lexer::peekToken (std::initializer_list<Token::Type> expected, unsigned int rank) {
@@ -186,7 +186,7 @@ namespace frumul {
 			return returned;
 
 		} catch (exc& e) {
-			return Token();
+			return returnEOF();
 		}
 	}
 	
