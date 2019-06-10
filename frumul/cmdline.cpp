@@ -7,12 +7,43 @@ namespace frumul {
 
 	const FString& language{__language};
 
-	cxxopts::Options get_options() {
+	void header_validator (const std::vector<FString>& headers) {
+		/* Checks there is the good number of pairs
+		 * headers/name
+		 */
+		if (headers.size() % 2 != 0)
+			throw CLI::ValidationError("An opening tag lacks for the headers");
+	}
+
+	std::shared_ptr<CLI::App> get_app() {
 		/* get the options expected
 		 * in the command line
 		 */
+		// Note: we keep some variable names in comments to avoid -Wunused-variable
 
-		cxxopts::Options options {"FRUMUL 2", "Fast and Readable MarkUp Language 2"};
+		auto app_ptr = std::make_shared<CLI::App>("FRUMUL 2, Fast and Readable MarkUp Language 2");
+		CLI::App& app = *app_ptr;
+
+		// Transpilation
+		auto transpilation = app.add_option_group("Transpilation");
+		auto input = transpilation->add_option("-i,--input","Select a source file")->check(CLI::ExistingFile);
+		//auto output = 
+		transpilation->add_option("-o,--output","Select the output file. Default: stdout")->needs(input);
+		//auto lang = 
+		transpilation->add_option("-l,--lang",__language,"Select the language. Default: every")->needs(input);
+		//auto is_recursive = 
+		transpilation->add_flag("-r,--recursive","Transpile output until output is no more a valid FRUMUL file")->needs(input);
+
+		// New file
+		auto new_file = app.add_option_group("New file");
+		auto new_file_path = new_file->add_option("--new-file","Creates a new FRUMUL file with given path")->excludes(input);
+		//auto header = 
+		new_file->add_option_function<std::vector<FString>>("--header",header_validator,"Header + opening tag for a new file.\nUse a path for your own header and a name for a standard header. \nNo check will be done.\nExample: --header json jj")->needs(new_file_path);
+
+		return app_ptr;
+
+
+		/*
 		// main options
 		options.add_options()
 			("h,help","Print help");
@@ -30,11 +61,52 @@ namespace frumul {
 			 cxxopts::value<std::vector<FString>>());
 
 		return options;
+	*/
 	}
 
-	void manage_args(cxxopts::Options& options, int argc, char ** argv) {
+	void manage_args(CLI::App& app) {
 		/* Follow the args
 		 */
+		// transpilation
+		if (*app["--input"]) {
+			FString path = app["--input"]->as<FString>();
+			std::ifstream fileopened { path.toUTF8String<std::string>() };
+			FString source = slurp(fileopened);
+
+			// transpilation
+			Transpiler transpiler{source,path,language};
+
+			// output
+			auto output_opt = app["--output"];
+			if (*output_opt) {
+				std::ofstream output { output_opt->as<std::string>() };
+				output << transpiler.getOutput();
+				output.close();
+			}
+			else
+				std::cout << transpiler.getOutput();
+
+		}
+		// new file creation
+		else if (*app["--new-file"]) {
+			std::ofstream new_file { app["--new-file"]->as<std::string>() };
+			new_file << "___header___\n";
+			if (*app["--header"]) {
+				auto headers = app["--header"]->as<std::vector<std::string>>();
+				for (size_t i{0}; i < headers.size(); i+= 2) {
+					new_file << headers[i+1] << " : file «" << headers[i] << "» \n";
+				}
+			}
+			new_file << "___text___\n";
+			new_file.close();
+
+		}
+	}
+
+	/*
+	void manage_args(cxxopts::Options& options, int argc, char ** argv) {
+		* Follow the args
+		 *
 		cxxopts::ParseResult results{options.parse(argc, argv)};
 
 		using s_vec = std::vector<std::string>;
@@ -87,14 +159,16 @@ namespace frumul {
 
 		}
 	}
+	*/
 
+	/*
 	bool check_args_compatibility(const cxxopts::ParseResult& results, const ParametersList parameters) {
-		/* Check that the parameters entered are compatible
+		* Check that the parameters entered are compatible
 		 * The parameters argument contains vectors of parameters compatible
 		 * with parameters of the same vector, but not compatible with 
 		 * parameters of other vectors
 		 * parameters are supposed to be well formed and match the options set.
-		 */
+		 *
 		constexpr int not_yet_set { -1 };
 		int compatibility_index{not_yet_set};
 
@@ -118,6 +192,7 @@ namespace frumul {
 		return true;
 
 	}
+	*/
 }
 
 

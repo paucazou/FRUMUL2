@@ -171,6 +171,7 @@ _build_main () {
 		/usr/lib/gcc/x86_64-linux-gnu/8/libstdc++fs.a\
 		-isystem frumul/icu/usr/local/include\
 		-isystem frumul/cxxopts/include\
+		-isystem frumul/include \
 		-licuuc -licudata -licuio -licui18n \
 		-Lfrumul/icu/usr/local/lib \
 		-Wl,-Rfrumul/icu/usr/local/lib \
@@ -178,7 +179,7 @@ _build_main () {
 	}
 
 build_main () {
-	files=(frumul/main.cpp)
+	files=(frumul/main.cpp frumul/cmdline.cpp)
 	_build_main $@
 }
 
@@ -229,6 +230,7 @@ objectify () {
 		-I ../frumul \
 		-isystem ../frumul/icu/usr/local/include\
 		-isystem ../frumul/cxxopts/include\
+		-isystem ../frumul/include\
 		-D DEBUG\
 		-g\
 		-c ../$POS_ARGS[1]
