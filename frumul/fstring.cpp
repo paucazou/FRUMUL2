@@ -328,6 +328,10 @@ namespace frumul {
 	FString operator * (int nb, const FString& s) {
 		return s * nb;
 	}
+
+	FString operator "" _FS(const char* chars, size_t) {
+		return FString(chars);
+	}
 }
 
 namespace std {
