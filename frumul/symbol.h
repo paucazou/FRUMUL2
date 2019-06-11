@@ -38,6 +38,7 @@ namespace frumul {
 		public:
 			Symbol ();
 			Symbol (const Symbol&);
+			virtual ~Symbol() {};
 			//getters
 			Name& getName();
 			Mark& getMark();

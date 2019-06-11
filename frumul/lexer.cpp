@@ -1,4 +1,6 @@
+
 #include "lexer.h"
+#include "fstring.h"
 #include <iostream>
 #include <locale>
 
@@ -19,9 +21,12 @@ namespace frumul {
 	// class members
 	// public functions
 
-	Lexer::Lexer (const FString& nsource, const FString& nfilepath):
+	Lexer::Lexer (const FString& nsource, const FString& nfilepath) try:
 		source{nsource}, filepath{nfilepath}, current_char{nsource[0]}, raw_current_char{nsource.rawAt(0)}
 	{}
+	catch (const fsexc& e) {
+		throw "Empty file :"_FS + nfilepath + "\n";
+	}
 
 	void Lexer::setOpeningTags(const std::vector<FString>& new_opening_tags) {
 		/* Set the opening tags

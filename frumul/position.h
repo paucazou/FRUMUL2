@@ -45,7 +45,7 @@ class Position {
 		Position (const Point& p1, const Point& p2, const FString& fp, const FString& fc);
 		Position (int nstart, int nend, const FString& fp, const FString& fc); // nstart and nend are index in fc
 		Position (const Position& pos) :
-			special_file_content{ pos.special_file_content ? new FString(*special_file_content) : nullptr},
+			special_file_content{ pos.special_file_content ? new FString(*pos.special_file_content) : nullptr},
 			start{pos.start}, 
 			end{pos.end},
 			filepath{pos.filepath},

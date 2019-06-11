@@ -19,9 +19,8 @@ namespace frumul {
 			catch (const std::exception& exc) {
 				std::cerr << exc.what();
 			}
-			catch (...)
-			{
-				throw;
+			catch (const FString& exc) {
+				std::cerr<< exc;
 			}
                 }
                 else {
