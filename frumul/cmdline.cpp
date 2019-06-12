@@ -1,4 +1,5 @@
 #include "cmdline.h"
+#include "exception.h"
 #include "transpiler.h"
 #include "util.h"
 #include <fstream>
@@ -75,16 +76,33 @@ namespace frumul {
 
 			// transpilation
 			Transpiler transpiler{source,path,language};
+			FString output_text { transpiler.getOutput() };
+
+			// recursive
+			if (*app["--recursive"]) {
+				FString nsource, npath;
+				for (unsigned int i=1 ;; ++i) {
+					nsource = output_text;
+					npath = path + " - recursive: " + i;
+					try {
+						Transpiler transpiler{nsource, npath, language};
+						output_text = transpiler.getOutput();
+					}
+					catch (const exc&) {
+						break;
+					}
+				}
+			}
 
 			// output
 			auto output_opt = app["--output"];
 			if (*output_opt) {
 				std::ofstream output { output_opt->as<std::string>() };
-				output << transpiler.getOutput();
+				output << output_text;
 				output.close();
 			}
 			else
-				std::cout << transpiler.getOutput();
+				std::cout << output_text;
 
 		}
 		// new file creation
