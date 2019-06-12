@@ -72,7 +72,7 @@ namespace frumul {
 			}
 		}
 		if (!hasMatched)
-			exc(exc::NoForwardDeclaration,"This name has not been declared before.",candidate.getPosition());
+			throw exc(exc::NoForwardDeclaration,"This name has not been declared before.",candidate.getPosition());
 		return hasMatched;
 
 	}
