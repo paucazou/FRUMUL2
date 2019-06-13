@@ -165,6 +165,7 @@ namespace frumul {
 		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
 		switch (value.type()) {
 			case Node::BASIC_VALUE:
+			case Node::BIN_VALUE:
 				{
 				// options
 				OneValue& oval{visit_options_basic(node.get("options"),symbol)};
@@ -367,7 +368,7 @@ namespace frumul {
 		/* Fill val
 		 * with node
 		 */
-		assert(node.type() == Node::BASIC_VALUE&&"Node is not a basic value");
+		assert((node.type() == Node::BASIC_VALUE || node.type() == Node::BIN_VALUE)&&"Node is not a basic value");
 		val.setNode(node);
 	}
 

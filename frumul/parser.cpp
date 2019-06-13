@@ -243,6 +243,11 @@ namespace frumul {
 			}
 
 
+		} else if (current_token->getValue() == "bin") {
+			// binary value
+			fields.insert({"value",simple_option(Token::VARIABLE, Node::BIN_VALUE)});
+			end = current_token->getPosition().getStart();
+
 		} else if (current_token->getValue() == "alias") { // alias
 			eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER); // eat 'alias'
 			eat(Token::LAQUOTE,Token::ID,Token::MAX_TYPES_HEADER); // eat '«' and get the symbol path
