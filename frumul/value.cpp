@@ -1,5 +1,6 @@
 #include <cassert>
 #include "compiler.h"
+#include "dynloader.h"
 #include "value.h"
 
 namespace frumul {
@@ -62,20 +63,38 @@ namespace frumul {
 	}
 
 	OneValue::~OneValue() {
-		if (is_byte_code_compiled)
-			delete bt;
-		else
-			delete value;
+		switch( type ) {
+			case NODE:
+				delete value;
+				break;
+			case BYTECODE:
+				delete bt;
+				break;
+			case BINARY:
+				delete bin;
+				break;
+			default:
+				assert(false&&"OneValue: destructor: type unknown");
+		};
 	}
 
 	OneValue::OneValue(const OneValue& other) :
 		langs{other.langs}, parent{other.parent}
 	{
 		// copy union
-		if (is_byte_code_compiled)
-			bt = new ByteCode{*other.bt};
-		else if (other.value)
-			value = new Node{*other.value};
+		switch ( other.type ) {
+			case NODE:
+				value = new Node{*other.value};
+				break;
+			case BYTECODE:
+				bt = new ByteCode{*other.bt};
+				break;
+			case BINARY:
+				bin = new std::function<ValVar(const FString&,const std::vector<ValVar>&)>(*other.bin);
+				break;
+			default:
+				assert(false&&"OneValue: copy constructor: type unknown");
+		};
 
 		// copy position
 		if (other.pos)
@@ -148,23 +167,37 @@ namespace frumul {
 	ValVar OneValue::execute(const FString& lang,const std::vector<ValVar>& args) {
 		/* Execute value
 		 */
-		// compile if necessary
-		if (!is_byte_code_compiled) {
-			std::unique_ptr<ValueCompiler> compiler {std::make_unique<ValueCompiler>(*this,lang)};
-			ByteCode* _bt { new ByteCode(compiler->compile()) };
-			delete value;
-			bt = _bt;
-			is_byte_code_compiled = true;
+		// compile or load if necessary
+
+		if (type == NODE ) {
+			if (value->type() == Node::BASIC_VALUE) {
+				std::unique_ptr<ValueCompiler> compiler {std::make_unique<ValueCompiler>(*this,lang)};
+				ByteCode* _bt { new ByteCode(compiler->compile()) };
+				delete value;
+				bt = _bt;
+				type = BYTECODE;
+			}
+			else if (value->type() == Node::BIN_VALUE) {
+				try {
+				} catch (const BackException& e) {
+					throw exc(e.type,"Impossbible to load library",*pos);
+				}
+				delete value;
+				type = BINARY;
+			}
 		}
+		if (type == BYTECODE) {
 #if DEBUG && 0
-		printl("Bytecode:");
-		int i{0};
-		for (const auto& byte : bt->getCode())
-			printl(++i << ' ' << static_cast<int>(byte));
-		printl("Bytecode - end");
+			printl("Bytecode:");
+			int i{0};
+			for (const auto& byte : bt->getCode())
+				printl(++i << ' ' << static_cast<int>(byte));
+			printl("Bytecode - end");
 #endif
-		VM vm{*bt,lang,args};
-		return vm.run();
+			VM vm{*bt,lang,args};
+			return vm.run();
+		}
+		return (*bin)(lang,args);
 	}
 
 	// display

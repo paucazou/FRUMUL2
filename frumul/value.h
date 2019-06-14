@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include "valvar.h"
+#include <functional>
 #include <memory>
 #include <ostream>
 #include <vector>
@@ -63,12 +64,19 @@ namespace frumul {
 			FString toString() const;
 			friend std::ostream& operator<< (std::ostream& out, const OneValue val);
 		private:
+			enum __type {
+				NODE,
+				BYTECODE,
+				BINARY,
+			};
+
 			std::vector<Lang> langs;
 			std::unique_ptr<Position> pos;
-			bool is_byte_code_compiled {false};
+			__type type { NODE };
 			union {
 				const Node * value{nullptr};
 				ByteCode * bt;
+				std::function<ValVar(const FString&,const std::vector<ValVar>&)>* bin;
 			};
 			Symbol& parent;
 	};

@@ -22,6 +22,9 @@ namespace frumul {
 			catch (const FString& exc) {
 				std::cerr<< exc;
 			}
+			catch (...) {
+				throw;
+			}
                 }
                 else {
                         std::cerr << "Unexpected error.\n";
