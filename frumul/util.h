@@ -23,5 +23,6 @@ namespace frumul {
 	bool is_whitespace (const FString&);
 	FString remove_trailing_whitespaces(const FString&);
 	fs::path get_path(const fs::path&,const fs::path&);
+	fs::path get_real_path(const FString&,const FString&);
 } // namespace 
 #endif

@@ -116,4 +116,14 @@ namespace frumul {
 		return real_file;
 	}
 
+	fs::path get_real_path(const FString& base, const FString& second) {
+		/* Get a path by appending base to second.
+		 * base is the calling file, second the called
+		 */
+		fs::path calling { base.toUTF8String<std::string>() };
+		fs::path parent { calling.parent_path() };
+		fs::path called { second.toUTF8String<std::string>() };
+		return parent + called;
+	}
+
 } // namespace 

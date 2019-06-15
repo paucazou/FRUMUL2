@@ -179,10 +179,14 @@ namespace frumul {
 			}
 			else if (value->type() == Node::BIN_VALUE) {
 				try {
+					auto path = get_real_path(value->getPosition().getFilePath(),value->getValue());
+					auto& function_name = value->get("function_name").getValue();
+					auto _bin = new std::function<executable>(load_function<executable>(path,function_name.toUTF8String<std::string>().c_str()));
+					delete value;
+					bin = _bin;
 				} catch (const BackException& e) {
-					throw exc(e.type,"Impossbible to load library",*pos);
+					throw exc(e.type,"Impossible to load library",*pos);
 				}
-				delete value;
 				type = BINARY;
 			}
 		}

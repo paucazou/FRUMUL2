@@ -217,6 +217,32 @@ build_lib () {
 		$POS_ARGS
 }
 
+build_functions_lib () {
+	typeset -A NAMED_ARGS
+	POS_ARGS=()
+	_manage_parms $@
+	compiler=$NAMED_ARGS[compiler]
+	unset "NAMED_ARGS[compiler]"
+	input_file="$NAMED_ARGS[file].cpp"
+	output_file="${NAMED_ARGS[file]}.out"
+	print File: $input_file
+
+	$compiler $_compile_base \
+		-shared \
+		-fPIC \
+		-L. \
+		-Wl,-rpath=./ \
+		$input_file \
+		-o $output_file \
+		-lfrumul \
+		-I frumul/ \
+		-isystem frumul/icu/usr/local/include\
+		-isystem frumul/cxxopts/include\
+		-licuuc -licudata -licuio -licui18n \
+		-Lfrumul/icu/usr/local/lib \
+		-Wl,-Rfrumul/icu/usr/local/lib \
+		$POS_ARGS
+}
 
 
 objectify () {

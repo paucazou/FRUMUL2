@@ -244,8 +244,20 @@ namespace frumul {
 
 
 		} else if (current_token->getValue() == "bin") {
-			// binary value
-			fields.insert({"value",simple_option(Token::VARIABLE, Node::BIN_VALUE)});
+			// eat 'bin'
+			eat(Token::ID,Token::LAQUOTE,Token::MAX_TYPES_HEADER);
+			// eat «
+			eat(Token::LAQUOTE,Token::ID,Token::MAX_TYPES_HEADER);
+			Node value {Node::BIN_VALUE,current_token->getPosition(),StrNodeMap(),current_token->getValue()};
+			// eat path
+			eat(Token::ID,Token::COLON,Token::MAX_TYPES_HEADER);
+			// eat colon
+			eat(Token::COLON,Token::VARIABLE,Token::MAX_TYPES_VALUES);
+			value.addChild("function_name",Node(Node::FUNCTION_NAME,current_token->getPosition(),current_token->getValue()));
+			// eat function name
+			eat(Token::VARIABLE,Token::RAQUOTE,Token::MAX_TYPES_HEADER);
+
+			fields.insert({"value",value});
 			end = current_token->getPosition().getStart();
 
 		} else if (current_token->getValue() == "alias") { // alias

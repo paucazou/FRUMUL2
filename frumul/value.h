@@ -44,6 +44,7 @@ namespace frumul {
 		/* Represents only one value
 		 */
 		public:
+			using executable = ValVar(const FString&,const std::vector<ValVar>&);
 			OneValue(Symbol& nparent);
 			~OneValue();
 			OneValue(const OneValue& other);
@@ -76,7 +77,8 @@ namespace frumul {
 			union {
 				const Node * value{nullptr};
 				ByteCode * bt;
-				std::function<ValVar(const FString&,const std::vector<ValVar>&)>* bin;
+				//std::function<ValVar(const FString&,const std::vector<ValVar>&)>* bin;
+				std::function<executable>* bin;
 			};
 			Symbol& parent;
 	};
