@@ -1,0 +1,16 @@
+___header___
+//* This section is a comment
+*//
+val : mark «1» lang «every» «{x: 0 ,int}
+			     {y:«string», text}
+			     {z:true, bool}»
+name_space : mark «1» lang «every» namespace «1{one}» (
+	one : «val»
+)
+___text___
+In this section, we should not see syntax highlighting
+namespace
+file
+int
+arg
+«string»
