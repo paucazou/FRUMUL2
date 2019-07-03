@@ -2,8 +2,11 @@ ___header___
 //* This section is a comment
 *//
 val : mark «1» lang «every» «{x: 0 ,int}
+			     {big_visible_number : 565645544636,int}
 			     {y:«string», text}
-			     {z:true, bool}»
+			     {z:true, bool}
+			     {5 + 2 - 1 / 3 * 4 % 3; true & false | true & ! true}
+			     {one : §name_space.one, symbol}»
 name_space : mark «1» lang «every» namespace «1{one}» (
 	one : «val»
 )
@@ -11,6 +14,10 @@ ___text___
 In this section, we should not see syntax highlighting
 namespace
 file
-int
+int ¦
 arg
 «string»
+:
+
+5
+:

@@ -1,0 +1,4 @@
+___header___
+cc : file «comments» 
+___text___
+The text in the brackets will not be displayed: [cc COMMENT cc ].
