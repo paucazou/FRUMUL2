@@ -40,7 +40,17 @@ namespace frumul {
 		return AST;
 	}
 
-	const Symbol& Parser::getHeaderSymbol() const {
+	const Node& Parser::parseHeaderOnly() {
+		if (!header_symbol) {
+			AST.addChild("header",header());
+			Hinterpreter header_interpreter {AST.get("header"), Parser::binary_files};
+			//header_symbol = std::make_unique<Symbol>(header_interpreter.getSymbolTree());
+			header_symbol = header_interpreter.getSymbolTree();
+		}
+		return AST.get("header");
+		}
+
+	Symbol& Parser::getHeaderSymbol() {
 		/* return a reference
 		 * to the header symbol
 		 * if it is set
@@ -48,6 +58,12 @@ namespace frumul {
 		assert(header_symbol&&"Header symbol has not yet been set");
 		return *header_symbol;
 	}
+
+	const Symbol& Parser::getHeaderSymbol() const {
+		assert(header_symbol&&"Header symbol has not yet been set");
+		return *header_symbol;
+	}
+
 
 	const Transpiler& Parser::getTranspiler() const {
 		/* Return transpiler if it is set
@@ -104,10 +120,7 @@ namespace frumul {
 		 * No value linked to the node, but two fields:
 		 * header and text
 		 */
-		AST.addChild("header",header());
-		Hinterpreter header_interpreter {AST.get("header"), Parser::binary_files};
-		//header_symbol = std::make_unique<Symbol>(header_interpreter.getSymbolTree());
-		header_symbol = header_interpreter.getSymbolTree();
+		parseHeaderOnly();
 		lex.setOpeningTags(header_symbol->getChildrenNames());
 		AST.addChild("text",text());
 		return AST;

@@ -14,31 +14,34 @@ _manage_parms () {
 	# default parameters
 	NAMED_ARGS[compiler]="g++"
 
-	for i in "$@"
+	i=1
+	while [[ $i -le $# ]]
 	do
-		case $i in
+		case $argv[$i] in
 			-c|--compiler)
-				NAMED_ARGS[compiler]=$2
+				((i+=1))
+				NAMED_ARGS[compiler]=$argv[$i]
 				print $NAMED_ARGS[compiler]
-				shift
-				shift
 				;;
 			-d|--debug)
 				POS_ARGS+=(-D DEBUG -g)
 				print DEBUG ON
-				shift
 				;;
 
 			-f|--file)
-				NAMED_ARGS[file]=$2;
-				shift
-				shift
+				((i+=1))
+				NAMED_ARGS[file]=$argv[$i]
+				;;
+			-o|--out)
+				((i+=1))
+				NAMED_ARGS[out]=$argv[$i]
 				;;
 			*)
-				POS_ARGS+=$1
-				shift
+				POS_ARGS+=$argv[$i]
 				;;
 		esac
+
+	((i+=1))
 	done
 }
 
@@ -224,7 +227,33 @@ build_functions_lib () {
 	compiler=$NAMED_ARGS[compiler]
 	unset "NAMED_ARGS[compiler]"
 	input_file="$NAMED_ARGS[file].cpp"
-	output_file="${NAMED_ARGS[file]}.out"
+	output_file="${NAMED_ARGS[file].out}"
+	print File: $input_file
+
+	$compiler $_compile_base \
+		-shared \
+		-fPIC \
+		-L. \
+		-Wl,-rpath=./ \
+		$input_file \
+		-o $output_file \
+		-lfrumul \
+		-I frumul/ \
+		-isystem frumul/icu/usr/local/include\
+		-isystem frumul/cxxopts/include\
+		-licuuc -licudata -licuio -licui18n \
+		-Lfrumul/icu/usr/local/lib \
+		-Wl,-Rfrumul/icu/usr/local/lib \
+		$POS_ARGS
+}
+build_plugins() {
+	typeset -A NAMED_ARGS
+	POS_ARGS=()
+	_manage_parms $@
+	compiler=$NAMED_ARGS[compiler]
+	unset "NAMED_ARGS[compiler]"
+	input_file="$NAMED_ARGS[file].cpp"
+	output_file="${NAMED_ARGS[out]}"
 	print File: $input_file
 
 	$compiler $_compile_base \

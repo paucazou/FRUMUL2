@@ -31,6 +31,7 @@ syn match FRUMULheaderDelimiters '\:' contained
 "syn match FRUMULheader_values_operators '%' contained
 "syn match FRUMULheader_values_operators '!' contained
 "syn match FRUMULheader_values_operators '*' contained
+"syn match FRUMULheader_values_operators '§' contained
 ": , ¦ = < > + - * / % & \| ! 
 syn keyword FRUMULmain_tags ___HEADER___ ___TEXT___
 
@@ -51,3 +52,4 @@ hi def link FRUMULheaderKWvalues_programmatic_ints Constant
 hi def link FRUMULheaderKWvalues_ints Constant
 hi def link FRUMULheaderDelimiters	Delimiter
 hi def link FRUMULprogrammaticDelimiters Delimiter
+source get_tags.vim

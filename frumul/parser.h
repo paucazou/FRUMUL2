@@ -28,7 +28,9 @@ namespace frumul {
 			Parser (const FString& nsource,const FString& nfilepath,Transpiler& ntranspiler);
 			~Parser();
 			Node& parse (); 
+			const Node& parseHeaderOnly();
 			const Symbol& getHeaderSymbol() const;
+			Symbol& getHeaderSymbol();
 			const Token& getCurrentToken() const;
 			template <typename ...T>
 				bool eat(Token::Type t, T ...expected);
