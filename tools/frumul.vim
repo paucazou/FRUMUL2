@@ -52,4 +52,6 @@ hi def link FRUMULheaderKWvalues_programmatic_ints Constant
 hi def link FRUMULheaderKWvalues_ints Constant
 hi def link FRUMULheaderDelimiters	Delimiter
 hi def link FRUMULprogrammaticDelimiters Delimiter
-source get_tags.vim
+"echo fnamemodify('get_tags.vim','<sfile>:p:h')
+let path = globpath('<sfile>:p:h','get_tags.vim')
+exec "source " . path
