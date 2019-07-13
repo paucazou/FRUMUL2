@@ -38,8 +38,8 @@ syn keyword FRUMULmain_tags ___HEADER___ ___TEXT___
 syn region FRUMULheaderComment start='//*' end='*//' 
 syn region string start='«' end='»' contained
 
-syn region programmatic start="{" end="}" fold transparent contains=FRUMULheaderKWvalues_programmatic_types,string,FRUMULheaderKWvalues_programmatic_bools,FRUMULprogrammaticDelimiters,FRUMULheader_values_operators,FRUMULheaderKWvalues_programmatic_ints
-syn region value start="«" end="»" fold transparent contains=programmatic,FRUMULheaderKWvalues_ints
+syn region programmatic matchgroup=Tag start="{" end="}" fold transparent contains=FRUMULheaderKWvalues_programmatic_types,string,FRUMULheaderKWvalues_programmatic_bools,FRUMULprogrammaticDelimiters,FRUMULheader_values_operators,FRUMULheaderKWvalues_programmatic_ints
+syn region value matchgroup=Tag start="«" end="»" fold transparent contains=programmatic,FRUMULheaderKWvalues_ints
 syn region ___header___ matchgroup=FRUMULmain_tags start="___header___" end="___text___" fold transparent contains=FRUMULheaderKW,value,FRUMULheaderDelimiters,FRUMULheaderComment,FRUMULheaderKWvalues_programmatic_ints
 
 hi def link FRUMULheaderKW 	Statement

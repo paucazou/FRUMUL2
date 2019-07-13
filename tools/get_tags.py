@@ -2,6 +2,7 @@
 # -*-coding:Utf-8 -*
 #Deus, in adjutorium meum intende
 import ctypes
+import os.path
 import sys
 import vim
 
@@ -16,7 +17,7 @@ class __tags:
         content = "\n".join(cb[:])
 
         # get tags
-        lib = ctypes.CDLL("tools/pyvimbridge")
+        lib = ctypes.CDLL(os.path.dirname(os.path.abspath(__file__)) + "/pyvimbridge")
         lib.get_tags.restype = ctypes.c_char_p
         ret = lib.get_tags(content.encode('utf8'), cb.name.encode('utf8'))
         tags = ret.decode().split()
