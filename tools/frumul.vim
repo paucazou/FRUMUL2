@@ -35,7 +35,7 @@ syn match FRUMULheaderDelimiters '\:' contained
 ": , ¦ = < > + - * / % & \| ! 
 syn keyword FRUMULmain_tags ___HEADER___ ___TEXT___
 
-syn region FRUMULheaderComment start='//*' end='*//' 
+syn region FRUMULheaderComment start='//\*' end='\*//' 
 syn region string start='«' end='»' contained
 
 syn region programmatic matchgroup=Tag start="{" end="}" fold transparent contains=FRUMULheaderKWvalues_programmatic_types,string,FRUMULheaderKWvalues_programmatic_bools,FRUMULprogrammaticDelimiters,FRUMULheader_values_operators,FRUMULheaderKWvalues_programmatic_ints
