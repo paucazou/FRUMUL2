@@ -31,14 +31,14 @@ syn match FRUMULheaderDelimiters '\:' contained
 "syn match FRUMULheader_values_operators '%' contained
 "syn match FRUMULheader_values_operators '!' contained
 "syn match FRUMULheader_values_operators '*' contained
-"syn match FRUMULheader_values_operators '§' contained
+syn match FRUMULprogrammaticNames '§\S*' contained
 ": , ¦ = < > + - * / % & \| ! 
 syn keyword FRUMULmain_tags ___HEADER___ ___TEXT___
 
 syn region FRUMULheaderComment start='//\*' end='\*//' 
 syn region string start='«' end='»' contained
 
-syn region programmatic matchgroup=Tag start="{" end="}" fold transparent contains=FRUMULheaderKWvalues_programmatic_types,string,FRUMULheaderKWvalues_programmatic_bools,FRUMULprogrammaticDelimiters,FRUMULheader_values_operators,FRUMULheaderKWvalues_programmatic_ints
+syn region programmatic matchgroup=Tag start="{" end="}" fold transparent contains=FRUMULheaderKWvalues_programmatic_types,string,FRUMULheaderKWvalues_programmatic_bools,FRUMULprogrammaticDelimiters,FRUMULheader_values_operators,FRUMULheaderKWvalues_programmatic_ints,FRUMULprogrammaticNames
 syn region value matchgroup=Tag start="«" end="»" fold transparent contains=programmatic,FRUMULheaderKWvalues_ints
 syn region ___header___ matchgroup=FRUMULmain_tags start="___header___" end="___text___" fold transparent contains=FRUMULheaderKW,value,FRUMULheaderDelimiters,FRUMULheaderComment,FRUMULheaderKWvalues_programmatic_ints
 
@@ -52,6 +52,7 @@ hi def link FRUMULheaderKWvalues_programmatic_ints Constant
 hi def link FRUMULheaderKWvalues_ints Constant
 hi def link FRUMULheaderDelimiters	Delimiter
 hi def link FRUMULprogrammaticDelimiters Delimiter
+hi def link FRUMULprogrammaticNames Identifier
 "echo fnamemodify('get_tags.vim','<sfile>:p:h')
 let path = globpath('<sfile>:p:h','get_tags.vim')
 exec "source " . path

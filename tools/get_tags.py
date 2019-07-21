@@ -25,11 +25,11 @@ class __tags:
         # remove old tags highlighting
         if cls.old_tags:
             for elt in cls.old_tags:
-                vim.command(f"syn match NONE '{elt}'")
+                vim.command(f"syn match NONE '{elt}\S*'")
         # set new tags highlighting
         cls.old_tags = tags
         if tags:
             for elt in tags:
-                vim.command(f"syn match Identifier '{elt}'")
+                vim.command(f"syn match Identifier '{elt}\S*'")
 
 hi_tags = __tags.hi_tags
