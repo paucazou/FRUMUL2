@@ -1,0 +1,10 @@
+___header___
+x : mark «1» lang «every» «{x : «» , text}
+			x is supposed to be empty: '{x}'\n»
+y : mark «1» lang «every» «{y : « », text}
+			y is supposed to be one whitespace long: '{y}'\n»
+___text___
+x
+y
+
+

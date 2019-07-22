@@ -1129,9 +1129,13 @@ namespace frumul {
 				{
 					NodeVector fields;
 					int start {getTokenStart()};
-					eat(Token::LAQUOTE,Token::LITTEXT,Token::MAX_TYPES_VALUES); // eat «
-					FString val {current_token->getValue()};
-					eat(Token::LITTEXT,Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat text itself
+					eat(Token::LAQUOTE,Token::LITTEXT,Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat «
+					FString val;
+					if (current_token->getType() != Token::RAQUOTE) {
+						// empty litteral string
+						val = current_token->getValue();
+						eat(Token::LITTEXT,Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat text itself
+					}
 					int end {getTokenStart()};
 					eat(Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat »
 					if (current_token->getType() == Token::LBRACKET) {
