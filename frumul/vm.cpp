@@ -8,8 +8,8 @@ constexpr int address_size = 2; // should be used everywhere an address is requi
 
 #define _BINARY_OP(op,T,U,DIVISION_CHECK) \
 		do { \
-			auto a {pop<T>()};\
-			auto b {pop<U>()};\
+			auto a = pop<T>();\
+			auto b = pop<U>();\
 			DIVISION_CHECK \
 			stack.push(a op b);\
 		} while(false) // to allow the semi colon

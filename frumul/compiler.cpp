@@ -266,13 +266,14 @@ namespace frumul {
 					return ET::BOOL;
 				}
 			default:
-				if (right == ET::LIST && n.getValue() == "+") {
+				if (right & ET::LIST && n.getValue() == "+") {
 					ExprType t2{visit(n.get("left"))};
 					// add two lists together
 					if (t2 == right)
 						appendInstructions(BT::LIST_ADD);
 					else
 						throwInconsistentType(right,t2,n.get("left"),n.get("right"));
+                                        return t2;
 
 				}
 				else
