@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "vm.h"
 #include "functions.inl"
 #include "util.h"
@@ -264,8 +265,8 @@ namespace frumul {
 		// get the ARG_NUMBER
 		int arg_byte_nb{*++it};
 		// create the list to return
-		std::vector<Arg> args;
-		args.reserve(static_cast<unsigned long>(arg_byte_nb));
+		std::vector<Arg> _args;
+		_args.reserve(static_cast<unsigned long>(arg_byte_nb));
 
 		// iterate to get the arguments
 		for (;arg_byte_nb > 0;--arg_byte_nb) {
@@ -280,8 +281,20 @@ namespace frumul {
 			// get the value
 			ValVar value = stack.pop();
 
-			args.push_back({type,name,value,pos});
+			_args.push_back({type,name,value,pos});
 		}
+                // reverse the vector to get the arguments in the correct order
+                //std::reverse(args.begin(),args.end());
+                std::vector<Arg> args;
+                for (auto cit = _args.crbegin();cit != _args.crend();++cit)
+                    args.push_back(*cit);
+
+                for (const auto& elt : args) {
+                    printl(elt.type);
+                    printl(elt.name);
+                    printl(elt.pos);
+                }
+                printl("following");
 
 		// get the symbol to call
 		Symbol& s{pop<VV::SYMBOL>().get()};
