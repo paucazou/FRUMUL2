@@ -1170,7 +1170,7 @@ namespace frumul {
 		int end{getTokenStart()};
 		eat(Token::RBRACKET,Token::MAX_TYPES_VALUES); // eat ]
 
-		if (elements.size() == 0)
+		if (elements.size() == 0 && false) // DEPRECATED
 			throw exc(exc::SyntaxError,"Litteral list can not be empty",Position(start,end,filepath,source));
 
 		return Node{Node::LIST,Position(start,end,filepath,source),elements};

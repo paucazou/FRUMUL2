@@ -1,0 +1,13 @@
+___header___
+x : mark «1» lang «every» «{
+    empty : [], list int;
+    empty : empty + [1];
+    empty[0];
+    empty : [];
+    empty : empty + [2];
+    empty[0]
+    }»
+___text___
+x
+
+

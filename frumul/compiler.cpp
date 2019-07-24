@@ -502,11 +502,15 @@ namespace frumul {
 	ExprType __compiler::visit_list(const Node& n) {
 		/* Visit a litteral list
 		 * and compile it
-		 * List can not be empty.
+		 * List can be empty.
 		 */
 
 		// get the type of the elements
 		appendAndPushConstAnyVector();
+                if (n.size() == 0) {
+                    // empty list
+                    return ExprType(ET::LIST,ET::VOID);
+                }
 		ExprType elt_type{ visit(n.get(0)) };
 		appendInstructions(BT::LIST_APPEND);
 
@@ -1018,7 +1022,7 @@ namespace frumul {
 
 		ExprType rt{visit(n.get("value"))};
 		const ExprType s_type {symbol_table->getType(name)};
-		if (rt != s_type) {
+		if (rt != s_type && !(rt == ExprType(ET::LIST,ET::VOID) && s_type & ET::LIST)){
 			// cast if possible
 			cast(rt,s_type,n,n.get("value"));
 		}
@@ -1044,10 +1048,11 @@ namespace frumul {
 
 		size_t source_ad{type_.isStatic() ? prepare_static_initialization(n) : 0 };
 
-		// optional: compile value 
+		// compile value 
 		if (n.getNamedChildren().count("value")) {
 			ExprType value_rt {visit(n.get("value"))};
-			if (value_rt != type_)
+			if (value_rt != type_ && !(value_rt == ExprType(ET::LIST,ET::VOID) && type_ & ET::LIST))
+                                // we cast only if the value is not an empty list assigned to a list
 				cast(value_rt,type_,n,n.get("value"));
 		}
 
