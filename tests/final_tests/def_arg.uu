@@ -1,0 +1,6 @@
+___header___
+x : mark «1» lang «every» arg «t,text¦b:false,bool» «{if b}b=true{else;t;fi}»
+y : mark «1» lang «every» «{§x («c»,b:true)}»
+___text___
+
+y
