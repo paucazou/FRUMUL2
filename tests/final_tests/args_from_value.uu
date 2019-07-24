@@ -1,0 +1,7 @@
+___header___
+n : mark «1» lang «every» namespace «xy» (
+    x : arg «i,int¦t,text,k,bool» «int: {i} - text: {t} - bool: {k}»
+    y : «{§x (5, «texte»,true)}»
+)
+___text___
+ny

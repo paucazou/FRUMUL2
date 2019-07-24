@@ -929,8 +929,9 @@ namespace frumul {
 				is_arg_named ? visit(it->get("value")) : visit(*it) 
 				};
 			// push name on stack if necessary
-			if (is_arg_named)
+			if (is_arg_named) {
 				appendAndPushConstant<FString>(it->get("name").getValue());
+                        }
 
 			arg_keepsake.push_back({type,is_arg_named,it->getPosition()});
 		}
@@ -939,7 +940,8 @@ namespace frumul {
 
 		appendInstructions(BT::CALL,arguments.getNumberedChildren().size());
 		// iterate over arguments
-		for (const auto& elt : arg_keepsake) {
+		for (auto it{arg_keepsake.rbegin()}; it != arg_keepsake.rend();++it) {
+                        const auto& elt = *it;
 			// set type
 			appendInstructions(elt.type);
 			// set name instruction

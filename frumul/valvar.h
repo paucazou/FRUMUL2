@@ -8,6 +8,7 @@
 #include <variant>
 #include <vector>
 #include "fstring.h"
+#include "macros.h"
 
 namespace frumul {
 	class Symbol;
@@ -59,6 +60,30 @@ namespace frumul {
 				 */
 				return data_.index();
 			}
+
+                        FString toString() const {
+                            /* Return a representation of the value
+                             */
+                            if (is<INT>())
+                                return FString(as<INT>());
+                            if (is<BOOL>())
+                                return FString(as<BOOL>() ? "true":"false");
+                            if (is<STRING>())
+                                return as<STRING>();
+                            if (is<SYMBOL>())
+                                //return as<SYMBOL>().get().toString();
+                                return FString { "Symbol. Not yet set"};
+                            if (is<LIST>()) {
+                                FString r{"["};
+                                for (const auto& elt : as<LIST>())
+                                    r += elt.toString();
+                                r+="]";
+                                return r;
+                            }
+                            return "String"; // -Wreturn-type
+
+                        }
+                        STDOUT(ValVar)
 #endif
 
 		private:
