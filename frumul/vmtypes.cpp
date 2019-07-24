@@ -100,13 +100,20 @@ namespace frumul {
 
 	ExprType& ExprType::operator = (ExprType::Type t) {
 		type = t;
+                is_const = false;
+                is_static = false;
+                contained = nullptr;
 		return *this;
 	}
 
 	ExprType& ExprType::operator = (const ExprType& other) {
 		type = other.type;
+                is_const = other.is_const;
+                is_static = other.is_static;
 		if (other.isContainer())
 			contained = std::make_unique<ExprType>(*other.contained);
+                else
+                    contained = nullptr;
 		return *this;
 	}
 

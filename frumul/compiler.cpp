@@ -624,7 +624,7 @@ namespace frumul {
 	}
 
 	ExprType __compiler::visit_list_with_index(const Node& n) {
-		/* Compile a litteral list followed by an index
+		/* Compile a litteral list or a name followed by an index
 		 */
 		// we iterates over the map to keep the order of insertion (see parser)
 		// TODO this should be refactored with a multimap with std::variant (when possible)

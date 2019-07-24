@@ -14,3 +14,4 @@ empty_text
 list_append
 args_from_value
 def_arg
+list_to_text
