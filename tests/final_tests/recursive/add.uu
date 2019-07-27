@@ -1,0 +1,14 @@
+___header___
+//* This is a trivial example
+of a generic value.
+Transpile this file with recursive
+option
+*//
+__add : mark «1» lang «every» arg «T,text» «return \«{T}\» mark \«1\» lang \«every\» arg \«x,{T}¦y,{T}\» \«\{x + y\}\»
+    \n»
+___text___
+___header___
+add_i : __addint
+ex : lang «every» mark «1» «{§add_i (5,6)}»
+___text___
+ex
