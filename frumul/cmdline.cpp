@@ -7,6 +7,7 @@
 namespace frumul {
 
 	const FString& language{__language};
+        static unsigned int __recursive__ = 0;
 
 	void header_validator (const std::vector<FString>& headers) {
 		/* Checks there is the good number of pairs
@@ -33,7 +34,17 @@ namespace frumul {
 		//auto lang = 
 		transpilation->add_option("-l,--lang",__language,"Select the language. Default: every")->needs(input);
 		//auto is_recursive = 
-		transpilation->add_flag("-r,--recursive","Transpile output until output is no more a valid FRUMUL file")->needs(input);
+		transpilation->add_flag("-r,--recursive",__recursive__,
+                        "Transpile output. Options:\n"
+                        "   - only one flag: transpiles as many times as possible.\n"
+                        "   - flag repeated: transpiles as many times as requested.\n"
+                        "   - flag + number: transpiles as many times as requested.\n"
+                        "Examples:\n"
+                        "   - --recursive / -r: ad libitum\n"
+                        "   - --recursive --recursive: 2times\n"
+                        "   - -rrr: 3 times\n"
+                        "   - --recursive=4: 4 times"
+                        )->needs(input);
 
 		// New file
 		auto new_file = app.add_option_group("New file");
@@ -80,16 +91,19 @@ namespace frumul {
 
 			// recursive
 			if (*app["--recursive"]) {
+                                unsigned int rec_nb { __recursive__ == 1 ? ~0u : __recursive__};
 				FString nsource, npath;
-				for (unsigned int i=1 ;; ++i) {
+				for (unsigned int i=1 ;i < rec_nb; ++i) {
 					nsource = output_text;
 					npath = path + " - recursive: " + i;
 					try {
 						Transpiler transpiler{nsource, npath, language};
 						output_text = transpiler.getOutput();
 					}
-					catch (const exc&) {
-						break;
+					catch (const exc& e) {
+                                            if (i <= rec_nb && __recursive__ != 1)
+                                                throw e;
+                                            break;
 					}
 				}
 			}
