@@ -41,7 +41,7 @@ namespace frumul {
                         "   - flag + number: transpiles as many times as requested.\n"
                         "Examples:\n"
                         "   - --recursive / -r: ad libitum\n"
-                        "   - --recursive --recursive: 2times\n"
+                        "   - --recursive --recursive: 2 times\n"
                         "   - -rrr: 3 times\n"
                         "   - --recursive=4: 4 times"
                         )->needs(input);
