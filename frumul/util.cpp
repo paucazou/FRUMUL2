@@ -102,8 +102,9 @@ namespace frumul {
 		 * If none of these is found, throw
 		 * a BackException
 		 */
-		fs::path stdlib { std::getenv("FRUMUL_STDLIB") };
-		assert(! stdlib.empty() && "Stdlib path is empty");
+                auto stdlib_c_str = std::getenv("FRUMUL_STDLIB"); 
+		assert(stdlib_c_str  && "Stdlib path is empty");
+		fs::path stdlib { stdlib_c_str };
 
 		fs::path real_file;
 		if (!fs::exists(real_file = parent + file + ".h") &&
