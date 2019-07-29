@@ -224,8 +224,12 @@ namespace frumul {
 			case ET::INT:
 				{
 					ExprType t2{visit(n.get("left"))};
-					if (t2 != ET::INT)
-						throwInconsistentType(ET::INT,t2,n.get("left"),n.get("right"));
+                                        if (t2 == ET::TEXT && n.getValue() == "*") {
+                                            code.push_back(BT::TEXT_MUL);
+                                            return ET::TEXT;
+                                        }
+                                        else if (t2 != ET::INT)
+						throwInconsistentType(ET::INT,t2,n.get("right"),n.get("left"));
 
 					static std::map<FString,BT::Instruction> types{ {"+",BT::INT_ADD},{"-",BT::INT_SUB}, {"*",BT::INT_MUL},{"/",BT::INT_DIV},{"%",BT::INT_MOD}};
 					code.push_back(types[n.getValue()]);
@@ -243,7 +247,7 @@ namespace frumul {
 							throwInconsistentType(ET::TEXT,t2,n.get("left"),n.get("right"));
 						code.push_back(BT::TEXT_ADD);
 					}
-					else if (n.getValue() == "*") {
+					else if (n.getValue() == "*" && DEPRECATED) {
 						if (t2 != ET::INT)
 							throwInconsistentType(ET::TEXT,t2,n.get("left"),n.get("right"));
 						code.push_back(BT::TEXT_MUL);

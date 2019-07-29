@@ -16,3 +16,4 @@ args_from_value
 def_arg
 list_to_text
 empty_list
+mul_text

@@ -2,7 +2,7 @@ ___header___
 //* This is a trivial example
 of a generic value.
 Transpile this file with recursive
-option
+option == 2
 *//
 __add : mark «1» lang «every» arg «T,text» «return \«{T}\» mark \«1\» lang \«every\» arg \«x,{T}¦y,{T}\» \«\{x + y\}\»
     \n»

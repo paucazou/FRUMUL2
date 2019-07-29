@@ -69,4 +69,8 @@ namespace frumul {
 #define printl(elt) 
 #endif
 
+#ifdef DEBUG
+#define DEPRECATED false
+#endif
+
 #endif

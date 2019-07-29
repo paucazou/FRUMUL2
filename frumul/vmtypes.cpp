@@ -285,13 +285,11 @@ namespace frumul {
 	FString ExprType::toString(bool asContained) const {
 		FString s;
 		if (!asContained)
-			s = "<ExprType>\n";
+			s = "<ExprType> ";
 
 		s += typeToString(type);
 		if (contained)
 			s += contained->toString(true);
-		if (!asContained)
-			s += '\n';
 
 		return s;
 	}
