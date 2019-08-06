@@ -10,7 +10,7 @@
 
 namespace frumul {
 
-	class File : public Symbol {
+	class File : public NonUpdateSymbol {
 		public:
 			File();
 			virtual FString call(const std::vector<ValVar>&, const FString& lang) override;
@@ -23,7 +23,7 @@ namespace frumul {
 	};
 
 	
-	class Stdin : public Symbol {
+	class Stdin : public NonUpdateSymbol {
 		public:
 			Stdin();
 			virtual FString call(const std::vector<ValVar>&, const FString& lang) override;
@@ -35,7 +35,7 @@ namespace frumul {
 #endif
 	};
 
-	class __frumul__out : public Symbol {
+	class __frumul__out : public NonUpdateSymbol {
 		public:
 			__frumul__out(std::ostream&,const FString& short_name, const FString& long_name, const Position& spos, const Position& lpos, const Position& parmpos);
 			virtual FString call(const std::vector<ValVar>&, const FString& lang) override;
@@ -49,7 +49,7 @@ namespace frumul {
 			std::ostream& stream_;
 	};
 
-	class IO : public Symbol {
+	class IO : public NonUpdateSymbol {
 		/* namespace including
 		 * all the symbols inside
 		 */

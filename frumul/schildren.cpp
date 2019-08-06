@@ -51,6 +51,14 @@ namespace frumul {
 		assert(false&&"child does not exist");
 	}
 
+        Symbol& Schildren::getChild(const Name& name) {
+            for (auto child : children)
+                if (child->getName() && name)
+                    return *child;
+		assert(false&&"child does not exist");
+        }
+
+
 	bool Schildren::hasChildren () const {
 		/* true if it has children
 		 */
@@ -72,6 +80,14 @@ namespace frumul {
 				return true;
 		return false;
 	}
+        bool Schildren::hasChild(const Name& name) const {
+            /* true if child of name  exists
+             */
+            for (const auto child : children)
+                if (child->getName() || name)
+                    return true;
+            return false;
+        }
 
 	bool Schildren::hasChild(const Node& node) const {
 		/* true if node contains a name
@@ -183,6 +199,9 @@ namespace frumul {
 		if (flag & PathFlag::Privileged || flag & PathFlag::Parameter)
 			return _findRestOfTail(path,flag);
 
+                printl("Part of the path not found:");
+                printl(path);
+                printl(*parent);
 		throw path; // this must be caught
 	}
 
@@ -209,6 +228,7 @@ namespace frumul {
 		/* Append s to children
 		 * and return a reference to its copy
 		 */
+                assert(!hasChild(s.getName()) && "Name already set");
 		owned_children.push_back(s);
 		children.push_back(&owned_children.back());
 		return owned_children.back();
@@ -219,6 +239,21 @@ namespace frumul {
 		 * add a reference to it
 		 * Does not take the ownership
 		 */
+                const auto& name = s.getName();
+                if (hasChild(name)) {
+                    const auto& child = getChild(name);
+                    if (!child.isUpdatable() || !child.useless())
+                        throw BackException(exc::UPDATE_FORBIDDEN);
+                    // destroy the child
+                    for (auto it = owned_children.begin(); it != owned_children.end(); ++it) {
+                        if (&(*it) == &child) {
+                            owned_children.erase(it);
+                            break;
+                        }
+                    }
+                    auto pit = std::find(children.begin(),children.end(),&child);
+                    children.erase(pit);
+                }
 		children.push_back(&s);
 		return s;
 	}
@@ -238,10 +273,12 @@ namespace frumul {
 		 * interpreter engine since it cannot trace
 		 * the position of the name.
 		 */
+                assert(!hasChild(name)&& "name already set");
 		Symbol& s {appendChild()};
 		s.getName().add(name);
 		return s;
 	}
+
 
 	TailResult Schildren::_findRestOfTail(const FString& path, const PathFlag flag) {
 		/* Manages the end of the tail and return the correct result

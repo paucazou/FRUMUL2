@@ -110,6 +110,22 @@ namespace frumul {
 		return parameters;
 	}
 
+        bool Symbol::useless () const {
+            /* true if this is useless.
+             * Useless means that the symbol has no
+             * children, no alis, and no value.
+             * It can do nothing. Useless symbols
+             * may have a name, a mark, etc.
+             */
+            return hasAlias() || hasChildren() || hasValue();
+        }
+
+        bool Symbol::isUpdatable() const {
+            /* true if *this is updatable
+             */
+            return can_be_updated;
+        }
+
 	// setters
 	
 	void Symbol::setParent(Symbol& nparent) {

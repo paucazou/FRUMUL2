@@ -158,11 +158,18 @@ namespace frumul {
 		{
 			Symbol& sym = *binary_files.at(value.getValue()) ;
 			sym.getName().add(node.get("name"));
-			parent.getChildren().addChildReference(sym);
+                        try {
+                            parent.getChildren().addChildReference(sym);
+                        } catch (const BackException& e) {
+                            throw exc(e.type, "Impossible to update symbol.",value.getPosition());
+                        }
 			return;
 		}
 		// name
 		Symbol& symbol { parent.getChildren().getChild(node.get("name")) };
+                if (!symbol.isUpdatable())
+                    throw exc(exc::UPDATE_FORBIDDEN,"Symbol required is not updatable, probably because it is defined from a binary file.",node.getPosition());
+
 		switch (value.type()) {
 			case Node::BASIC_VALUE:
 			case Node::BIN_VALUE:

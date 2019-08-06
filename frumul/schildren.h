@@ -8,6 +8,7 @@
 #include <list>
 #include <utility>
 #include <vector>
+#include "name.h"
 #include "node.h"
 #include "symbol.h"
 #include "tailresult.h"
@@ -37,10 +38,12 @@ namespace frumul {
 			Symbol& getChild(const Node& node);
 			// getters
 			Symbol& getChild(const FString& name) ;
+                        Symbol& getChild(const Name& name);
 			bool hasChildren() const;
 			operator bool () const;
 			bool hasChild(const FString& name) const;
 			bool hasChild(const Node& node) const;
+                        bool hasChild(const Name&) const;
 			bool hasParent() const;
 			std::vector<Symbol*> sortChildrenByLongName();
 			// finders

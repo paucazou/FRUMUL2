@@ -57,6 +57,8 @@ namespace frumul {
 			const Symbol& getParent() const;
 			const Value& getValue() const;
 			const Parameters& getParameters() const;
+                        bool useless() const;
+                        bool isUpdatable() const;
 
 			// setters
 			void setParent(Symbol& nparent);
@@ -95,12 +97,23 @@ namespace frumul {
 			Parameters parameters{*this};
 			// state variables
 			bool mark_added_to_parameters{false};
+                        bool can_be_updated{true};
 
 			// functions
 			void checkCall(const FString& lang); // UNFINISHED TODO arguments must be check
 
 
 	};
+
+        class NonUpdateSymbol : public Symbol {
+            /* Virtual base class of Symbols
+             * that can't be updated
+             */
+            public:
+                NonUpdateSymbol () {
+                    Symbol::can_be_updated = false;
+                }
+        };
 
 	using RAlias = std::reference_wrapper<Alias>;
 	using RSymbol = std::reference_wrapper<Symbol>;
