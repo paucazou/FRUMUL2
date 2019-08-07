@@ -161,7 +161,7 @@ namespace frumul {
                         try {
                             parent.getChildren().addChildReference(sym);
                         } catch (const BackException& e) {
-                            throw exc(e.type, "Impossible to update symbol.",value.getPosition());
+                            throw exc(e.type, "Impossible to update symbol.",node.get("name").getPosition());
                         }
 			return;
 		}

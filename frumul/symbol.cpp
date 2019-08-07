@@ -117,7 +117,7 @@ namespace frumul {
              * It can do nothing. Useless symbols
              * may have a name, a mark, etc.
              */
-            return hasAlias() || hasChildren() || hasValue();
+            return !(hasAlias() || hasChildren() || hasValue());
         }
 
         bool Symbol::isUpdatable() const {
