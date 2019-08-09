@@ -427,23 +427,16 @@ namespace frumul {
 	Node Parser::variable_declaration () { // used only for parameters
 		/* Manages every variable declaration
 		 * Return a node with
-		 * three fields:
-		 * name, type,
-		 * and a value (optional)
+		 * two fields:
+                 * variable_assignement,
+                 * type
 		 */
 		int start{getTokenStart()};
 		StrNodeMap fields;
-		fields.insert({"name" , Node(Node::VARIABLE_NAME,current_token->getPosition(),current_token->getValue())});
-		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat name
-
-		if (current_token->getType() == Token::ASSIGN) {
-			eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
-			fields.insert({"value" , bin_op(Token::OR)});
-		}
+                fields.insert({"variable_assignement",variable_assignment()});
 		eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
 
 		// get the type
-		//fields.insert(types_fields.begin(),types_fields.end());
 		fields.insert({"type",types()});
 
 		int end{current_token->getPosition().getEnd()};
@@ -458,7 +451,8 @@ namespace frumul {
 		int start {getTokenStart()};
 		StrNodeMap fields;
 		//get name
-		fields.insert({"name",Node{Node::VARIABLE_NAME,current_token->getPosition(),current_token->getValue()}});
+                Node ref (Node::VARIABLE_NAME,current_token->getPosition(),current_token->getValue());
+                fields.insert({"name",(isExtension() ? extend(ref) : ref)});
 
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat name
 		// get assign
@@ -603,8 +597,16 @@ namespace frumul {
 		}
 
 		// text, number and bool litteral
-		if (intokl(current_token->getType(), {Token::NUMBER,Token::LAQUOTE}) || in<FString,std::initializer_list<FString>>(current_token->getValue(),{"true","false"}))
+		if (intokl(current_token->getType(), {Token::NUMBER,Token::LAQUOTE,Token::SYMBOL}) || in<FString,std::initializer_list<FString>>(current_token->getValue(),{"true","false"}))
 			return litteral();
+
+                else if (current_token->getType() == Token::LPAREN) {
+                        eat(Token::LPAREN,Token::MAX_TYPES_VALUES);
+                        Node expression {bin_op(Token::OR)};
+                        eat(Token::RPAREN,Token::MAX_TYPES_VALUES);
+                        return expression;
+                }
+                /*
 
 		switch (current_token->getType()) {
 			case Token::SYMBOL:
@@ -632,14 +634,11 @@ namespace frumul {
 				}
 			case Token::LPAREN:
 				{
-				eat(Token::LPAREN,Token::MAX_TYPES_VALUES);
-				Node expression {bin_op(Token::OR)};
-				eat(Token::RPAREN,Token::MAX_TYPES_VALUES);
-				return expression;
 				}
 			default: // -Wswitch again
 				break;
 		};
+                */
 		// default: reference
 		return reference();
 	}
@@ -650,6 +649,8 @@ namespace frumul {
 		 * if it is a variable, return a node
 		 * with a value only;
 		 * else with a child named "index"
+                 * if the variable is followed by an extension,
+                 * return the extension with a child named extension
 		 */
 		int start {getTokenStart()};
 		int end {current_token->getPosition().getEnd()};
@@ -657,9 +658,13 @@ namespace frumul {
 		FString variable_name {current_token->getValue()};
 		Node variable {Node::VARIABLE_NAME,Position(start,end,filepath,source),variable_name};
 
-		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES);
+		eat(Token::VARIABLE,Token::DOT,Token::MAX_TYPES_VALUES);
+                if (isExtension()) {
+                    return extend(variable);
+                }
+                /*
 		// is this a symbol call ?
-		if (current_token->getType() == Token::LPAREN) {
+                if (current_token->getType() == Token::LPAREN) {
 
 			eat(Token::LPAREN,Token::MAX_TYPES_VALUES); // eat (
 			Node arguments {call_arguments()}; // get the arguments
@@ -689,18 +694,58 @@ namespace frumul {
 			end = fields.back().getPosition().getEnd();
 			return Node {Node::VARIABLE_NAME,Position(start,end,filepath,source),fields,variable_name};
 		}
+                */
 
 		return variable;
 
 	}
 
+        Node Parser::extension () {
+            /* Return an extension Node,
+             * An extension is a what can follow
+             * a litteral or a variable:
+             *      - brackets[]
+             *      - parentheses()
+             *      - a dot followed by another name
+             *  An extension may be followed by another one.
+             */
+            Node* n = nullptr;
+
+            switch (current_token->getType()) {
+                case Token::LPAREN:
+                    {
+                        eat(Token::LPAREN, Token::MAX_TYPES_VALUES); // eat (
+                        n = new Node(call_arguments());
+                        eat(Token::RPAREN,Token::MAX_TYPES_VALUES); //eat )
+                    }
+                    break;
+                case Token::LBRACKET:
+                    {
+                        eat(Token::LBRACKET, Token::MAX_TYPES_VALUES); // eat [
+                        n = new Node(index());
+                        eat(Token::RBRACKET, Token::MAX_TYPES_VALUES); // eat ]
+                    }
+                    break;
+                case Token::DOT:
+                    {
+                        eat(Token::DOT, Token::ID, Token::MAX_TYPES_HEADER); // eat .
+                        n = new Node(Node::TAIL,current_token->getPosition(),current_token->getValue());
+                        eat(Token::ID,Token::MAX_TYPES_VALUES); // eat tail
+                    }
+                    break;
+                default:
+                        assert(false&&"Unknown token");
+            };
+            Node definitive = (isExtension() ? extend(*n) : *n);
+            delete n;
+            return definitive;
+        }
+
 	Node Parser::index () {
 		/* Manages an index of a list
 		 * or of a text
 		 */
-		eat(Token::LBRACKET,Token::MAX_TYPES_VALUES);
 		Node index{bin_op(Token::OR)}; // we expect an int here
-		eat(Token::RBRACKET,Token::MAX_TYPES_VALUES);
 		return index;
 	}
 
@@ -1119,10 +1164,19 @@ namespace frumul {
 		 * a value.
 		 */
 		switch (current_token->getType()) {
+                        case Token::SYMBOL:
+                            {
+                                Node nod_name(Node::LITSYM,current_token->getPosition(),current_token->getValue());
+                                eat(Token::SYMBOL,Token::MAX_TYPES_VALUES); // eat §...
+
+                                return isExtension() ? extend(nod_name) : nod_name;
+                            }
 			case Token::NUMBER:
 				{
 					Node number {Node::LITINT,current_token->getPosition(),current_token->getValue()};
 					eat(Token::NUMBER,Token::MAX_TYPES_VALUES);
+                                        if (isExtension())
+                                            return extend(number);
 					return number;
 				}
 			case Token::LAQUOTE:
@@ -1138,10 +1192,8 @@ namespace frumul {
 					}
 					int end {getTokenStart()};
 					eat(Token::RAQUOTE,Token::MAX_TYPES_VALUES); // eat »
-					if (current_token->getType() == Token::LBRACKET) {
-						fields.push_back(index());
-					}
-					return Node{ Node::LITTEXT,Position(start,end,filepath,source),fields,val};
+					Node n{ Node::LITTEXT,Position(start,end,filepath,source),fields,val};
+                                        return (isExtension() ? extend(n) : n);
 				}
 			default:
 				//-Wswitch !!!
@@ -1151,7 +1203,7 @@ namespace frumul {
 		// default: bool
 		Node b00l {Node::LITBOOL,current_token->getPosition(),current_token->getValue()};
 		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat false/true
-		return b00l;
+		return isExtension() ? extend(b00l) : b00l;
 	}
 
 	Node Parser::list() {
@@ -1430,6 +1482,36 @@ namespace frumul {
 		// giving the node to the collector
 		collector << node;
 	}
+
+        Node Parser::extend(const Node& n) {
+            /* Extend n with an extension
+             * Return an EXTENSION Node with two children:
+             *      - base
+             *      - extension
+             */
+            Node extension_node = extension();
+            return Node(Node::EXTENSION,
+                    Position(n.getPosition().getStart(),extension_node.getPosition().getEnd(),filepath,source),
+                    {{"base",n},{"extension",extension_node}}
+                    );
+        }
+
+
+        bool Parser::isExtension() {
+            /* true if current node may be an extension.
+             * Depends on the context: this should be called inside
+             * values.
+             */
+            switch (current_token->getType()) {
+                case Token::LPAREN: // (
+                case Token::LBRACKET: // [
+                case Token::DOT: // .
+                    return true;
+                default:
+                    return false;
+            };
+            return false; // -Wreturn-warning
+        }
 
 	std::map<FString,FString>Parser::files {};
 	std::map<FString,std::unique_ptr<Symbol>>Parser::binary_files {};

@@ -70,6 +70,7 @@ namespace frumul {
 			Node term (); // DEPRECATED
 			Node factor ();
 			Node reference ();
+                        Node extension ();
 			Node index ();
 
 			Node symbol_call_or_litteral();
@@ -111,6 +112,9 @@ namespace frumul {
 				}
 
 			Node bin_op(std::initializer_list<Token::Type> ops);
+
+                        Node extend(const Node&);
+                        bool isExtension();
 
 	};
 
