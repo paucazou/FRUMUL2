@@ -1118,6 +1118,10 @@ namespace frumul {
 		}
 		// with no index
 		appendInstructions(BT::PUSH,ET::VARIABLE,symbol_table->getIndex(name));
+                // with extension
+                if (n.has("extension")) {
+                    visit(n.get("extension"));
+                }
 		
 		return symbol_table->getType(name);
 	}

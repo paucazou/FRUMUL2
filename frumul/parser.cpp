@@ -433,8 +433,14 @@ namespace frumul {
 		 */
 		int start{getTokenStart()};
 		StrNodeMap fields;
-                fields.insert({"variable_assignement",variable_assignment()});
-		eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
+                fields.insert({"name" , Node(Node::VARIABLE_NAME,current_token->getPosition(),current_token->getValue())});
+		eat(Token::VARIABLE,Token::MAX_TYPES_VALUES); // eat name
+
+		if (current_token->getType() == Token::ASSIGN) {
+			eat(Token::ASSIGN,Token::MAX_TYPES_VALUES); // eat :
+			fields.insert({"value" , bin_op(Token::OR)});
+                }
+                eat(Token::COMMA,Token::MAX_TYPES_VALUES); // eat ,
 
 		// get the type
 		fields.insert({"type",types()});

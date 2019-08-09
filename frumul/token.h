@@ -41,6 +41,7 @@
 	TOK(AND)		/* & */\
 	TOK(OR)			/* | */\
 	TOK(NOT)		/* ! */\
+        TOK(DOT)                /* . */\
 	TOK(VARIABLE)		/* alphanumeric + _ name */\
 	TOK(LITTEXT)		/* litteral text */\
 	TOK(VAL_TEXT)		/* everything else */\

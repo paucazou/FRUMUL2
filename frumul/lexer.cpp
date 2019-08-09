@@ -564,6 +564,10 @@ namespace frumul {
 		else if (current_char == "§") {
 			return getID(Token::SYMBOL);
 		}
+                else if (current_char == ".") {
+                        val = ".";
+                        t = Token::DOT;
+                }
 		else if (current_char == "+") {
 			val = "+";
 			t = Token::PLUS;
