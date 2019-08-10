@@ -12,6 +12,7 @@ namespace frumul {
                                 {"list",ET::LIST},
 				{"const",ET::CONSTANT},
 				{"static",ET::STATIC},
+                                {"unsafe symbol",ET::UNSAFE_SYMBOL}
 				};
 
 	ExprType::ExprType( ExprType::Type t) : type{t}
@@ -22,7 +23,7 @@ namespace frumul {
 	}
 
 	ExprType::ExprType(const ExprType& other) :
-		type{other.type}, is_const{other.is_const}, is_static{other.is_static}
+		type{other.type}, is_const{other.is_const}, is_static{other.is_static}, is_unsafe_symbol{other.is_unsafe_symbol}
 	{
 		if (other.contained)
 			contained = std::make_unique<ExprType>(*other.contained);
@@ -80,7 +81,7 @@ namespace frumul {
 
 		*this = t;
 		is_static = is_t_static;
-		is_const = is_t_const;
+                is_const = is_t_const;
 	}
 
 	ExprType::ExprType(ExprType::Type container, const ExprType& contained_) :
@@ -102,6 +103,7 @@ namespace frumul {
 		type = t;
                 is_const = false;
                 is_static = false;
+                is_unsafe_symbol = false;
                 contained = nullptr;
 		return *this;
 	}
@@ -110,6 +112,7 @@ namespace frumul {
 		type = other.type;
                 is_const = other.is_const;
                 is_static = other.is_static;
+                is_unsafe_symbol = other.is_unsafe_symbol;
 		if (other.isContainer())
 			contained = std::make_unique<ExprType>(*other.contained);
                 else
@@ -122,9 +125,19 @@ namespace frumul {
 		 * already set, so be careful.
 		 * return a reference to the contained value
 		 */
+                assert(!is_unsafe_symbol&&"Unsafe symbols can't have contained types");
 		contained = std::make_unique<ExprType>(t);
 		return *contained;
 	}
+
+        void ExprType::markUnsafe() {
+            /* Mark the type unsafe.
+             * Only for symbol
+             * with no contained
+             */
+                assert(type == SYMBOL && contained == nullptr && "Only symbols with no contained can be unsafe");
+                is_unsafe_symbol = true;
+        }
 
 
 	bool ExprType::operator == (const ExprType& other) const{
@@ -182,6 +195,13 @@ namespace frumul {
 		 */
 		return is_static;
 	}
+
+        bool ExprType::isUnsafeSymbol() const {
+            /* true if type is an unsafe symbol, that means,
+             * a symbol whose return value is not known
+             */
+            return is_unsafe_symbol;
+        }
 
 	bool ExprType::check(const ValVar& v) const {
 		/* true if v has the correct type

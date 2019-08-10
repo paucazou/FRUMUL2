@@ -31,6 +31,7 @@
 	T(CONSTANT)\
 	T(STATIC)\
 	T(VARIABLE)\
+        T(UNSAFE_SYMBOL)\
 	T(STACK_ELT)\
 
 namespace frumul {
@@ -53,6 +54,7 @@ namespace frumul {
 			ExprType& operator = (const ExprType&);
 			// setters
 			ExprType& setContained(ExprType::Type);
+                        void markUnsafe();
 			// bools
 			bool operator == (const ExprType&)const;
 			bool operator == (const ExprType::Type)const;
@@ -62,6 +64,7 @@ namespace frumul {
 			bool isContainer () const;
 			bool isConst () const;
 			bool isStatic() const;
+                        bool isUnsafeSymbol() const;
 			bool check(const ValVar&) const;
 			// getters
 			const ExprType& getContained() const;
@@ -81,6 +84,7 @@ namespace frumul {
 			Type type;
 			bool is_const{false};
 			bool is_static{false};
+                        bool is_unsafe_symbol{false};
 			std::unique_ptr<ExprType> contained;
 			const static std::map<FString,ExprType::Type> type_names;
 
