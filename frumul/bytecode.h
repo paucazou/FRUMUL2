@@ -83,6 +83,9 @@ namespace frumul {
 				BOOL_INF_EQUAL,
 				BOOL_SUP_EQUAL,
 
+                                FIND_SYMBOL,
+                                CHECK_TYPE,
+
 				LIST_ADD,
 				LIST_APPEND,
 				LIST_GET_ELT,

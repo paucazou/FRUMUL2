@@ -60,6 +60,8 @@ namespace frumul {
 			void text_set_char();
 			void push();
 			void assign();
+                        void find_symbol();
+                        void check_type();
 			ExprType getRealType();
 			template <typename T>
 				T pop() {

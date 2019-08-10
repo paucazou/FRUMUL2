@@ -131,6 +131,8 @@ namespace frumul {
 				case BT::BOOL_AND:	BINARY_OP_BOOL(&&);break;
 				case BT::BOOL_OR:	BINARY_OP_BOOL(||);break;
 				case BT::BOOL_NOT:	UNARY_OP(!,bool); break;
+                                case BT::FIND_SYMBOL:   find_symbol(); break;
+                                case BT::CHECK_TYPE:    check_type();break;
 
 				// postponed arguments
 				case BT::BOOL_EQUAL:	COMPARE(==);break;
@@ -592,6 +594,44 @@ namespace frumul {
 		 */
 		variables[*++it] = stack.pop();
 	}
+
+        void VM::find_symbol() {
+            /* Find a symbol thanks
+             * to a parent and a tail,
+             * and push the new symbol on the stack.
+             * Throw error if no symbol is found.
+             * Syntax
+             *      FIND_SYMBOL
+             *      pop symbol
+             *      pop tail (a TEXT value)
+             *      push symbol
+             */
+		Symbol& s{pop<VV::SYMBOL>().get()};
+                VV::STRING str { pop<VV::STRING>() };
+
+                try {
+                    auto result = s.getChildren().find(str);
+                    stack.push(VV::SYMBOL(result.getSymbol()));
+                } catch (const FString& e) {
+                    throw BackException(exc::SymbolNotFound);
+                }
+        }
+
+        void VM::check_type() {
+            /* Runtime check type.
+             * Currently, only symbol can be checked.
+             * Throw BackException if error
+             * Syntax:
+             *      CHECK_TYPE
+             *      pop symbol
+             *      pop type_expected (multiple bytes possible)
+             *      push symbol
+             */
+                const auto& t = pop<VV::SYMBOL>().get().getReturnType().getContained();
+                const auto& t2 = getRealType();
+                if (t != t2)
+                    throw BackException(exc::TypeError);
+        }
 
 	
 	ExprType VM::getRealType() {
