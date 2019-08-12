@@ -2,6 +2,7 @@
 #include "compiler.h"
 #include "dynloader.h"
 #include "value.h"
+#include "disassembler.h"
 
 namespace frumul {
 
@@ -191,12 +192,9 @@ namespace frumul {
 			}
 		}
 		if (type == BYTECODE) {
-#if DEBUG && 0
-			printl("Bytecode:");
-			int i{0};
-			for (const auto& byte : bt->getCode())
-				printl(++i << ' ' << static_cast<int>(byte));
-			printl("Bytecode - end");
+#if DEBUG && 1
+                    Disassembler dis;
+                    dis.run(*bt);
 #endif
 			VM vm{*bt,lang,args};
 			return vm.run();

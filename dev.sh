@@ -145,6 +145,9 @@ build_main_lib () {
 		frumul/vm.cpp\
 		frumul/vmtypes.cpp\
 		frumul/warning.cpp\
+                tools/disassembler.cpp\
+                -I tools/ \
+                -I frumul/ \
 		/usr/lib/gcc/x86_64-linux-gnu/8/libstdc++fs.a\
 		-isystem frumul/icu/usr/local/include\
 		-isystem frumul/cxxopts/include\
@@ -285,6 +288,7 @@ objectify () {
 	cd $odir
 	$compiler $NAMED_ARGS $_compile_base \
 		-I ../frumul \
+                -I ../tools \
 		-isystem ../frumul/icu/usr/local/include\
 		-isystem ../frumul/cxxopts/include\
 		-isystem ../frumul/include\

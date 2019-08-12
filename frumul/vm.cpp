@@ -344,6 +344,7 @@ namespace frumul {
 						break;
 					case ET::SYMBOL:
 						{
+#pragma message "Il faut vérifier que le type correspond"
 							// get the string
 							FString s{pop<VV::STRING>()};
 							Symbol& parent{bt.getParent()};
@@ -602,12 +603,12 @@ namespace frumul {
              * Throw error if no symbol is found.
              * Syntax
              *      FIND_SYMBOL
-             *      pop symbol
              *      pop tail (a TEXT value)
+             *      pop symbol
              *      push symbol
              */
-		Symbol& s{pop<VV::SYMBOL>().get()};
                 VV::STRING str { pop<VV::STRING>() };
+		Symbol& s{pop<VV::SYMBOL>().get()};
 
                 try {
                     auto result = s.getChildren().find(str);
@@ -623,14 +624,16 @@ namespace frumul {
              * Throw BackException if error
              * Syntax:
              *      CHECK_TYPE
-             *      pop symbol
              *      pop type_expected (multiple bytes possible)
+             *      pop symbol
              *      push symbol
              */
-                const auto& t = pop<VV::SYMBOL>().get().getReturnType().getContained();
-                const auto& t2 = getRealType();
+                const auto t2 = getRealType();
+                auto& s = pop<VV::SYMBOL>().get(); 
+                const auto& t = s.getReturnType().getContained();
                 if (t != t2)
                     throw BackException(exc::TypeError);
+                stack.push(VV::SYMBOL(s));
         }
 
 	
