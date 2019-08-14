@@ -715,36 +715,35 @@ namespace frumul {
              *      - a dot followed by another name
              *  An extension may be followed by another one.
              */
-            Node* n = nullptr;
 
             switch (current_token->getType()) {
                 case Token::LPAREN:
                     {
                         eat(Token::LPAREN, Token::MAX_TYPES_VALUES); // eat (
-                        n = new Node(call_arguments());
+                        auto n = Node(Node::SYMCALL,current_token->getPosition(),{{"arguments",call_arguments()}});
                         eat(Token::RPAREN,Token::MAX_TYPES_VALUES); //eat )
+                        return n;
                     }
                     break;
                 case Token::LBRACKET:
                     {
                         eat(Token::LBRACKET, Token::MAX_TYPES_VALUES); // eat [
-                        n = new Node(index());
+                        auto n = Node(index());
                         eat(Token::RBRACKET, Token::MAX_TYPES_VALUES); // eat ]
+                        return n;
                     }
                     break;
                 case Token::DOT:
                     {
                         eat(Token::DOT, Token::ID, Token::MAX_TYPES_HEADER); // eat .
-                        n = new Node(Node::TAIL,current_token->getPosition(),current_token->getValue());
+                        auto n = Node(Node::TAIL,current_token->getPosition(),StrNodeMap(),current_token->getValue());
                         eat(Token::ID,Token::MAX_TYPES_VALUES); // eat tail
+                        return n;
                     }
                     break;
                 default:
                         assert(false&&"Unknown token");
             };
-            Node definitive = (isExtension() ? extend(*n) : *n);
-            delete n;
-            return definitive;
         }
 
 	Node Parser::index () {
@@ -1491,15 +1490,14 @@ namespace frumul {
 
         Node Parser::extend(const Node& n) {
             /* Extend n with an extension
-             * Return an EXTENSION Node with two children:
-             *      - base
-             *      - extension
+             * return a Node as the extension
+             * (tail, index or symcall)
+             * with n as a child named caller.
              */
             Node extension_node = extension();
-            return Node(Node::EXTENSION,
-                    Position(n.getPosition().getStart(),extension_node.getPosition().getEnd(),filepath,source),
-                    {{"base",n},{"extension",extension_node}}
-                    );
+            extension_node.addChild("caller",n);
+
+            return (isExtension() ? extend(extension_node) : extension_node);
         }
 
 

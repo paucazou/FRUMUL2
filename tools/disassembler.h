@@ -22,7 +22,7 @@ class Disassembler {
         static const std::vector<std::string> bools;
 
         void print_byte(const frumul::byte b, const ByteType t);
-        void manage_real_type(std::vector<frumul::byte>::iterator it);
+        void manage_real_type(std::vector<frumul::byte>::iterator& it);
         void run (frumul::ByteCode& bt);
 };
 #endif // DEBUG

@@ -81,6 +81,7 @@ namespace frumul {
 			void visit_compare_op(const Node& n);
 			ExprType visit_comparison(const Node& n);
 			ExprType visit_condition(const Node& n);
+
 			ExprType visit_index(const Node& n);
 			ExprType visit_index_assignment(const Node& n);
 			ExprType visit_list(const Node& n);
@@ -94,6 +95,7 @@ namespace frumul {
 			ExprType visit_littext(const Node& n);
 			ExprType visit_loop(const Node& n);
 			ExprType visit_symcall(const Node& n);
+                        ExprType visit_tail(const Node& n);
 			ExprType visit_unary_op(const Node& n);
 			ExprType visit_unsafe_arg(const Node& n);
 			ExprType visit_val_text(const Node& n);
@@ -109,6 +111,8 @@ namespace frumul {
 			void visitParameters();
 
 			size_t prepare_static_initialization(const Node&);
+                        void compile_check_type(const ExprType&,const Position&);
+                        void compile_runtime_cast(const ExprType&, const ExprType&, const Position&);
 
 	};
 

@@ -158,6 +158,7 @@ namespace frumul {
 			case Node::VAL_TEXT:		return visit_val_text(n);
 			case Node::VARIABLE_ASSIGNMENT:	return visit_variable_assignment(n);
 			case Node::VARIABLE_DECLARATION:return visit_variable_declaration(n); 
+                        case Node::TAIL:                return visit_tail(n);
 			case Node::VARIABLE_NAME:	return visit_variable_name(n);
 			default:
 				printl(n);
@@ -900,6 +901,23 @@ namespace frumul {
 		throwInconsistentType(t1,t2,n1.getPosition(),n2.getPosition());
 	}
 
+        ExprType __compiler::visit_tail (const Node& n) {
+                /* Visit a tail
+                 */
+                ExprType caller_type { visit(n.get("caller")) };
+                switch (caller_type) {
+                    case ET::SYMBOL:
+                        appendAndPushConstant(n.getValue());
+                        appendInstructions(BT::FIND_SYMBOL);
+                        bytecode.addRuntimeError(exc(exc::SymbolNotFound,"Child can't be found",n.getPosition()));
+                        return ExprType(ET::SYMBOL,ET::UNSAFE_SYMBOL);
+                        break;
+                    default:
+                        throw exc(exc::TypeError,"A tail can not be used with this type of value",n.getPosition());
+                };
+                    
+        }
+
 	ExprType __compiler::visit_symcall(const Node& n) {
 		/* Compile the call to a symbol
 		 */
@@ -1026,7 +1044,10 @@ namespace frumul {
 
 		ExprType rt{visit(n.get("value"))};
 		const ExprType s_type {symbol_table->getType(name)};
-		if (rt != s_type && !(rt == ExprType(ET::LIST,ET::VOID) && s_type & ET::LIST)){
+                if (rt.isUnsafe()) {
+                    compile_check_type(s_type,n.get("value").getPosition());
+                }
+                else if (rt != s_type && !(rt == ExprType(ET::LIST,ET::VOID) && s_type & ET::LIST)){
 			// cast if possible
 			cast(rt,s_type,n,n.get("value"));
 		}
@@ -1055,7 +1076,10 @@ namespace frumul {
 		// compile value 
 		if (n.getNamedChildren().count("value")) {
 			ExprType value_rt {visit(n.get("value"))};
-			if (value_rt != type_ && !(value_rt == ExprType(ET::LIST,ET::VOID) && type_ & ET::LIST))
+                        if (value_rt.isUnsafe()) {
+                            compile_check_type(type_,n.get("value").getPosition());
+                        }
+                        else if (value_rt != type_ && !(value_rt == ExprType(ET::LIST,ET::VOID) && type_ & ET::LIST))
                                 // we cast only if the value is not an empty list assigned to a list
 				cast(value_rt,type_,n,n.get("value"));
 		}
@@ -1118,10 +1142,6 @@ namespace frumul {
 		}
 		// with no index
 		appendInstructions(BT::PUSH,ET::VARIABLE,symbol_table->getIndex(name));
-                // with extension
-                if (n.has("extension")) {
-                    visit(n.get("extension"));
-                }
 		
 		return symbol_table->getType(name);
 	}
@@ -1209,6 +1229,18 @@ namespace frumul {
 		return ad_index;
 	}
 
+        void __compiler::compile_check_type(const ExprType& t, const Position& pos) {
+            /* Compiles a type check.
+             * It checks that the last object of the stack
+             * is of type t
+             */
+            appendInstructions(BT::CHECK_TYPE);
+            appendInstructions(t);
+            auto msg = FString("Type expected: ") + t.toString();
+            bytecode.addRuntimeError(exc(exc::TypeError,msg,pos));
+        }
+
+   
 #if 0
 	void __compiler::addUnsafeArgsToParms() {
 		/* Compiles the unsafe arguments

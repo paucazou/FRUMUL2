@@ -23,7 +23,7 @@ namespace frumul {
 	}
 
 	ExprType::ExprType(const ExprType& other) :
-		type{other.type}, is_const{other.is_const}, is_static{other.is_static}, is_unsafe_symbol{other.is_unsafe_symbol}
+		type{other.type}, is_const{other.is_const}, is_static{other.is_static}
 	{
 		if (other.contained)
 			contained = std::make_unique<ExprType>(*other.contained);
@@ -93,7 +93,7 @@ namespace frumul {
 	ExprType::ExprType(ExprType::Type container, std::unique_ptr<ExprType> ncontained) :
 		type{container}, contained{std::move(ncontained)}
 	{
-		/* WARNING: this constructors takes the
+		/* WARNING: this constructor takes the
 		 * ownership of contained
 		 */
 		assert((type == SYMBOL || type == LIST) && "Not a real container");
@@ -103,7 +103,6 @@ namespace frumul {
 		type = t;
                 is_const = false;
                 is_static = false;
-                is_unsafe_symbol = false;
                 contained = nullptr;
 		return *this;
 	}
@@ -112,7 +111,6 @@ namespace frumul {
 		type = other.type;
                 is_const = other.is_const;
                 is_static = other.is_static;
-                is_unsafe_symbol = other.is_unsafe_symbol;
 		if (other.isContainer())
 			contained = std::make_unique<ExprType>(*other.contained);
                 else
@@ -125,20 +123,10 @@ namespace frumul {
 		 * already set, so be careful.
 		 * return a reference to the contained value
 		 */
-                assert(!is_unsafe_symbol&&"Unsafe symbols can't have contained types");
+                assert(type != UNSAFE_SYMBOL);
 		contained = std::make_unique<ExprType>(t);
 		return *contained;
 	}
-
-        void ExprType::markUnsafe() {
-            /* Mark the type unsafe.
-             * Only for symbol
-             * with no contained
-             */
-                assert(type == SYMBOL && contained == nullptr && "Only symbols with no contained can be unsafe");
-                is_unsafe_symbol = true;
-        }
-
 
 	bool ExprType::operator == (const ExprType& other) const{
 		/* true if other is exactly the same
@@ -196,16 +184,43 @@ namespace frumul {
 		return is_static;
 	}
 
-        bool ExprType::isUnsafeSymbol() const {
-            /* true if type is an unsafe symbol, that means,
-             * a symbol whose return value is not known
+        bool ExprType::isGeneric(const ExprType::Type t) const {
+            /* true if *this is a generic of type t
              */
-            return is_unsafe_symbol;
+            switch (t) {
+                case INDEXABLE:
+                    return type == TEXT || type == LIST;
+                case CALLABLE:
+                    return type == SYMBOL;
+                case TAILABLE:
+                    return type == SYMBOL; // for now
+                default:
+                    assert(false&&"type unknown");
+
+            };
+        }
+
+        bool ExprType::isGeneric() const {
+            /* true if *this is one of the generics
+             */
+            return (type == INDEXABLE ||
+                    type == CALLABLE  ||
+                    type == TAILABLE);
+        }
+
+        bool ExprType::isUnsafe() const {
+            /* true if *this is UNSAFE_SYMBOL
+             * or is a container that ultimately
+             * contains an UNSAFE_SYMBOL
+             */
+            return getPrimitive() == UNSAFE_SYMBOL;
         }
 
 	bool ExprType::check(const ValVar& v) const {
 		/* true if v has the correct type
 		 */
+            printl(*this);
+            printl(v);
 		switch (type) {
 			case Type::INT:
 				return v.is<VV::INT>();
@@ -227,6 +242,13 @@ namespace frumul {
 						return false;
 				return true;
 				break;
+                        // generics
+                        case Type::INDEXABLE:
+                                return v.is<VV::STRING>() || v.is<VV::LIST>();
+                        case Type::CALLABLE:
+                                return v.is<VV::SYMBOL>();
+                        case Type::TAILABLE:
+                                return v.is<VV::SYMBOL>();
 			default:
 				assert (false&&"Type unknown");
 				break;
@@ -308,6 +330,7 @@ namespace frumul {
 			s = "<ExprType> ";
 
 		s += typeToString(type);
+                s += " ";
 		if (contained)
 			s += contained->toString(true);
 

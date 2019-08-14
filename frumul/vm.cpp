@@ -612,7 +612,10 @@ namespace frumul {
 
                 try {
                     auto result = s.getChildren().find(str);
+                    printl("in find_symbol");
                     stack.push(VV::SYMBOL(result.getSymbol()));
+                    auto ttt = stack.top();
+                    printl(ttt.as<VV::SYMBOL>().get());
                 } catch (const FString& e) {
                     throw BackException(exc::SymbolNotFound);
                 }
@@ -621,19 +624,22 @@ namespace frumul {
         void VM::check_type() {
             /* Runtime check type.
              * Currently, only symbol can be checked.
-             * Throw BackException if error
+             * Throw BackException (TypeError) if error
              * Syntax:
              *      CHECK_TYPE
-             *      pop type_expected (multiple bytes possible)
-             *      pop symbol
-             *      push symbol
+             *      TYPE_EXPECTED (multiple bytes possible)
+             *      pop elt 
+             *      push elt 
              */
-                const auto t2 = getRealType();
-                auto& s = pop<VV::SYMBOL>().get(); 
-                const auto& t = s.getReturnType().getContained();
-                if (t != t2)
+                const auto t = getRealType();
+                const auto elt = stack.pop();
+                const ValVar elt2 = elt;
+                printl("in check_type");
+                printl(elt2);
+                printl(t);
+                if (!t.check(elt))
                     throw BackException(exc::TypeError);
-                stack.push(VV::SYMBOL(s));
+                stack.push(elt);
         }
 
 	
@@ -643,8 +649,8 @@ namespace frumul {
 		 */
 		auto type{ std::make_unique<ExprType>(static_cast<ExprType::Type>(*++it)) };
 		ExprType* tmp_t {type.get()};
-		for (;*it > ET::MAX_PRIMITIVE;++it) {
-			tmp_t = &tmp_t->setContained(static_cast<ExprType::Type>(*it));
+		for (;*it > ET::MAX_PRIMITIVE;) {
+			tmp_t = &tmp_t->setContained(static_cast<ExprType::Type>(*++it));
 		}
 		return *type;
 	}

@@ -4,6 +4,7 @@
             /* Print b on the screen following the type t
              */
             std::cout << count++ << " : ";
+            std::cout << static_cast<int>(b) << " : ";
             try {
                 switch(t) {
                     case INSTRUCTION:
@@ -14,7 +15,7 @@
                                 static_cast<frumul::ExprType::Type>(b));
                         break;
                     case INT:
-                        std::cout << b;
+                        std::cout << static_cast<int>(b);
                         break;
                     case BOOL:
                         std::cout << bools.at(b);
@@ -26,13 +27,15 @@
             std::cout << std::endl;
         }
 
-        void Disassembler::manage_real_type(std::vector<frumul::byte>::iterator it) {
+        void Disassembler::manage_real_type(std::vector<frumul::byte>::iterator& it) {
             /* Prints the real type name on the screen
              * until it founds a primitive
              */
-            for (;*it > frumul::ET::MAX_PRIMITIVE;++it) {
+            for (;*it > frumul::ET::MIN_CONTAINER;++it) {
                 print_byte(*it,TYPE);
             }
+            //print primitive
+            print_byte(*it,TYPE);
         }
 
 
@@ -52,6 +55,7 @@
             for (auto const& [key,val] : bt.getStatics()) 
                 std::cout << key << " : " << val << std::endl;
             // printing bytecode
+            printl("Bytecode:");
 
             for (auto it = bt.getBegin(); it != bt.getEnd();) {
                 BT::Instruction in { static_cast<BT::Instruction>(*it)};
@@ -117,6 +121,9 @@
 
                     case BT::ASSIGN:
                         print_byte(*++it,INT);
+                        break;
+                    case BT::CHECK_TYPE:
+                        manage_real_type(++it);
                         break;
                     default:
                         // majority of instructions are here
