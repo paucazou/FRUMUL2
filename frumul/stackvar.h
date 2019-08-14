@@ -31,7 +31,8 @@ namespace frumul {
 			template <typename T>
 				T& as() {
 					return std::get<T>(data_);
-				}
+                                }
+				
 			template <typename T>
 				const T& as() const {
 					return std::get<T>(data_);
@@ -47,8 +48,9 @@ namespace frumul {
 					return as<VV::BOOL>();
 				if (std::holds_alternative<VV::STRING>(data_))
 					return as<VV::STRING>();
-				if (std::holds_alternative<VV::SYMBOL>(data_))
+				if (std::holds_alternative<VV::SYMBOL>(data_)){
 					return as<VV::SYMBOL>();
+                                }
 				if (std::holds_alternative<VV::LIST>(data_))
 					return as<VV::LIST>();
 

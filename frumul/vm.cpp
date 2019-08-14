@@ -612,10 +612,7 @@ namespace frumul {
 
                 try {
                     auto result = s.getChildren().find(str);
-                    printl("in find_symbol");
                     stack.push(VV::SYMBOL(result.getSymbol()));
-                    auto ttt = stack.top();
-                    printl(ttt.as<VV::SYMBOL>().get());
                 } catch (const FString& e) {
                     throw BackException(exc::SymbolNotFound);
                 }
@@ -633,10 +630,6 @@ namespace frumul {
              */
                 const auto t = getRealType();
                 const auto elt = stack.pop();
-                const ValVar elt2 = elt;
-                printl("in check_type");
-                printl(elt2);
-                printl(t);
                 if (!t.check(elt))
                     throw BackException(exc::TypeError);
                 stack.push(elt);

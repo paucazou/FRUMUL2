@@ -72,7 +72,7 @@ namespace frumul {
                                 return as<STRING>();
                             if (is<SYMBOL>())
                                 //return as<SYMBOL>().get().toString();
-                                return FString { "Symbol. Not yet set"};
+                                return FString { "Symbol. Representation as ValVar not yet set"};
                             if (is<LIST>()) {
                                 FString r{"["};
                                 for (const auto& elt : as<LIST>())

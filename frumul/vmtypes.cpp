@@ -219,8 +219,6 @@ namespace frumul {
 	bool ExprType::check(const ValVar& v) const {
 		/* true if v has the correct type
 		 */
-            printl(*this);
-            printl(v);
 		switch (type) {
 			case Type::INT:
 				return v.is<VV::INT>();
